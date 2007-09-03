@@ -1,7 +1,7 @@
-spin3R <- function(x, alpha=1, delay=.015){
+spin3R <- function(x, alpha=1, delay=.015, na.rm=FALSE){
  #################################################################
  # spin3R: simple spin function to rotate a 3-dim cloud of points#
- # pw 160103                                                     #
+ # pwolf 070831                                              #
  #                                                               #
  # arguments:                                                    #
  #                                                               #
@@ -10,6 +10,7 @@ spin3R <- function(x, alpha=1, delay=.015){
  #  delay         sleeping time between rotations                #
  #                                                               #
  #################################################################
+if(ncol(x)!=3) { print("Error: data matrix must have 3 columns"); return() }
  require(tcltk)
  Rot <-tclVar("relax");bw <- 4
  topl<-tktoplevel();   tkwm.geometry(topl,"+100+100")
@@ -43,9 +44,19 @@ spin3R <- function(x, alpha=1, delay=.015){
  tkconfigure(b51,command=function() tclvalue(Rot) <- "reset" )
  tkconfigure(b53,command=function() tclvalue(Rot) <- "exit" )
 
- n <- nrow(x); x <- x - matrix(apply(x,2,min),n,3,T)
- x.o<-x<-x / matrix(apply(x,2,max),n,3,T) - 0.5;                xa <- x[,2:3]
- A.o<-A<-0.5*matrix(c(1,0,0, 0,0,0, 0,1,0, 0,0,0, 0,0,1),5,3,T);Aa <- A[,2:3]
+ n <- nrow(x)
+ if(any(is.na(x))){
+   if(na.rm){ x<-x[!apply(is.na(x),1,any),,drop=FALSE]
+     print("Warning: NA elements have been removed!!")
+   }else{
+     xy.means<-colMeans(x,na.rm=TRUE)
+     for(j in 1:ncol(x)) x[is.na(x[,j]),j]<-xy.means[j]
+     print("Warning: NA elements have been exchanged by mean values!!")
+   }  
+ }
+ x <- x - matrix(apply(x,2,min),n,3,TRUE)
+ x.o<-x<-x / matrix(apply(x,2,max),n,3,TRUE) - 0.5;                xa <- x[,2:3]
+ A.o<-A<-0.5*matrix(c(1,0,0, 0,0,0, 0,1,0, 0,0,0, 0,0,1),5,3,TRUE);Aa <- A[,2:3]
  plot(xa, xlim=.7*c(-1,1), ylim=.7*c(-1,1),
            pch=20, xlab="",ylab="",xaxt="n",yaxt="n")
  lines(Aa)

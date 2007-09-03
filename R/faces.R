@@ -1,6 +1,7 @@
 faces<-function(xy=rbind(1:3,5:3,3:5,5:7),which.row,fill=FALSE,
-                nrow,ncol,scale=TRUE,byrow=FALSE,main,labels,
+                nrow.plot,ncol.plot,scale=TRUE,byrow=FALSE,main,labels,na.rm = FALSE,
                 plot.faces=TRUE){
+  # 070831 pwolf
   spline<-function(a,y,m=200,plot=FALSE){
       n<-length(a)
     h<-diff(a)
@@ -28,6 +29,17 @@ faces<-function(xy=rbind(1:3,5:3,3:5,5:7),which.row,fill=FALSE,
   n.char<-15
   xy<-rbind(xy)
   if(byrow) xy<-t(xy)
+  if(any(is.na(xy))){
+    if(na.rm){ 
+      xy<-xy[!apply(is.na(xy),1,any),,drop=FALSE]
+      if(nrow(xy)<3) {print("not enough data points"); return()}
+      print("Warning: NA elements have been removed!!")
+     }else{
+      xy.means<-colMeans(xy,na.rm=TRUE)
+      for(j in 1:length(xy[1,])) xy[is.na(xy[,j]),j]<-xy.means[j]
+      print("Warning: NA elements have been exchanged by mean values!!")
+    }  
+  }
   if(!missing(which.row)&& all(  !is.na(match(which.row,1:dim(xy)[2]))  ))
          xy<-xy[,which.row,drop=FALSE]
   mm<-dim(xy)[2];  n<-dim(xy)[1]
@@ -62,8 +74,8 @@ faces<-function(xy=rbind(1:3,5:3,3:5,5:7),which.row,fill=FALSE,
   nose.xnotnull<-2:3
 
   nr<-n^0.5; nc<-n^0.5
-  if(!missing(nrow)) nr<-nrow
-  if(!missing(ncol)) nc<-ncol
+  if(!missing(nrow.plot)) nr<-nrow.plot
+  if(!missing(ncol.plot)) nc<-ncol.plot
   if(plot.faces){
     opar<-par(mfrow=c(ceiling(c(nr,nc))),oma=rep(6,4), mar=rep(.7,4))
     on.exit(par(opar))

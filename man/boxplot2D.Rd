@@ -10,7 +10,7 @@
 \usage{
     boxplot2D(xy, add.to.plot = TRUE, box.size = 10, box.shift = 0, 
     angle = 0, angle.type = "0", tukey.style = TRUE, coef.out = 1.5, 
-    coef.h.out = 3, design = "sl", ...)
+    coef.h.out = 3, design = "sl", na.rm=FALSE, ...)
 }
 \arguments{
   \item{xy}{ \code{(nx2)}-matrix, two dimensional data set  }
@@ -37,6 +37,7 @@
       than \code{coef.h.out*boxwidth} away from the box,
       default: \code{coef.h.out=3}   }
   \item{design}{ if \code{sl} then parallelogram else box  }
+  \item{na.rm}{ if TRUE 'NA' values are removed otherwise exchanged by mean}
   \item{\dots}{ additional graphical parameters }
 }
 \references{

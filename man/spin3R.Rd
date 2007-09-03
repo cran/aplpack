@@ -6,12 +6,13 @@
   a 3-dimensional cloud of points
 }
 \usage{
-  spin3R(x, alpha = 1, delay = 0.015)
+  spin3R(x, alpha = 1, delay = 0.015, na.rm=FALSE)
 }
 \arguments{
   \item{x}{ \code{(nx3)}-matrix of points }
   \item{alpha}{ angle between successive projections }
   \item{delay}{ delay in seconds between two plots }
+  \item{na.rm}{ if TRUE 'NA' values are removed otherwise exchanged by mean}
 }
 \details{
   \code{spin3R} computes two-dimensional projections 

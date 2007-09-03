@@ -1,3 +1,10 @@
+% New Report: Fri Aug 31 10:17:51 2007 
+
+% New Report: Thu Aug 30 09:57:34 2007 
+
+% New Report: Wed Aug 22 10:19:32 2007 
+
+% New Report: Tue Jan  9 17:17:25 2007 
 
 % New Report: Fri Feb 17 13:02:38 2006 
 
@@ -14,209 +21,268 @@
 % New Report: Tue Sep  6 08:02:12 2005 
 
 % New Report: Wed Aug 24 16:51:01 2005 
+%% ?? jittering controling by function argument, set.seed by argument ??
 \documentclass{article} %%% alte Name vorher: "hdeep.rev"
 \usepackage{a4,graphicx,mathpazo,courier,alltt,amssymb}
- \usepackage{/usr/lib/R/library/relax/lib/noweb}\noweboptions{webnumbering,smallcode}
 \usepackage[scaled=.95]{helvet}
 \usepackage[T1]{fontenc}
 \parindent0mm
 \title{A rough R Impementation of the Bagplot}
 \author{File: \jobname.rev\\in: /home/wiwi/pwolf/R/work/bagplot}
+\date{Version: $31^{th}$ August, 2007}
 \begin{document}
 \maketitle
 
 @
-\begin{center}
-\includegraphics[height=6cm]{p2005-Sep21-130946.ps}
-\end{center}
+ \begin{center}\includegraphics[height=10cm]{p2007-Aug28-172719.ps}\end{center}
+
+% <p><img src="p2007-Aug28-172719.jpg">
 
 \small
 \tableofcontents
-\newpage 
 
 @
+\bigskip
+
+In this paper we describe a rough implementation of the bagplot.
+The first section shows some examples. 
+Section 2 compares our bagplot function to the solution of
+Rousseeuw, Ruts, and Tukey (1999).
+Then the arguments,
+the help page of the function [[bagplot]] and some links are listed. 
+In section 4 you find the definition of the function. 
+In the appendix further examples for testing are given and some
+old code chunks are listed.
+
+<<version of bagplot>>=
+## 2007/08/31 peter wolf ##
+
+@
+\newpage 
+
 \section{Examples}
 \subsection{Example: car data (Chambers / Hastie 1992)}
-
+The first example is a bagplot of the famous car data of Chambers and Hastie.
+In the code chunk the data set is assigned to [[cardata]] and [[bagplot()]]
+is called with some parameters that are described later in this paper.
 <<cardata>>=
 <<define [[bagplot]]>>
 library(rpart); cardata<-car.test.frame[,6:7]; par(mfrow=c(1,1))
 bagplot(cardata,verbose=FALSE,factor=3,show.baghull=TRUE,dkmethod=2,
-show.loophull=TRUE,precision=1)
+show.loophull=TRUE,precision=1)$center
 #title("car data Chambers/Hastie 1992")
 
-@
- \begin{center}\includegraphics[height=13cm]{p2005-Sep21-130946.ps}\end{center}
 
-% <p><img src="p2005-Sep21-130946.jpg">
 @
-By the way Splus computes the Tukey median as 2806.63 139.513.
-In contrast our center is:  2801.4000 , 139.2667.
+ \begin{center}\includegraphics[height=10cm]{p2007-Aug28-172719.ps}\end{center}
+
+% <p><img src="p2007-Aug28-172719.jpg">
+@
+@
+The Tukey median of our bagplot function is (2810.431, 139.879).
+Splus computes a slightly different point: (2806.63, 139.513).
 In difference to Rousseeuw et al. our bagplot as well as the 
-bagplot computed by Splus the data point of Nissan Van 4 is
-classified as outlier. 
-To get the Splus result you have to download [[bagplot*]], the car data and ...
+bagplot of Splus classified the data point of Nissan Van 4 as outlier. 
+To get the Splus results you have to download [[bagplot*]], the car data and ...
 \begin{verbatim}
 Splus CHAPTER bagplot.f
 Splus make
 Splus ...
-> dyn.open("S.so"); source("bagplot.s")
-> postscript("hello.ps"); bagplot(cardata[,1],cardata[,2]); dev.off()
+> dyn.open("S.so"); source("bagplot.s") #; postscript("hello.ps")
+> bagplot(cardata[,1],cardata[,2]) #; dev.off()
 \end{verbatim}
 
+For R have a l
+ook at: http://www.statistik.tuwien.ac.at/public/filz/students/edavis/\\
+ws0607/skriptum/page134.html
 @
 @
 \newpage
 
 \subsection{The normal case}
-A bagplot of an rnorm sample plus one heavy outlier
+A bagplot of an rnorm sample with one heavy outlier is shown by the following
+code chunk.
 <<rnorm>>=
-lll<-221
-<<define data [[xy]]>>
-datan<-rbind(data,c(106,294)); par(mfrow=c(1,1))
-datan[,2]<-datan[,2]*100
+<<define [[bagplot]]>>
+seed<-222; n<-200 
+<<define rnorm data [[data]], seed: [[seed]], size: [[n]]>>
+datan<-rbind(data,c(106,294)); datan[,2]<-datan[,2]*100
 bagplot(datan,factor=3,create.plot=TRUE,approx.limit=300,
-   show.outlier=TRUE,show.looppoints=TRUE,show.bagpoints=TRUE,
-   show.whiskers=TRUE,show.loophull=TRUE,show.baghull=TRUE,verbose=FALSE)
-title(paste("seed: ",lll))
+    show.outlier=TRUE,show.looppoints=TRUE,show.bagpoints=TRUE,
+    show.whiskers=TRUE,show.loophull=TRUE,show.baghull=TRUE,
+    verbose=FALSE)
+title(paste("seed: ",seed,"/ n: ",n))
 
 @
- \begin{center}\includegraphics[height=13cm]{p2005-Sep16-114536.ps}\end{center}
+ \begin{center}\includegraphics[height=10cm]{p2007-Aug29-154943.ps}\end{center}
 
-% <p><img src="p2005-Sep16-114536.jpg">
+% <p><img src="p2007-Aug29-154943.jpg">
 @
 @
+
 @
 \newpage
 
 \subsection{Large data sets}
-What about large data sets?
+What about very large data sets? The algorithm computes some of the 
+quantities of the bagplot on base of a sample if there are more 
+then [[approx.limit]] data points.
 <<large>>=
-lll<-173
-if(!exists("lll")) lll<-75
-set.seed(lll<-lll+1); print(lll)
-n<-3000;datan<-cbind(rnorm(n)+100,rnorm(n)+300)
-print(lll)
-datan<-rbind(datan,c(105,295))
-par(mfrow=c(1,1)) #; par(mfrow=2:3)
-bagplot(datan,factor=2.5,create.plot=TRUE,approx.limit=1000,cex=0.2,
-   show.outlier=TRUE,show.looppoints=TRUE,show.bagpoints=TRUE,dkmethod=2,
-   show.loophull=TRUE,show.baghull=TRUE,verbose=FALSE,debug.plots="no")
-title(paste("seed",lll))
-
+seed<-174; n<-3000
+<<define rnorm data [[data]], seed: [[seed]], size: [[n]]>>
+datan<-rbind(data,c(105,295))
+bagplot(datan,factor=2.5,create.plot=TRUE,approx.limit=1000,
+   cex=0.2,show.outlier=TRUE,show.looppoints=TRUE,
+   show.bagpoints=TRUE,dkmethod=2,show.loophull=TRUE,
+   show.baghull=TRUE,verbose=FALSE,debug.plots="no")
+title(paste("seed:",seed,"/ n:",n))
 
 @
- \begin{center}\includegraphics[height=13cm]{p2005-Sep16-114606.ps}\end{center}
+ \begin{center}\includegraphics[height=10cm]{p2007-Aug29-155021.ps}\end{center}
 
-% <p><img src="p2005-Sep16-114606.jpg">
-@
+% <p><img src="p2007-Aug29-155021.jpg">
+
 \newpage
 
 \subsection{Size of data set}
-The time for computation increase with the number of observations.
-To get an imagination of the time needed look at the following experiment:
-We measure the times rnorm data sets of different sizes and plot the result.
-<<rnorm>>=
+The time for computation increases with the number of observations.
+To illustrate the run times we measure the times necessary for 
+rnorm data sets of different sizes and plot the results.
+@
+<<rnorm, different sizes>>=
 <<define [[bagplot]]>>
-nn<-c(35,50,70,100,200); nn<-c(nn,10*nn,100*nn);nn<-nn[-(1:2)] 
+nn<-c(50,70,100,200,350); nn<-c(nn,10*nn,100*nn);nn<-nn[-1] 
 result<-1:length(nn)
 for(j in seq(along=nn)){
-  lll<-111; set.seed(lll); n<-nn[j]
+  seed<-111; set.seed(seed); n<-nn[j]
   xy<-cbind(rnorm(n),rnorm(n))
   result[j]<-system.time(
     bagplot(xy,factor=3,create.plot=FALSE,approx.limit=300,
      show.outlier=TRUE,show.looppoints=TRUE,show.bagpoints=TRUE,
-     show.whiskers=TRUE,show.loophull=TRUE,show.baghull=TRUE,verbose=FALSE)
+     show.whiskers=TRUE,show.loophull=TRUE,show.baghull=TRUE,
+     verbose=FALSE)
     )[1]
 }
 plot(nn,result,bty="n",ylab="user-cpu",xlab="number of data points")
 names(result)<-nn; result
 
 
-@
- \begin{center}\includegraphics[height=10cm]{p2005-Sep22-165452.ps}\end{center}
-
-% <p><img src="p2005-Sep22-165452.jpg">
 
 @
+ \begin{center}\includegraphics[height=10cm]{p2007-Aug29-112957.ps}\end{center}
+
+% <p><img src="p2007-Aug29-112957.jpg">
+@
+@
+{\tiny
 \begin{verbatim}
-Thu Sep 22 16:53:14 2005
-   70   100   200   350   500   700  1000  2000  3500  5000  7000 10000 20000 
- 0.45  0.49  0.47  0.68  0.82  1.00  1.34  2.26  3.81  4.86  7.20  9.88 19.20 
+Wed Aug 29 11:29:35 2007
+   70   100   200   350   500   700  1000  2000  3500  5000  7000 10000 20000 35000
+0.480 0.480 0.448 0.473 0.476 0.492 0.472 0.536 0.564 0.608 0.712 0.728 0.896 1.364 
 \end{verbatim}
+@
+} % end of footnotesize
+
+@
+
 @
 \newpage
 
-\subsection{Depth one data sets}
-
-What happens if all points are of depth 1?
+\subsection{"Depth-One" data sets}
+It is very interesting to test extrem cases.
+What happens if the depths of all points are one?
 <<quadratic>>=
 <<define [[bagplot]]>>
-bagplot(x=1:30,y=(1:30)^2,verbose=TRUE,dkmethod=2)
+bagplot(x=1:30,y=(1:30)^2,verbose=FALSE,dkmethod=2)
 
 @
- \begin{center}\includegraphics[height=8cm]{p2005-Sep16-114625.ps}\end{center}
+ \begin{center}\includegraphics[height=8cm]{p2007-Aug28-172953.ps}\end{center}
 
-% <p><img src="p2005-Sep16-114625.jpg">
+% <p><img src="p2007-Aug28-172953.jpg">
+
+<<circle>>=
+<<define [[bagplot]]>>
+n<-100;bagplot(x=cos((1:n)/n*2*pi),y=sin((1:n)/n*2*pi),
+   precision=1,verbose=FALSE,dkmethod=2,debug.plot=FALSE)$center
+
 @
+ \begin{center}\includegraphics[height=8cm]{p2007-Aug29-143613.ps}\end{center}
+
+% <p><img src="p2007-Aug29-143613.jpg">
+@
+@
+\newpage
 @
 \subsection{Degenerated data sets}
-What happens if the data are in a one dim subspace?
+What happens if all the data points lie in a one dimensional subspace?
 <<onedim>>=
 bagplot(x=10+c(1:100,200),y=30-c(1:100,200),verbose=FALSE)
 
-
-
 @
- \begin{center}\includegraphics[height=6cm]{p2005-Sep16-114641.ps}\end{center}
+ \begin{center}\includegraphics[height=8cm]{p2007-Aug28-173010.ps}\end{center}
 
-% <p><img src="p2005-Sep16-114641.jpg">
-@
+% <p><img src="p2007-Aug28-173010.jpg">
 @
 Here is a second one dim data set.
 <<one dim test>>=
 bagplot(x=(1:100),y=(1:100),verbose=FALSE)
 
 @
+ \begin{center}\includegraphics[height=8cm]{p2007-Aug28-173021.ps}\end{center}
+
+% <p><img src="p2007-Aug28-173021.jpg">
+@
+\newpage
+@
 \subsection{Data set from the mail of M. Maechler}
 The data set of M. Maechler is discussed within R-help.
-We are not shure if our boxplot is an approximation that is
-good enough. Maybe this doesn't matter because usually
+Decide of yourself if our bagplot is acceptable. 
+Maybe this doesn't matter because mostly
 a data set is \emph{in regular position} (Rousseeuw, Ruts 1998)
-that is we have no problems with identical coordinates.
-(In the car data set there are two points which are identical.)
+and there are no identical coordinates.
+But it may happen, e.g. in the car data set 
+there are two points that are identical.
 
-M. Maechler wrote in a reply concerning a bagplot questiion
+M. Maechler wrote in a reply concerning a bagplot question
 that the correct  Tukey median is (6.75 , 4.875 ) 
-and not (6.542816, 4.707176) that is computed by 
+and not (6.544480, 4.708483) that is computed by 
 our bagplot procedure.
-<<mm>>=
-# 	hallo
+<<data set of Martin Maechler>>=
 <<define [[bagplot]]>>
-x0<-c(1,5,  6,6,  6,  6,6,7,7,8,  11, 13) # x0 <- c(x0, 8)
-y0<-c(2,3.5,4,4.5,4.5,5,5,5,5,5.5,5.5, 7) # y0 <- c(y0, 7)
-par(mfrow=c(1,1))
-hallo<-bagplot(x0,y0,show.baghull=TRUE,show.loophull=TRUE,create.plot=TRUE,
-        show.whiskers=TRUE,factor=3,debug.plots="notall",
-        dkmethod=2,verbose=FALSE,precision=1) # $center
+<<assing data set of Martin Maechler to [[x0]] and [[y0]]>>
+bagplot(x0,y0,show.baghull=TRUE,show.loophull=TRUE,
+        create.plot=TRUE,show.whiskers=TRUE,factor=3,
+        debug.plots="notall",dkmethod=2,verbose=FALSE,
+        precision=1)$center
 #abline(h=4.85,v=6.75)
+@
+<<assing data set of Martin Maechler to [[x0]] and [[y0]]>>=
+x0<-c(1,5,  6,6,  6,  6,6,7,7,8,  11, 13) #; x0 <- c(x0, 8)
+y0<-c(2,3.5,4,4.5,4.5,5,5,5,5,5.5,5.5, 7) #; y0 <- c(y0, 7)
+@
+ \begin{center}\includegraphics[height=10cm]{p2007-Aug31-095954.ps}\end{center}
 
-
+% <p><img src="p2007-Aug31-095954.jpg">
+@
 @
 % points(6.75,4.85); x1<-c(6,6,7,7); y1<-c(4.5,4.5,5,5); mean(y1); 
 % c(mean(c(6,6,7,7,8)),mean(c(4,4.5,4.5 ,5,5,5.5)))
 
-
 @
- \begin{center}\includegraphics[height=10cm]{p2005-Sep20-090919.ps}\end{center}
-
-% <p><img src="p2005-Sep20-090919.jpg">
 \newpage
 
 @
-\section{Data sets of Wouter Meuleman, running in an error with version 09/2005}
-The following data sets runs in an error because of some NaN values 
-occured in computation \emph{find [[hull.bag]]}.
+\subsection{Data sets of Wouter Meuleman, running in an error with version 09/2005}
+
+An old bagplot version runs into errors with following data set.
+During the computation of \nolinebreak
+<<find [[hull.bag]]>>
+~some NaN values occured.
+
+@
+\renewcommand{\codechunkcommands}{\footnotesize}
+\renewcommand{\textchunkcommands}{\normalsize}
+@
 <<data set 2 of Wouter Meuleman>>=
 a<-gsub("\n"," ",c("3  2759.626 22.90411 6  2757.461 31.75789 13 2758.931 44.25797
 15 2757.411 30.47785 16 2761.720 40.01067 18 2759.827 36.97118 19 2758.398 49.43611
@@ -224,104 +290,360 @@ a<-gsub("\n"," ",c("3  2759.626 22.90411 6  2757.461 31.75789 13 2758.931 44.257
 32 2757.411 35.40853 34 2760.734 35.47206 38 2760.612 49.05950 39 2757.730 44.51406
 40 2758.798 27.33595"))
 a<-unlist(strsplit(paste(a,collapse="")," "))
-a<-as.numeric(a[a!=""])
-a<-matrix(a,ncol=3,byrow=TRUE)
+a<-as.numeric(a[a!=""]); a<-matrix(a,ncol=3,byrow=TRUE)
 <<define [[bagplot]]>>
-bagplot(a[,2],a[,3],verbose=TRUE)
-
+bagplot(a[,2],a[,3],verbose=FALSE)
 
 @
- \begin{center}\includegraphics[height=10cm]{p2006-Feb17-132752.ps}\end{center}
+ \begin{center}\includegraphics[height=6cm]{p2007-Aug28-173125.ps}\end{center}
 
-% <p><img src="p2006-Feb17-132752.jpg">
+% <p><img src="p2007-Aug28-173125.jpg">
 @
+On 2006/02/17 some lines of code have been changed to remove the NaN values.
 <<data set 1 of Wouter Meuleman>>=
-a<-gsub("\n"," ",c("1  7766.734 38.86814 2  7768.329 34.50661 3  7769.335 21.14797 4  7768.221 21.08619
-5  7776.913 17.97344 6  7768.221 22.27727 8  7771.719 43.62978 9  7773.056 20.22909 12 7771.334 31.22399"))
+a<-gsub("\n"," ",c("1  7766.734 38.86814 2  7768.329 34.50661 3  7769.335 
+21.14797 4  7768.221 21.08619 5  7776.913 17.97344 6  7768.221 22.27727 8  
+7771.719 43.62978 9  7773.056 20.22909 12 7771.334 31.22399"))
 a<-unlist(strsplit(paste(a,collapse="")," "))
 a<-as.numeric(a[a!=""])
 a<-matrix(a,ncol=3,byrow=TRUE)
-
-
-@
-On 2006/02/17 some lines of code are changed so that no error occur.
-However, we have to check the resulting bagplot analyse, how to 
-<<errorasdf>>=
 <<define [[bagplot]]>>
-<<data set 1 of Wouter Meuleman>>
 bagplot(a[,2],a[,3],verbose=TRUE,dkmethod=2)
 
 @
+ \begin{center}\includegraphics[height=6cm]{p2007-Aug31-101954.ps}\end{center}
+
+% <p><img src="p2007-Aug31-101954.jpg">
+@
+@
+\newpage
+
+\renewcommand{\codechunkcommands}{\small}
+\renewcommand{\textchunkcommands}{\normalsize}
+@
+The following data set was proposed by Ben Greiner in January 2007.
+<<test: data set of Ben Greiner>>=
+<<define [[bagplot]]>>
+greiner.data<-cbind(c( 1,1,1,0.7,0.8,0.98,0.9,0.85,1,1,0.7,1,0.65,
+0.8,0.5,0.7,0.95,0.7,0.8,0.8,0.75,1,0.95,0.7,0.95,0.8,0.75,0.7,0.85,
+0.8,0.8,1,0.5,0.9,0.7,0.8,0.6,0.9,0.98,1,0.5,0.45,0.95,1,0.9,0.9,
+0.7,1,1,0.7,1,0.4,0.9,0.85,0.75,1,0.5,0.9,0.4,0.95,0.8,0.95,0.99,
+1,0.34,0.6,1,0.9,0.6,0.7,0.8,0.7,0.95,1,0.6,0.99,0.85,0.78,0.8,1,
+0.4,1,0.33,0.99,0.6,0.8,0.85,0.75,0.9,0.9,1,0.9,1,0.8,1,0.9,1,0.71,
+0.4,0.8,1,0.7,1,0.8,1,0.6,0.6,1,0.6,1,1,0.7,0.85,1,0.8,1,0.95,0.8,
+0.9,0.8,0.6,0.85,1,0.9,0.9,0.8,1,1,0.6,0.9,1,1,0.5,0.75,0.53,0.8,
+0.7,0.3,0.8,0.9,0.7,0.8,0.6,0.9,0.8,0.8,0.6,1,0.6,1,1,0.9,0.8,0.7,
+0.6,0.8,1,0.5,0.85,1,0.75,1,0.8,1,0.85,1,0.75,0.8,0.7,0.87,1,1,1,
+0.7,0.79,0.8,0.6,0.9,0.6,0.8,0.6,0.7,0.8,0.99,0.9,0.75 ),
+c( 0,0,0,0.1,0,0.01,0,0.05,0,0,0.1,0,0.11,0.1,0,0.1,0,0.3,0,0,0.07,
+0,0.01,0.1,0,0.05,0.05,0.3,0.05,0.1,0,0,0.25,0,0.1,0.05,0.2,0.05,
+0.01,0,0.25,0.25,0.05,0,0.05,0.02,0.1,0,0,0.1,0,0.25,0.03,0.05,0.1,
+0,0.2,0.01,0.2,0,0.1,0.01,0,0,0.33,0.1,0,0.05,0.15,0.1,0.1,0.1,0.01,
+0,0.1,0,0.05,0.07,0.1,0,0.15,0,0.34,0,0.15,0.1,0.03,0,0,0.05,0,0.05,
+0,0.2,0,0.01,0,0.05,0.2,0.05,0,0.15,0,0.05,0,0.2,0.2,0,0.2,0,0,0.2,
+0.05,0,0.05,0,0.01,0,0.05,0.05,0.1,0.05,0,0.05,0.05,0.05,0,0,0.15,
+0.05,0,0,0,0.05,0.07,0.05,0.1,0.3,0.05,0,0.1,0.1,0.2,0.02,0.05,0.2,
+0.2,0,0.1,0,0,0.05,0.05,0.1,0.2,0.1,0,0.5,0,0,0.1,0,0.05,0,0.05,0,
+0.01,0.05,0.1,0.03,0,0,0,0,0.1,0.05,0.1,0.05,0.1,0,0.2,0.2,0,0.01,0,0.1))
+bagplot(greiner.data)
+
+@
+ \begin{center}\includegraphics[height=10cm]{p2007-Aug28-173217.ps}\end{center}
+
+% <p><img src="p2007-Aug28-173217.jpg">
+\newpage
+
+@
 \subsection{Bagplot with additional graphical supplements}
-%hallo
-Verbose bagplot of a sample of 100 rnorm points and an outlier
+Verbose computation of bagplot of a sample of 100 rnorm points and an outlier is 
+performed by the following code chunk.
+With the verbose option the h-depths of the data points
+are shown in the plot and some of the intermediate results 
+are printed during the the computation.
 <<verbosetest>>=
-lll<-221
-<<define data [[xy]]>>
-datan<-rbind(data,c(105,295))
+seed<-444; n<-30
+<<define rnorm data [[data]], seed: [[seed]], size: [[n]]>>
+datan<-rbind(data,c(102,298))
 bagplot(datan,factor=2.5,create.plot=TRUE,approx.limit=300,
    show.outlier=TRUE,show.looppoints=TRUE,show.bagpoints=TRUE,dkmethod=2,
    show.whiskers=TRUE,show.loophull=TRUE,show.baghull=TRUE,verbose=TRUE)
-title(paste("seed",lll))
+title(paste("seed:",seed,"/ n:",n))
 
 @
- \begin{center}\includegraphics[height=13cm]{p2005-Sep16-114739.ps}\end{center}
+ \begin{center}\includegraphics[height=10cm]{p2007-Aug29-155543.ps}\end{center}
 
-% <p><img src="p2005-Sep16-114739.jpg">
+% <p><img src="p2007-Aug29-155543.jpg">
+@
+
 \newpage
+@
 @
 \subsection{Debugging plots with additional elements}
 Here is an example of plots generated with option 
-[[debug.plots="all"]].
+[[debug.plots="all"]]. This option has been helpful during
+debugging and now the plots can be classified as R art.
 <<debugplot>>=
-<<define data [[xy]]>>
-datan<-rbind(data,c(120,280))
+seed<-444; n<-30
+<<define rnorm data [[data]], seed: [[seed]], size: [[n]]>>
 datan<-data[1:10,] #datan<-cbind(c(1:100,200),c(1:100,200))
 par(mfrow=c(2,3))
 bagplot(datan,factor=2.5,create.plot=TRUE,approx.limit=300,
    show.outlier=TRUE,show.looppoints=TRUE,show.bagpoints=TRUE,
    show.whiskers=TRUE,show.loophull=FALSE,show.baghull=TRUE,dkmethod=2,
-   debug.plots="all",verbose=TRUE)
+   debug.plots="all",verbose=TRUE); par(mfrow=c(1,1))
 @
- \begin{center}\includegraphics[height=13cm]{p2005-Sep16-114806.ps}\end{center}
+ \begin{center}\includegraphics[height=10cm]{p2007-Aug29-155757.ps}\end{center}
 
-% <p><img src="p2005-Sep16-114806.jpg">
+% <p><img src="p2007-Aug29-155757.jpg">
+\newpage
+
 @
+\section{Bagplots by an alternative approach, proposed by Rousseeuw, Ruts and Tukey}
+As mentioned above there is a solution using a fortran procedure for generating bagplots, 
+see:
+\begin{center}
+{\footnotesize
+http://www.statistik.tuwien.ac.at/public/filz/students/edavis/ws0607/skriptum/page134.html.
+} % end of footnotesize
+\end{center}
+To get the procedure work you have to perform the following steps: 
+\begin{itemize}
+\item fetch the fortran code by downloading 
+
+[[$ get ftp://ftp.win.ua.ac.be/pub/software/agoras/newfiles/bagplot.tar.gz]]
+
+-- this link has been found on the web page: http://www.agoras.ua.ac.be/Locdept.htm
+\item 
+unzip and unpack  the tar.gz-file
+
+[[$ gunzip bagplot.tar.gz; tar -xvf bagplot.tar]]
+\item 
+translate the fortran program [[bagplot.f]] and generate the object file [[bagplot.so]]
+
+[[$ R CMD SHLIB -o bagplot.so bagplot.f]]
+\item 
+download bagplot-R-function
+
+[[$ get http://www.statistik.tuwien.ac.at/public/filz/students/edavis/]]\\
+[[  ws0607/skriptum/bagplot.R]]
+\item 
+start R and load so-file
+
+<<*>>=
+dyn.load("Tukey/bagplot.so")
+
+@
+\item 
+source bagplot function; to avoid conflicts in the names we 
+change the name of the bagplot function of Rousseeuw, Ruts, and Tukey to [[BAGPLOT]].
+
+<<*>>=
+BAGPLOT<-readLines("Tukey/BAGPLOT.R")
+eval(parse(text=sub("^.bagplot","\"BAGPLOT",BAGPLOT))); "ok"
+args(BAGPLOT)
+
+@
+Here are the arguments of [[BAGPLOT()]]:
+\begin{verbatim}
+Wed Aug 29 15:19:43 2007
+function (x, y, plotinbag = T, plotoutbag = T, ident = T, drawfence = F, 
+    drawloop = T, truncxmin = NULL, truncxmax = NULL, truncymin = NULL, 
+    truncymax = NULL, xlab = "x", ylab = "y", ...) 
+\end{verbatim}
+@
+
+\item 
+compute an example bagplot.
+<<*>>=
+library(MASS)
+data(Cars93); x<-Cars93[,"Weight"]; y<-Cars93[,"EngineSize"]
+names(x)<-dimnames(Cars93)[[1]]; names(y)<-dimnames(Cars93)[[1]]
+# par(mar=c(4,4,1,1))
+BAGPLOT(x,y,xlab="Gewicht (in Pfund)",ylab="Hubraum (in Liter)",
+##      main="Press Mouse BUTTON!",
+        cex.lab=1.2)
+text(3380,5.7,"Chevrolet",pos=2); text(2895,1.3,"Mazda",pos=1)
+text(4050,3.0,"Nissan",pos=1);    text(3785,2.4,"Toyota",pos=1)
+text(3960,2.5,"Volkswagen",pos=3)
+
+@
+Here is the numerical result
+\begin{verbatim}
+[1] The coordinates of the Tukey median are ( 2954.84 , 2.40962 ).
+\end{verbatim}
+and the bagplot:
+
+\begin{center}\includegraphics[height=7cm]{p2007-Aug29-151504.ps}\end{center}
+
+% <p><img src="p2007-Aug29-151504.jpg">
+
+\end{itemize} 
+A reconstruction of this plot can be done by our bagplot function.
+For a suitable loop you have to set [[factor=2.8]].
+<<*>>=
+library(MASS)
+data(Cars93); x<-Cars93[,"Weight"]; y<-Cars93[,"EngineSize"]
+names(x)<-dimnames(Cars93)[[1]]; names(y)<-dimnames(Cars93)[[1]]
+center<-bagplot(x,y,factor=2.8,xlab="Gewicht (in Pfund)",
+                ylab="Hubraum (in Liter)",cex.lab=1.2)$center
+text(3380,5.7,"Chevrolet",pos=2); text(2895,1.3,"Mazda",pos=1)
+text(4050,3.0,"Nissan",pros=1);    text(3785,2.4,"Toyota",pos=1)
+text(3960,2.5,"Volkswagen",pos=3)
+center
+
+@
+\begin{center}\includegraphics[height=7cm]{p2007-Aug28-190955.ps}\end{center}
+
+% <p><img src="p2007-Aug28-190955.jpg">
+
+@
+We find the center:
+\begin{verbatim}
+Tue Aug 28 19:06:10 2007
+[1] 2958.051384    2.413979
+\end{verbatim}
+The difference may be caused by numerical difficulties.
+
+@
+\paragraph{Test of data set of Martin Maechler.}
+As a second example we check the bagplot functions by the data set of 
+Martin Maecher. 
+<<BAGPLOT of data set of Martin Maechler>>=
+<<assing data set of Martin Maechler to [[x0]] and [[y0]]>>
+BAGPLOT(x0,y0)
+
+@
+We get the numerical result ...
+\begin{verbatim}
+[1] The coordinates of the Tukey median are ( 6.75 , 4.875 ).
+\end{verbatim}
+@
+and the following plot
+\begin{center}\includegraphics[height=6cm]{p2007-Aug30-103133.ps}\end{center}
+
+% <p><img src="p2007-Aug30-103133.jpg">
+
+Our procedure will compute slightly different results:
+<<bagplot of data set of Martin Maechler>>=
+<<assing data set of Martin Maechler to [[x0]] and [[y0]]>>
+center<-bagplot(x0,y0,show.baghull=FALSE,show.loophull=FALSE,
+                create.plot=TRUE,show.whiskers=TRUE,factor=3,
+                dkmethod=2,precision=1)$center
+abline(h=4.85,v=6.75); center
+@
+ \begin{center}\includegraphics[height=6cm]{p2007-Aug31-100250.ps}\end{center}
+
+% <p><img src="p2007-Aug31-100250.jpg">
+@
+@
+The two lines mark the Tukey median computed by BAGPLOT. Our median is:
+\begin{verbatim}
+[1] 6.544480 4.708483
+\end{verbatim}
+@
+Now we check the stability of the functions by exchanging the variables.
+<<BAGPLOT of data set of Martin Maechler, exchanged variables>>=
+<<assing data set of Martin Maechler to [[x0]] and [[y0]]>>
+BAGPLOT(y0,x0)
+
+@
+\begin{verbatim}
+[1] The coordinates of the Tukey median are ( 4.84231 , 6.68461 ).
+\end{verbatim}
+There is a difference! The relative difference is:
+<<BAGPLOT of data set of Martin Maechler, relative difference>>=
+abs((c(6.75 ,4.875)-c(4.84231,6.68461))/c(6.75,4.875))
+
+@
+\begin{verbatim}
+[1] 0.2826207 0.3712021
+\end{verbatim}
+@
+How will our function master the test?
+<<bagplot of data set of Martin Maechler, exchanged variables>>=
+center.ex<-bagplot(y0,x0,show.baghull=FALSE,show.loophull=FALSE,
+                create.plot=TRUE,show.whiskers=TRUE,factor=3,
+                dkmethod=2,precision=1)$center
+
+@
+\begin{verbatim}
+[1] 4.708846 6.540282
+\end{verbatim}
+The relative difference is approximately 0.07\%. If we increase the precision
+by [[precision=5]] the difference is reduced as we like it:
+<<bagplot of data set of Martin Maechler, difference if precision is increased>>=
+center    <-bagplot(x0,y0,create.plot=FALSE,factor=3,precision=6)$center
+center.ex<-bagplot(y0,x0,create.plot=FALSE,factor=3,precision=6)$center
+print(center)
+abs(center-center.ex[2:1])/center
+
+@
+The results seems to be identical for we get:
+\begin{verbatim}
+[1] 6.541650 4.708349
+[1] 0 0
+\end{verbatim}
+@
+By analyzing the scatterplot we find that the area of
+the points with h-depth 4 is a triangle. The corners of this triangle
+are: (6, 4.5), (7,5) and (6.625, 14.125).
+The center of its gravity is equal to the mean of the
+three points and we get the Tukey median
+(6.541666, 4.7083333). Our bagplot function
+finds a result that is very near to the one 
+computed by hand.
+
+@
+\paragraph{Memory faults.} 
+There are some other problems with the implementation via the fortran procedure
+because we got some memory faults during testing [[BAGPLOT]]. These
+errors killed the R process and some of the computed result got lost.
+But it was not difficult to reconstruct them ... by relax.
+
 \newpage
 @
-\section{Arguments of [[bagplot]]}
-... can be found by:
+\section{Arguments and output of [[bagplot]], the help page and some links}
+
+@
+A summary of the arguments can be found by [[args()]].
 <<args>>=
 args(bagplot)
-@
-A very short description can be found in the header of the function.
 
 @
-\section{Links}
-Here are some links:
 \begin{verbatim}
-http://www.cim.mcgill.ca/~lsimard/Pattern/TheBag.htm
-http://www.math.yorku.ca/SCS/Gallery/bright-ideas.html
-http://maven.smith.edu/~streinu/Research/LocDepth/algorithm.html
-http://www.agoras.ua.ac.be/abstract/Bagbiv97.htm
-http://www.agoras.ua.ac.be/Locdept.htm
-http://article.gmane.org/gmane.comp.lang.r.general/25235
-http://finzi.psych.upenn.edu/R/Rhelp02a/archive/45106.html
-http://delivery.acm.org/10.1145/370000/365565/
- p690-miller.pdf?key1=365565&key2=9093786211&coll=GUIDE&
- dl=GUIDE&CFID=53086693&CFTOKEN=38519152
-http://www.cs.tufts.edu/research/geometry/half_space/
+function (x, y, factor = 3, na.rm = FALSE, approx.limit = 300, 
+    show.outlier = TRUE, show.whiskers = TRUE, show.looppoints = TRUE, 
+    show.bagpoints = TRUE, show.loophull = TRUE, show.baghull = TRUE, 
+    create.plot = TRUE, add = FALSE, pch = 16, cex = 0.4, dkmethod = 2, 
+    precision = 1, verbose = FALSE, debug.plots = "no", 
+    col.loophull = "#aaccff", col.looppoints = "#3355ff", 
+    col.baghull = "#7799ff", col.bagpoints = "#000088", 
+    transparency = FALSE, ...) 
 \end{verbatim}
 
 @
-\section{The help page of bagplot}
-\begin{verbatim}
-function (x, y, factor = 3, approx.limit = 300, show.outlier = TRUE,
-    show.whiskers = TRUE, show.looppoints = TRUE, show.bagpoints = TRUE,
-    show.loophull = TRUE, show.baghull = TRUE, create.plot = TRUE,
-    add = FALSE, pch = 16, cex = 0.4, ..., dkmethod = 2, precision = 1,
-    verbose = FALSE, debug.plots = "")
-\end{verbatim}
+The output of [[bagplot]] is a list of the relevant quantities of the constructed bagplot.
+To identify singular points, use [[identify()]]. Here is a short description of the return values:
+\newcommand{\valuesofbagplot}{
+\begin{center}\begin{tabular}{ll}
+  [[center]]& Tukey median
+\\[[hull.loop]]& set of points of polygon that defines the loop
+\\[[hull.bag]]& set of points of polygon that defines the bag
+\\[[hull.center]]& region of points with maximal ldepth
+\\[[pxy.outlier]]& outlier
+\\[[pxy.outer]]& outer points
+\\[[pxy.bag]]& points in bag
+\\[[hdepth]]& location depth of data points in xy
+\\[[is.one.dim]]& is [[TRUE]] if data set is one dimensional
+\\[[prdata]]& result of PCA
+\\[[random.seed]]& random.seed that is set by bagplot
+\\[[xydata]]& data set
+\\[[xy]]& sample of data set
+\end{tabular}\end{center}
+} \valuesofbagplot
+
+@
+The help page is defined as a code chunk.
 <<define help of [[bagplot]]>>=
 \name{bagplot}
 \alias{bagplot}
@@ -335,7 +657,7 @@ function (x, y, factor = 3, approx.limit = 300, show.outlier = TRUE,
   \code{bagplot()} computes and plots a bagplot.
 }
 \usage{
-bagplot(x, y, factor = 3, approx.limit = 300,  
+bagplot(x, y, factor = 3, na.rm = FALSE, approx.limit = 300,  
        show.outlier = TRUE, show.whiskers = TRUE, 
        show.looppoints = TRUE, show.bagpoints = TRUE,
        show.loophull = TRUE, show.baghull = TRUE, 
@@ -346,9 +668,8 @@ bagplot(x, y, factor = 3, approx.limit = 300,
        col.bagpoints="#000088", transparency=FALSE, ...
 )
 
-compute.bagplot(x, y, factor = 3, approx.limit = 300, 
-       dkmethod = 2, precision = 1, verbose = FALSE, 
-       debug.plots = "no")
+compute.bagplot(x, y, factor = 3, na.rm = FALSE, approx.limit = 300, 
+       dkmethod=2,precision=1,verbose=FALSE,debug.plots="no")
 
 plot.bagplot(x,  
        show.outlier = TRUE, show.whiskers = TRUE, 
@@ -366,7 +687,10 @@ plot.bagplot(x,
      computed by \code{compute.bagplot} }
   \item{y}{ y values of the data set } 
   \item{factor}{ factor defining the loop }
-  \item{approx.limit}{ precision of approximation, default: 300 }
+  \item{na.rm}{ if TRUE 'NA' values are removed otherwise exchanged by mean}
+  \item{approx.limit}{ if the number of data points exceeds 
+          \code{approx.limit} a sample is used to compute 
+          some of the quantities; default: 300 }
   \item{show.outlier}{ if TRUE outlier are shown }
   \item{show.whiskers}{ if TRUE whiskers are shown }
   \item{show.looppoints}{ if TRUE loop points are plottet }
@@ -378,12 +702,12 @@ plot.bagplot(x,
   \item{pch}{ sets the plotting character }
   \item{cex}{ sets characters size}
   \item{dkmethod}{ 1 or 2, there are two method of  
-     approximating the bag, 
-currently under construction}
+     approximating the bag, method 1 is very rough }
   \item{precision}{ precision of approximation, default: 1 }
   \item{verbose}{ automatic commenting of calculations 
  }
-  \item{debug.plots}{ developers' tool for debugging }
+  \item{debug.plots}{ if TRUE additional plots describing 
+                      intermediate results are constructed }
   \item{col.loophull}{ color of loop hull }
   \item{col.looppoints}{ color of the points of the loop }
   \item{col.baghull}{ color of bag hull }
@@ -395,10 +719,10 @@ currently under construction}
 A bagplot is a bivariate generalization of the well known
 boxplot. It has been proposed by Rousseeuw, Ruts, and Tukey.
 In the bivariate case the box of the boxplot changes to a 
-convex hull, the bag of bagplot. In the bag are 50 percent
-of all points. The fence separates points in the fence from 
+convex polygon, the bag of bagplot. In the bag are 50 percent
+of all points. The fence separates points within the fence from 
 points outside. It is computed by increasing the
-the bag. The loop is defined as the convex polygon containing 
+the bag. The loop is defined as the convex hull containing 
 all points inside the fence. 
 If all points are on a straight line you get a classical
 boxplot.
@@ -406,15 +730,16 @@ boxplot.
 to the one described in Rousseeuw et al. 
 Remarks:
 The two dimensional median is approximated.
-There are known difficulties with small data sets 
-(But I think it is not wise to make a (graphical) 
-summary of e.g. 10 points.)
+For large data sets the error will be very small.
+On the other hand it is not very wise to make a (graphical) 
+summary of e.g. 10 bivariate data points.
 
-In case people want to plot multiple (overlappIng) bagplots, it is convenient if the plots are semi-transparent. For this reason
-the \code{transparency} flag has been added to the bagplot
-command. 
+In case you want to plot multiple (overlapping) bagplots, 
+you may want plots that are semi-transparent. For this 
+you can use the \code{transparency} flag. 
 If \code{transparency==TRUE} the alpha layer is set to '99' (hex).
-This causes the bagplots to appear semi-transparent, but ONLY if the output device is PDF and opened using:
+This causes the bagplots to appear semi-transparent, 
+but ONLY if the output device is PDF and opened using:
 \code{pdf(file="filename.pdf", version="1.4")}. 
 For this reason, the default is \code{transparency==FALSE}. 
 This feature as well as the arguments
@@ -430,8 +755,7 @@ to specify different colors has been proposed by Wouter Meuleman.
     Statistician, vol. 53, no. 4, 382--387 }
 \author{ Peter Wolf }
 \note{
-  The development of the function has not been finished. 
-  Version 02/2006 }
+  Version of bagplot: 08/2007 }
 \seealso{ \code{\link[graphics]{boxplot}} }
 \examples{
   # example: 100 random points and one outlier
@@ -443,7 +767,7 @@ to specify different colors has been proposed by Wouter Meuleman.
      show.whiskers=TRUE,show.loophull=TRUE,
      show.baghull=TRUE,verbose=FALSE)
   # example of Rousseeuw et al., see R-package rpart
-  cardata <- structure(as.integer(c(2560, 2345, 1845, 2260, 2440,
+  cardata <- structure(as.integer( c(2560,2345,1845,2260,2440,
    2285, 2275, 2350, 2295, 1900, 2390, 2075, 2330, 3320, 2885,
    3310, 2695, 2170, 2710, 2775, 2840, 2485, 2670, 2640, 2655,
    3065, 2750, 2920, 2780, 2745, 3110, 2920, 2645, 2575, 2935,
@@ -466,11 +790,27 @@ to specify different colors has been proposed by Wouter Meuleman.
 }
 \keyword{ misc }
 
+@
+Here are some important links:
+\begin{verbatim}
+http://www.cim.mcgill.ca/~lsimard/Pattern/TheBag.htm
+http://www.math.yorku.ca/SCS/Gallery/bright-ideas.html
+http://maven.smith.edu/~streinu/Research/LocDepth/algorithm.html
+http://www.agoras.ua.ac.be/abstract/Bagbiv97.htm
+http://www.agoras.ua.ac.be/Locdept.htm
+http://article.gmane.org/gmane.comp.lang.r.general/25235
+http://finzi.psych.upenn.edu/R/Rhelp02a/archive/45106.html
+http://delivery.acm.org/10.1145/370000/365565/
+ p690-miller.pdf?key1=365565&key2=9093786211&coll=GUIDE&
+ dl=GUIDE&CFID=53086693&CFTOKEN=38519152
+http://www.cs.tufts.edu/research/geometry/half_space/
+http://www.statistik.tuwien.ac.at/public/filz/students/edavis/
+  ws0607/skriptum/page134.html
+\end{verbatim}
 
 @
-% {; in \code{bagplot}: not used }
 \section{The definition of bagplot}
-The funciton[[bagplot]] is a container that calls the two function
+The funciton [[bagplot]] is a container that calls the two functions
 [[compute.bagplot]] and [[plot.bagplot]]. The first one generates
 an object of class [[bagplot]] and the second one is called
 by the generic plot function.
@@ -479,6 +819,7 @@ by the generic plot function.
 <<define [[plot.bagplot]]>>
 bagplot<-function(x,y,
    factor=3, # expanding factor for bag to get the loop
+   na.rm=FALSE, # should 'NAs' values be removed or exchanged
    approx.limit=300, # limit 
    show.outlier=TRUE,# if TRUE outlier are shown
    show.whiskers=TRUE, # if TRUE whiskers are shown
@@ -490,7 +831,7 @@ bagplot<-function(x,y,
    add=FALSE, # if TRUE graphical elements are added to actual plot
    pch=16,cex=.4, # some graphical parameters
    dkmethod=2, # in 1:2; there are two methods for approximating the bag
-   precision=1, # controls precisionn of computation
+   precision=1, # controls precision of computation
    verbose=FALSE,debug.plots="no", # tools for debugging
    col.loophull="#aaccff", # Alternatives: #ccffaa, #ffaacc
    col.looppoints="#3355ff", # Alternatives: #55ff33, #ff3355
@@ -498,9 +839,10 @@ bagplot<-function(x,y,
    col.bagpoints="#000088", # Alternatives: #008800, #880000
    transparency=FALSE, ... # to define further parameters of plot
 ){
-  bo<-compute.bagplot(x=x,y=y,factor=factor,approx.limit=approx.limit,
-                      dkmethod=dkmethod,precision=precision,
-                      verbose=verbose,debug.plots=debug.plots)
+  <<version of bagplot>>
+  bo<-compute.bagplot(x=x,y=y,factor=factor,na.rm=na.rm,
+        approx.limit=approx.limit,dkmethod=dkmethod,
+        precision=precision,verbose=verbose,debug.plots=debug.plots)
   if(create.plot){ 
     plot(bo,
      show.outlier=show.outlier,
@@ -518,29 +860,34 @@ bagplot<-function(x,y,
      transparency=transparency
     )
   }
+  invisible(bo)
 }
 
 @
-[[compute.bagplot]] computes the neccessary values to allow [[plot.bagplot]]
-plot the bagplot.
+[[compute.bagplot]] computes the relevant values to allow [[plot.bagplot]]
+to draw the bagplot.
 <<define [[compute.bagplot]]>>=
 compute.bagplot<-function(x,y,
    factor=3, # expanding factor for bag to get the loop
+   na.rm=FALSE, # should NAs removed or exchanged
    approx.limit=300, # limit 
-   dkmethod=2, # in 1:2; there are two methods for approximating the bag
-   precision=1, # controls precisionn of computation
+   dkmethod=2, # in 1:2; method 2 is recommended
+   precision=1, # controls precision of computation
    verbose=FALSE,debug.plots="no" # tools for debugging
 ){
+  <<version of bagplot>>
   <<body of [[compute.bagplot]]>>
 }
 
 
 
 @
+\subsection{The body of [[compute.bagplot]]}
+Here you see the main steps of the construction of a bagplot.
 <<body of [[compute.bagplot]]>>=
-  #pwolf 050921 / 060217
   <<init>>
   <<check and handle linear case>>
+  <<standardize data and compute: [[xyxy]], [[xym]], [[xysd]]>>
   <<compute angles between points>>
   <<compute hdepths>>
   <<find [[k]]>>
@@ -558,35 +905,24 @@ compute.bagplot<-function(x,y,
   <<output result>>
 
 @
-Output of [[bagplot]] is a list of essential components of the computation.
-To identify singular points, use [[identify()]]. There is the list that is returned:
-\\[[xydata]] (data set)
-\\[[xy]] (sample of data set)
-\\[[hdepth]] (location depth of data points in xy)
-\\[[hull.loop]] (points of polygon that define the loop)
-\\[[hull.bag]] (points of polygon that define the bag)
-\\[[hull.center]] (region of points with maximal ldepth)
-\\[[pxy.outlier]] (outlier)
-\\[[pxy.outer]] (outer points)
-\\[[pxy.bag]] (points in bag)
-\\[[center]] (Tukey median)
-\\[[is.one.dim]] is T if data set is one dimensional
-\\[[prdata]] result of PCA
+\subsection{Output of [[bagplot]]}
+The following table of output values of [[bagplot]] is copy from section 2:
+\valuesofbagplot
 
-The elements are concatenated in a list and returned.
+These elements are return as a list.
 <<output result>>=
-assign(".Random.seed",save.seed,env=.GlobalEnv)
 res<-list(
  center=center,
- pxy.bag=pxy.bag,
- pxy.outer=if(length(pxy.outer)>0) pxy.outer else NULL,
- pxy.outlier=if(length(pxy.outlier)>0) pxy.outlier else NULL,
  hull.center=hull.center,
  hull.bag=hull.bag,
  hull.loop=hull.loop,
+ pxy.bag=pxy.bag,
+ pxy.outer=if(length(pxy.outer)>0) pxy.outer else NULL,
+ pxy.outlier=if(length(pxy.outlier)>0) pxy.outlier else NULL,
  hdepths=hdepth,
  is.one.dim=is.one.dim,
  prdata=prdata,
+ random.seed=random.seed,
  xy=xy,xydata=xydata
 )
 if(verbose) res<-c(res,list(exp.dk=exp.dk,exp.dk.1=exp.dk.1,hdepth=hdepth))
@@ -594,9 +930,10 @@ class(res)<-"bagplot"
 return(res)
 
 @
+\subsection{Initilization of [[bagplot]]}
 Points with identical coordinates may result in 
 numerical problem. Therefore, some noise may be added to
-the data -- for this the comment signs have to be deleted.
+the data -- for this feature the comment signs have to be deleted.
 <<init>>=
 # define some functions
 <<define function [[win]]>>
@@ -607,13 +944,23 @@ the data -- for this the comment signs have to be deleted.
 <<define function [[expand.hull]]>>
 <<define function [[cut.p.sl.p.sl]]>>
 <<define function [[pos.to.pg]]>>
+<<define [[find.polygon.center]]>>
 # check input
 xydata<-if(missing(y)) x else cbind(x,y)
 if(is.data.frame(xydata)) xydata<-as.matrix(xydata)
-# select sample in case of large data set
+if(any(is.na(xydata))){
+  if(na.rm){ xydata<-xydata[!apply(is.na(xydata),1,any),,drop=FALSE]
+    print("Warning: NA elements have been removed!!")
+  }else{
+    xy.means<-colMeans(xydata,na.rm=TRUE)
+    for(j in 1:ncol(xydata)) xydata[is.na(xydata[,j]),j]<-xy.means[j]
+    print("Warning: NA elements have been exchanged by mean values!!")
+  }  
+}
+if(nrow(xydata)<3) {print("not enough data points"); return()}
+# select sample in case of a very large data set
 very.large.data.set<-nrow(xydata)>approx.limit
-if(!exists(".Random.seed")) set.seed(13)
-save.seed<-.Random.seed
+set.seed(random.seed<-13)
 if(very.large.data.set){
   ind<-sample(seq(nrow(xydata)),size=approx.limit)
   xy<-xydata[ind,]
@@ -624,35 +971,59 @@ points.in.bag<-floor(n/2)
 # the following two lines can be activated
 #xy<-xy+cbind(rnorm(n,0,.0001*sd(xy[,1])),
 #             rnorm(n,0,.0001*sd(xy[,2])))
-assign(".Random.seed",save.seed,env=.GlobalEnv)
 if(verbose) cat("end of initialization")
 
+
 @
-after a lot of experiments the function [[atan2]] is found 
-to do the job best
+\subsection{Some local functions to find intersection points}
+\paragraph{win:}
+After a lot of experiments the function [[atan2]] is found 
+to compute the gradient in fastest way.
 <<define function [[win]]>>=
 win<-function(dx,dy){  atan2(y=dy,x=dx) }
 
 @
-[[out.of.polygon]] checks if the points of [[xy]] are within
-the polygon [[pg]] (return value TRUE) or not (return value FALSE). 
+\paragraph{out.of.polygon:}
+The function [[out.of.polygon]] checks if the points of [[xy]] are within
+the polygon [[pg]] (return value FALSE) or not (return value TRUE). 
 <<define function [[out.of.polygon]]>>=
 out.of.polygon<-function(xy,pg){
-  if(nrow(pg)==1) return(pg) 
-  pgcenter<-apply(pg,2,mean)
-  pg<-cbind(pg[,1]-pgcenter[1],pg[,2]-pgcenter[2])
-  xy<-cbind(xy[,1]-pgcenter[1],xy[,2]-pgcenter[2])
-  extr<-rep(FALSE,nrow(xy))
-  for(i in seq(nrow(xy))){
-    alpha<-sort((win(xy[i,1]-pg[,1],xy[i,2]-pg[,2]))%%(2*pi))
-    extr[i]<-pi<max(diff(alpha)) | 
-             pi<(alpha[1]+2*pi-alpha[length(alpha)])
+  if(nrow(pg)==1)  return(xy[,1]==pg[1] & xy[,2]==pg[2]) 
+  m<-nrow(xy<-matrix(xy,ncol=2)); n<-nrow(pg)
+  limit<--abs(1E-10*diff(range(pg)))
+  pgn<-cbind(diff(c(pg[,2],pg[1,2])),-diff(c(pg[,1],pg[1,1])))
+  S<-matrix(colMeans(xy),1,2)
+  dxy<-cbind(S[1]-pg[,1],S[2]-pg[,2])
+  S.in.pg<-all(limit<apply(dxy*pgn,1,sum))
+  if(!all(limit<apply(dxy*pgn,1,sum))){
+    pg<-pg[n:1,]; pgn<--pgn[n:1,]
   }
-  extr
+  in.pg<-rep(TRUE,m)
+  for(j in 1:n){
+    dxy<-xy-matrix(pg[j,],m,2,byrow=TRUE)
+    in.pg<-in.pg & limit<(dxy%*%pgn[j,])
+  }
+  return(!in.pg)
 }
+@
+This version of [[out.of.polygon]] is based on the 
+following algorithm: 
+\begin{enumerate}
+\item compute the orthogonal vectors of the sides of the polygon
+pointing to the interior
+\item compute the vectors which starts in the corners of the polygon
+and ends in a point to be tested
+\item check if all the angles between the pairs of associated vectors lie
+between $-\pi/2$ and $\pi/2$ which is equivalent to get positive signs
+of the inner products of the associated vectors only.
+\end{enumerate}
+For more than 2000 test points the new version is 100 times
+faster than the old one.
+
 
 @
-[[cut.z.pg]] finds cut points of line defined by [[p1x,p1y,p2x,p2y]]
+\paragraph{cut.z.pg:}
+[[cut.z.pg]] finds the intersection points of lines defined by [[p1x,p1y,p2x,p2y]]
 and lines that contains [[zx,zy]] and origin.
 <<define function [[cut.z.pg]]>>=
 cut.z.pg<-function(zx,zy,p1x,p1y,p2x,p2y){
@@ -697,9 +1068,9 @@ cut.z.pg<-function(zx,zy,p1x,p1y,p2x,p2y){
   return(sxy)
 } 
 
-
 @
-[[find.cut.z.pg]] finds the cut points of the lines defined by
+\paragraph{find.cut.z.pg:}
+[[find.cut.z.pg]] finds the intersection points of the lines defined by
 [[z]] and center [[center]] and polygon [[pg]].
 <<define function [[find.cut.z.pg]]>>=
 find.cut.z.pg<-function(z,pg,center=c(0,0),debug.plots="no"){
@@ -710,7 +1081,8 @@ find.cut.z.pg<-function(z,pg,center=c(0,0),debug.plots="no"){
   z<-cbind(z[,1]-center[1],z[,2]-center[2])
   pgo<-pg; pg<-cbind(pg[,1]-center[1],pg[,2]-center[2])
   if(!exists("debug.plots")) debug.plots<-"no"
-  if(debug.plots=="all"){plot(rbind(z,pg,0),bty="n"); points(z,pch="p")
+  if(debug.plots=="all"){
+           plot(rbind(z,pg,0),bty="n"); points(z,pch="p")
            lines(c(pg[,1],pg[1,1]),c(pg[,2],pg[1,2]))}
   # find angles of pg und z
   apg<-win(pg[,1],pg[,2])
@@ -729,7 +1101,31 @@ find.cut.z.pg<-function(z,pg,center=c(0,0),debug.plots="no"){
 }
 
 @
-[[hdepth.of.points]] computes the hdepths of test points [[tp]].
+\paragraph{cut.p.sl.p.sl:}
+[[cut.p.sl.p.sl]] finds the intersection point of two lines.
+Both lines are described by a point and its slope.
+Remember: 
+\[
+  y=y_1+m_1(x-x_1)
+\]
+If both slopes are identical an [[inf]]-value will be returned.
+<<define function [[cut.p.sl.p.sl]]>>=
+cut.p.sl.p.sl<-function(xy1,m1,xy2,m2){
+  sx<-(xy2[2]-m2*xy2[1]-xy1[2]+m1*xy1[1])/(m1-m2)
+  sy<-xy1[2]-m1*xy1[1]+m1*sx
+  if(!is.nan(sy)) return( c(sx,sy) )
+  if(abs(m1)==Inf) return( c(xy1[1],xy2[2]+m2*(xy1[1]-xy2[1])) )
+  if(abs(m2)==Inf) return( c(xy2[1],xy1[2]+m1*(xy2[1]-xy1[1])) )
+}
+
+@
+\subsection{A function to compute the h-depths of data points}
+
+\paragraph{hdepth.of.points:}
+[[hdepth.of.points]] computes the h-depths of test points [[tp]].
+local variable [[ident]] stores the number of identical points.
+Algorithmical aspects of finding the h-depth are later discussed in:
+<<find $kkk$-hull: [[pg]]>>
 <<define function [[hdepth.of.points]]>>=
 hdepth.of.points<-function(tp,n){
   n.tp<-nrow(tp)
@@ -739,31 +1135,34 @@ hdepth.of.points<-function(tp,n){
     dx<-tp[j,1]-xy[,1]; dy<-tp[j,2]-xy[,2] 
     a<-win(dx,dy)+pi; h<-a<10;a<-a[h]; ident<-sum(!h)
     init<-sum(a < pi); a.shift<-(a+pi) %% dpi
+    minusplus<-c(rep(-1,length(a)),rep(1,length(a))) ## 070824 
     h<-cumsum(minusplus[order(c(a,a.shift))])
-    tphdepth[j]<-init+min(h)+1
+    tphdepth[j]<-init+min(h)+1 # +1 because of the point itself!!
     # tphdepth[j]<-init+min(h)+ident; cat("SUMME",ident)
   }
   tphdepth
 }
 
 @
+\subsection{A function to expand the hull}
+\paragraph{expand.hull:}
 [[expand.hull]] expands polygon [[pk]] without changing the depth
-of its points. [[k]] is the depth and [[resolution]] the number of
+of its points. [[k]] is the depth and [[resolution]] is the number of
 points to be checked during expandation.
 <<define function [[expand.hull]]>>=
 expand.hull<-function(pg,k){
-  <<find end points of line segments: mean $\to$ [[pg]] $\to$ [[pg0]]>>
+  <<find end points of line segments: center $\to$ [[pg]] $\to$ [[pg0]]>>
   <<search for points with critical hdepth>>
   <<find additional points between the line segments>>
   <<compute hull [[pg.new]]>>
 }
 
 @
-At first we search the cut points of the hull of the data set with
+At first we search the intersection points of the hull of the data set with
 the lines beginning in the center and running through the points of [[pg]].
-Then test points on the segments defined by these cut points and the points of 
+Then test points on the segments defined by these intersection points and the points of 
 [[pg]] will be generated by using a vector [[lam]].
-<<find end points of line segments: mean $\to$ [[pg]] $\to$ [[pg0]]>>=
+<<find end points of line segments: center $\to$ [[pg]] $\to$ [[pg0]]>>=
 resolution<-floor(20*precision)
 pg0<-xy[hdepth==1,]
 pg0<-pg0[chull(pg0[,1],pg0[,2]),]
@@ -771,7 +1170,7 @@ end.points<-find.cut.z.pg(pg,pg0,center=center,debug.plots=debug.plots)
 lam<-((0:resolution)^1)/resolution^1
 
 @
-The test is performed in two stages. In the interval form 
+The test is performed in two stages. In the interval from 
 start point to end point [[resolution]] test points are tested
 concerning their h-depth. The critical interval is divided again
 to find a better limit.
@@ -793,12 +1192,14 @@ for(i in 1:nrow(pg)){
 pg.new<-pg.new[chull(pg.new[,1],pg.new[,2]),]
 # cat("depth pg.new", hdepth.of.points(pg.new,n))
 
+
 @
 Between the spurts we interpolated additional directions
 and find additional limits by the same procedure.
 <<find additional points between the line segments>>=
 pg.add<-0.5*(pg.new+rbind(pg.new[-1,],pg.new[1,]))
-end.points<-find.cut.z.pg(pg,pg0,center=center)
+# end.points<-find.cut.z.pg(pg,pg0,center=center)
+end.points<-find.cut.z.pg(pg.add,pg0,center=center) ## 070824
 for(i in 1:nrow(pg.add)){
   tp<-cbind(pg.add[i,1]+lam*(end.points[i,1]-pg.add[i,1]),
             pg.add[i,2]+lam*(end.points[i,2]-pg.add[i,2]))
@@ -821,23 +1222,10 @@ solution of hull($d_k$). [[pg.new]] is the output of [[expand.hull]].
 pg.new<-rbind(pg.new,pg.add)
 pg.new<-pg.new[chull(pg.new[,1],pg.new[,2]),]
 
-@
-[[cut.p.sl.p.sl]] finds the cut of two lines.
-Both of them are described by a point and its slope.
-Remember: 
-\[
-  y=y_1+m_1(x-x_1)
-\]
-<<define function [[cut.p.sl.p.sl]]>>=
-cut.p.sl.p.sl<-function(xy1,m1,xy2,m2){
-  sx<-(xy2[2]-m2*xy2[1]-xy1[2]+m1*xy1[1])/(m1-m2)
-  sy<-xy1[2]-m1*xy1[1]+m1*sx
-  if(!is.nan(sy)) return( c(sx,sy) )
-  if(abs(m1)==Inf) return( c(xy1[1],xy2[2]+m2*(xy1[1]-xy2[1])) )
-  if(abs(m2)==Inf) return( c(xy2[1],xy1[2]+m1*(xy2[1]-xy1[1])) )
-}
 
 @
+\subsection{A function to find the position of points respectively to a polygon}
+\paragraph{pos.to.pg:}
 [[pos.to.pg]] finds the position of points [[z]] relative to a polygon [[pg]]
 If a point is below the polygon [["lower"]] is returned otherwise [["upper"]].
 <<define function [[pos.to.pg]]>>=
@@ -852,33 +1240,44 @@ pos.to.pg<-function(z,pg,reverse=FALSE){
   ifelse(z[,2]<zy.on.pg, "lower","higher")
 }
 
-
 @
-Now the local function are ready for usage.
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-@
-To detect a one dimensional data set we apply prcomp.
-Then we construct a boxplot by hand.
+\subsection{Check if data set is one dimensional}
+Now the local functions are ready for usage.
+To detect a data set being one dimensional we apply [[prcomp()]].
+In the one dimensional case we construct a boxplot by hand.
 <<check and handle linear case>>=
 prdata<-prcomp(xydata)
 is.one.dim<-(min(prdata[[1]])/max(prdata[[1]]))<0.0001
 if(is.one.dim){
- if(verbose) cat("data set one dimensional")
+  if(verbose) cat("data set one dimensional")
   center<-colMeans(xydata)
-  res<-list(xy=xy,xydata=xydata,prdata=prdata,is.one.dim=is.one.dim,center=center)
+  res<-list(xy=xy,xydata=xydata,prdata=prdata,
+            is.one.dim=is.one.dim,center=center)
   class(res)<-"bagplot"
- return(res)
+  return(res)
 } 
 if(verbose) cat("data not linear")
 
 @
+\subsection{Standardize data and compute h-depths of points}
+For numerical reasons we standardize the data set: [[xyxy]].
+Some computations takes place on the standardized copy [[xyxy]] of [[xy]].
+<<standardize data and compute: [[xyxy]], [[xym]], [[xysd]]>>=
+xym<-apply(xy,2,mean); xysd<-apply(xy,2,sd)
+xyxy<-cbind((xy[,1]-xym[1])/xysd[1],(xy[,2]-xym[2])/xysd[2])
+
+@
+For each data point we compute the directions to all the points and 
+determine the angles of the directions. This information helps us
+to find the h-depths of the points.
 For friends of complexity: 
 the angles between all pair of points are computed in $O(n^2 \log n)$
-time. The angle between identical points is set to 1000.
+time because of sorting the columns of a $(n\times n)$-matrix. 
+The angle between identical points is coded by entry 1000.
 <<compute angles between points>>=
 dx<-(outer(xy[,1],xy[,1],"-"))
 dy<-(outer(xy[,2],xy[,2],"-"))
-alpha<-atan2(y=dy,x=dx); diag(alpha)<-1200 
+alpha<-atan2(y=dy,x=dx); diag(alpha)<-1000 
 for(j in 1:n) alpha[,j]<-sort(alpha[,j])
 alpha<-alpha[-n,] ; m<-n-1
 ## quick look inside, just for check
@@ -896,7 +1295,7 @@ if(verbose) print("end of computation of angles")
 We compute the h-depths in $O(n^2 \log(n))$.
 The [[NaN]] angles are extracted because they indicate points with
 identical coordinates. 
-For every point we find the hdeep by the following algorithm: 
+For each point we find the h-depth by the following algorithm: 
 At first we count the number of angles of the actual point
 within interval $[0, \pi)$. This is equivalent to the number of 
 points above the actual point. Then we rotate the $y=0$-line counterclockwise
@@ -905,16 +1304,22 @@ we decrement the counter if a point / angle leaves the halve plain.
 
 @
 The median is defined as the gravity center of all points 
-with maximal hdeep. 
+with maximal h-depth. 
+
+@
+As usually some problems were induced by equality of angles. 
+One reaction was to add some shift to compare with slightly modified 
+$\pi$-values.
 <<compute hdepths>>=
-hdepth<-rep(0,n); dpi<-2*pi-0.000001
+hdepth<-rep(0,n); dpi<-2*pi-0.000001; mypi<-pi-0.000001
 minusplus<-c(rep(-1,m),rep(1,m))
 for(j in 1:n) {
-  a<-alpha[,j]+pi; h<-a<10; a<-a[h]; init<-sum(a < pi) # hallo
+  a<-alpha[,j]+pi; h<-a<10; a<-a[h]; init<-sum(a < mypi) # hallo
   a.shift<-(a+pi) %% dpi
+  minusplus<-c(rep(-1,length(a)),rep(1,length(a))) ## 070824 
   h<-cumsum(minusplus[order(c(a,a.shift))])
-  hdepth[j]<-init+min(h)+1 #  or do we have to count identical points?:
-#  hdepth[j]<-init+min(h)+sum(xy[j,1]==xy[,1] & xy[j,2]==xy[,2])# hallo
+  hdepth[j]<-init+min(h)+1 # or do we have to count identical points?
+# hdepth[j]<-init+min(h)+sum(xy[j,1]==xy[,1] & xy[j,2]==xy[,2])
 }
 if(verbose){print("end of computation of hdepth:"); print(hdepth)}
 ## quick look inside, just for a check
@@ -924,6 +1329,7 @@ if(debug.plots=="all"){
   for(j in 1:n) {
     a<-alpha[,j]+pi; a<-a[a<10]; init<-sum(a < pi)
     a.shift<-(a+pi) %% dpi
+    minusplus<-c(rep(-1,length(a)),rep(1,length(a))) ## 070824 
     h<-cumsum(minusplus[ao<-(order(c(a,a.shift)))])
     no<-which((init+min(h)) == (init+h))[1]
     p<-xy[j,]; dy<-dx*tan(alpha[,j])
@@ -936,81 +1342,98 @@ if(debug.plots=="all"){
 
 @
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-We compute the depth $k$ with
-\#$D_k \le $ [[points.in.bag]] $<$ \#$D_{k-1}$
+We determine the h-depth $k$ so that the following condition holds: \\
+(the number of points of h-depth greater or equal $k$ is lower or equal to the 
+number of data points staying in the bag) and 
+(the number of points of h-depth greater equal $k-1$ is greater $n/2$):
+\[
+\#D_k \le \mbox{points in the bag:} n/2 < \#D_{k-1}.
+\]
 <<find [[k]]>>=
 hd.table<-table(sort(hdepth))
 d.k<-cbind(dk=rev(cumsum(rev(hd.table))),
            k =as.numeric(names(hd.table)))
 k.1<-sum(points.in.bag<d.k[,1])
 
-# if(nrow(d.k)>1){ # version 09/2005
-if(nrow(d.k)>2){  # changed in cause of data set 1 of W. Meuleman
+# if(nrow(d.k)>1){ # version 09/2005, error in data set 1 of Meuleman
+if(nrow(d.k)>k.1){ # instead of >2 now >k.1 # 070827
   k<-d.k[k.1+1,2] 
 } else { 
   k<-d.k[k.1,2]
 }
-if(verbose){cat("counts of members of dk:"); print(hd.table)}
+if(verbose){cat("numbers of members of dk:"); print(hd.table)}
 if(verbose){cat("end of computation of k, k=",k)}
 
-@
-The two dimensional median is the center of gravity of the 
-points (not data points) with maximal h-depths.
 
-We extract some data points with maximal depths and
-define [[tp]] as random linear combinations of them.
-Then we compute their h-depths.
+@
+\subsection{Find the center of the data set}
+The two dimensional median is the center of gravity of the 
+polygon of the points (not data points) with maximal h-depths.
+
+We check some inner test points to find the maximal h-depth.
+Then we look for the boundery of the area of points with this h-depth.
+
+@
+This procedure has been tested with the Ben Greiner data using:
+<<test: data set of Ben Greiner>>
 <<compute hdepths of test points to find center>>=
 center<-apply(xy[which(hdepth==max(hdepth)),,drop=FALSE],2,mean)
 hull.center<-NULL
-if(10<nrow(xy)&&length(hd.table)>2){
+if(5<nrow(xy)&&length(hd.table)>2){
   n.p<-floor(c(32,16,8)[1+(n>50)+(n>200)]*precision)
-  cands<-xy[rev(order(hdepth))[1:6],]
+  h<-cands<-xy[rev(order(hdepth))[1:6],]
   cands<-cands[chull(cands[,1],cands[,2]),]; n.c<-nrow(cands)
-  <<check points on a grid to find center>>
+  if(is.null(n.c))cands<-h
+  <<check some points to find the maximal h-depth>>
+  <<find the polygon of points of maximal h-depth>>
   if(verbose){cat("hull.center",hull.center); print(table(tphdepth)) }
 }
-if(verbose) cat("center depth:",hdepth.of.points(rbind(center),n))
+if(verbose) cat("center depth:",hdepth.of.points(rbind(center),n)-1)
 if(verbose){print("end of computation of center"); print(center)}
-# cat("HALLO"); print(hdepth.of.points(cbind(6.75,4.85),n))
 
 @
-%hallo
-<<check points on a grid to find center>>=
-  xyextr<-rbind(apply(cands,2,min),apply(cands,2,max))
-  h1<-seq(xyextr[1,1],xyextr[2,1],length=n.p)
-  h2<-seq(xyextr[1,2],xyextr[2,2],length=n.p)
-  tp<-cbind(matrix(h1,n.p,n.p)[1:n.p^2],
-            matrix(h2,n.p,n.p,TRUE)[1:n.p^2])
-  tphdepth<-hdepth.of.points(tp,n)
-  hull.center<-tp[which(tphdepth>=(max(tphdepth))),,drop=FALSE]
-  center<-apply(hull.center,2,mean)
-  cands<-hull.center[chull(hull.center[,1],hull.center[,2]),,drop=FALSE]
-  xyextr<-rbind(apply(cands,2,min),apply(cands,2,max))
-  xydel<-(xyextr[2,]-xyextr[1,])/n.p
-  xyextr<-rbind(xyextr[1,]-xydel,xyextr[2,]+xydel)
-  h1<-seq(xyextr[1,1],xyextr[2,1],length=n.p)
-  h2<-seq(xyextr[1,2],xyextr[2,2],length=n.p)
-  tp<-cbind(matrix(h1,n.p,n.p)[1:n.p^2],
-            matrix(h2,n.p,n.p,TRUE)[1:n.p^2])
-  tphdepth<-hdepth.of.points(tp,n)
-  hull.center<-tp[which(tphdepth>=max(tphdepth)),,drop=FALSE]
-  center<-apply(hull.center,2,mean)
-  hull.center<-hull.center[chull(hull.center[,1],hull.center[,2]),]
+<<check some points to find the maximal h-depth>>=
+xyextr<-rbind(apply(cands,2,min),apply(cands,2,max))
+xydel<-2*(xyextr[2,]-xyextr[1,])/n.p
+h1<-seq(xyextr[1,1],xyextr[2,1],length=n.p)
+h2<-seq(xyextr[1,2],xyextr[2,2],length=n.p)
+tp<-cbind(matrix(h1,n.p,n.p)[1:n.p^2],
+          matrix(h2,n.p,n.p,TRUE)[1:n.p^2])
+tphdepth<-max(hdepth.of.points(tp,n))-1
 
 @
-This was an alternative approach to find the center but the brute force 
-method seems to be better.
-<<beta>>=
-#  lam<-matrix(runif(n.c*n.p),n.p,n.c)
-  set.seed(13);  n.p.beta<-10*n.p
-  lam<-matrix(rbeta(n.c*n.p.beta,.5,.5),n.p.beta,n.c)
-  lam<-lam/matrix(apply(lam,1,sum),n.p.beta,n.c,FALSE)
-  tp<-cbind( lam%*%cands[,1],lam%*%cands[,2])
-  tphdepth<-hdepth.of.points(tp,n)
-  hull.center<-tp[which(tphdepth==max(tphdepth)),,drop=FALSE]
-  center<-apply(hull.center,2,mean)
-  hull.center<-hull.center[chull(hull.center[,1],hull.center[,2]),]
+For finding the area of maximal h-depth we use an algorithm
+that has been implemented for finding the bag, see below. <<find $kkk$-hull: [[pg]]>>
+<<find the polygon of points of maximal h-depth>>=
+<<initialize [[angles]], [[ang]]>>
+kkk<-tphdepth
+if(verbose){cat("max-hdepth found:"); print(kkk)}
+<<find $kkk$-hull: [[pg]]>>
+hull.center<-cbind(pg[,1]*xysd[1]+xym[1],pg[,2]*xysd[2]+xym[2])
+center<-find.polygon.center(hull.center)  
+
+@
+\paragraph{A function to compute the center of gravity of a polygon.}
+
+The function [[find.polygon.center]] determines the center of gravity of 
+a polygon.
+<<define [[find.polygon.center]]>>=
+find.polygon.center<-function(xy){
+  ## if(missing(xy)){n<-50;x<-rnorm(n);y<-rnorm(n); xy<-cbind(x,y)}
+  ## xy<-xy[chull(xy),]
+  if(length(xy)==2) return(xy[1:2])
+  ## partition polygon into triangles
+  n<-length(xy[,1]); mxy<-colMeans(xy)
+  xy2<-rbind(xy[-1,],xy[1,]); xy3<-cbind(rep(mxy[1],n),mxy[2])
+  ## determine areas and centers of gravity of triangles
+  S<-(xy+xy2+xy3)/3
+  F2<-abs((xy[,1]-xy3[,1])*(xy2[,2]-xy3[,2])-
+        (xy[,2]-xy3[,2])*(xy2[,1]-xy3[,1]))
+  ## compute center of gravity of polygon 
+  lambda<-F2/sum(F2)
+  SP<-colSums(cbind(S[,1]*lambda,S[,2]*lambda))
+  return(SP)
+}
 
 @
 We compute the convex hull of $D_k$: polygon [[pdk]] and
@@ -1061,14 +1484,11 @@ and restandardization
 \item computation of $D_{k-1}$ polygon
 and restandardization
 \end{enumerate}
+We determine the hulls on the base of the standardized data
+[[xyxy]].
 <<method two: find hulls of $D_k$ and $D_{k-1}$>>=
-# define direction for hdepth search
-num<-floor(c(417,351,171,85,67,43)[sum(n>c(1,50,100,150,200,250))]*precision)
-num.h<-floor(num/2); angles<-seq(0,pi,length=num.h)
-ang<-tan(pi/2-angles)
-# standardization of data set
-xym<-apply(xy,2,mean); xysd<-apply(xy,2,sd)
-xyxy<-cbind((xy[,1]-xym[1])/xysd[1],(xy[,2]-xym[2])/xysd[2])
+<<initialize [[angles]], [[ang]]>>
+# standardization of data set xyxy is used
 kkk<-k          
 <<find $kkk$-hull: [[pg]]>>
 exp.dk<-cbind(pg[,1]*xysd[1]+xym[1],pg[,2]*xysd[2]+xym[2])
@@ -1090,11 +1510,11 @@ for(ia in seq(angles)[-1]){
 At first we search the limiting points for every direction by 
 rotating the data set and then we determine 
 the quantiles $x_{k/n}$ and $x_{(n+1-k)/n}$.
-With this points we construct a upper [[pg]] and a lower polygon [[pgl]]
-that limits the hull we are looking for.
+With this points we construct a upper polygon [[pg]] and a lower one [[pgl]]
+that limit the hull we are looking for.
 To update a polygon we have to find the line segments of the polygon
 that are cut by the lines of slope [[a]] through the limiting points as well
-as the cut points.
+as the intersection points.
 <<body of loop of directions>>=
 # determine critical points pnew and pnewl of direction a
 ### cat("ia",ia)
@@ -1136,53 +1556,100 @@ pgl<-rbind(c(cutpl[1],dxy,Inf),c(cutpl[1],-dxy,NA))
 <<debug: plot ini>>
 
 @
-The combination of the is a little bit complicated because sometimes
-at the right and at left margin an additional cut point has to be computed
+It is necessary to initialize the angles of the directions. 
+If the data set is very large we will check fewer 
+directions than in case of a small data set.
+If the data set is small the choice of the angles may be improved 
+by using the observed angles defined by the slopes of lines 
+running through the pairs of the points.
+<<initialize [[angles]], [[ang]]>>=
+# define direction for hdepth search
+num<-floor(c(417,351,171,85,67,43)[sum(n>c(1,50,100,150,200,250))]*precision)
+num.h<-floor(num/2); angles<-seq(0,pi,length=num.h)
+ang<-tan(pi/2-angles)
+
+@
+The combination of the polygons is a little bit complicated because sometimes
+at the right and at left margin an additional intersection point has to be computed
 and integrated. [[l]] in front of a variable name indicates the left margin
 whereas the right one is coded by [[r]].
 Letter [[l]] ([[u]]) at the end of a name is short for
 lower and upper.
 <<combination of lower and upper polygon>>=
-pg<-pg[-nrow(pg),][-1,,drop=FALSE]; pgl<-pgl[-nrow(pgl),][-1,,drop=FALSE]
-indl<-pos.to.pg(pgl,pg); indu<-pos.to.pg(pg,pgl,TRUE)
-npg<-nrow(pg); npgl<-nrow(pgl)
-rnuml<-rnumu<-lnuml<-lnumu<-0; sl<-pg[1,1:2]; sr<-pgl[1,1:2]
+## plot(xyxy[,1:2],xlim=c(-.5,+.5),ylim=c(-.5,.50))
+## lines(pg,type="b",col="red")
+## lines(pgl,type="b",col="blue")
+# remove first and last points and multiple points
+limit<-1e-10
+pg<-pg[c(TRUE,(abs(diff(pg[,1]))>limit)|(abs(diff(pg[,2]))>limit)),]
+pgl<-pgl[c(TRUE,(abs(diff(pgl[,1]))>limit)|(abs(diff(pgl[,2]))>limit)),]
+pg<-pg[-nrow(pg),][-1,,drop=FALSE]
+pgl<-pgl[-nrow(pgl),][-1,,drop=FALSE]
+# determine position according to the other polygon
+#   cat("relative position: lower polygon")
+indl<-pos.to.pg(pgl,pg)
+#   print(cbind(signif(pgl,3),indl))
+#   cat("relative position: upper polygon")
+indu<-pos.to.pg(pg,pgl,TRUE)
+#   print(cbind(signif(pg,3),indu))
+sr<-sl<-NULL
 # right region
-if(indl[1]=="higher"&indu[npg]=="lower"){ 
-  rnuml<-which(indl=="lower")[1]-1; xyl<-pgl[rnuml,] #
-  rnumu<-which(rev(indu=="higher"))[1]; xyu<-pg[npg+1-rnumu,] #
+if(indu[(npg<-nrow(pg))]=="lower" & indl[1]=="higher"){ 
+  # cat("in if of right region: the upper polynom is somewhere lower")
+  #  checking from the right: last point of lower polygon that is NOT ok
+  rnuml<-which(indl=="lower")[1]-1
+  #  checking from the left: last point of upper polygon that is ok
+  rnumu<-npg+1-which(rev(indu=="higher"))[1]
+  #  special case all points of lower polygon are upper
+  if(is.na(rnuml)) rnuml<-sum(pg[rnumu,1]<pgl[,1])
+  #  special case all points of upper polygon are lower
+  if(is.na(rnumu)) rnumu<-sum(pg[,1]<pgl[rnuml,1])
+  xyl<-pgl[rnuml,]; xyu<-pg[rnumu,]
+  ## cat("right"); print(rnuml); print(xyl)
+  ## cat("right"); print(rnumu); print(xyu)
   sr<-cut.p.sl.p.sl(xyl[1:2],xyl[3],xyu[1:2],xyu[3])
 }
 # left region
-if(indl[npgl]=="higher"&indu[1]=="lower"){ 
-  lnuml<-which(rev(indl=="lower"))[1]; xyl<-pgl[npgl+1-lnuml,] #
-  lnumu<-which(indu=="higher")[1]-1; xyu<-pg[lnumu,] #?
+if(indl[(npgl<-nrow(pgl))]=="higher"&indu[1]=="lower"){ 
+  # cat("in if of left region: the upper polynom is somewhere lower")
+  #  checking from the right: last point of lower polygon that is ok
+  lnuml<-npgl+1-which(rev(indl=="lower"))[1]
+  #  checking from the left: last point of upper polygon that is NOT ok
+  lnumu<-which(indu=="higher")[1]-1
+  #  special case all points of lower polygon are upper
+  if(is.na(lnuml)) lnuml<-sum(pg[lnumu,1]<pgl[,1])
+  #  special case all points of upper polygon are lower
+  if(is.na(lnumu)) lnumu<-sum(pg[,1]<pgl[lnuml,1])
+  xyl<-pgl[lnuml,]; xyu<-pg[lnumu,] 
+  ## cat("left"); print(lnuml); print(xyl)
+  ## cat("left"); print(lnumu); print(xyu)
   sl<-cut.p.sl.p.sl(xyl[1:2],xyl[3],xyu[1:2],xyu[3])
 }
-pgl<-pgl[(rnuml+1):(npgl-lnuml),1:2,drop=FALSE]
-pg <-pg [(lnumu+1):(npg -rnumu),1:2,drop=FALSE]
-pg<-rbind(pg,sr,pgl,sl)
-pg<-pg[chull(pg[,1],pg[,2]),]
+pg<-rbind(pg [indu=="higher",1:2,drop=FALSE],sr,
+          pgl[indl=="lower", 1:2,drop=FALSE],sl)
+  ## print(pg)
 if(debug.plots=="all") lines(rbind(pg,pg[1,]),col="red")
+pg<-pg[chull(pg[,1],pg[,2]),]
 
 @
 <<debug: plot within for loop>>=
 #########################################
 #### cat("angtan",angtan,"pg.no",pg.no,"pkt:",pnew)
 # if(ia==stopp) lines(pg,type="b",col="green") 
-if(debug.plots=="all"){
+if(debug.plots=="all"){ 
   points(pnew[1],pnew[2],col="red") 
   hx<-xyxy[ind.k,c(1,1)]; hy<-xyxy[ind.k,c(2,2)]
   segments(hx,hy,c(10,-10),hy+ang[ia]*(c(10,-10)-hx),lty=2)
 #  text(hx+rnorm(1,,.1),hy+rnorm(1,,.1),ia)
-#print(pg) 
+# print(pg) 
 # if(ia==stopp) lines(pgl,type="b",col="green") 
   points(cutpl[1],cutpl[2],col="red") 
   hx<-xyxy[ind.kk,c(1,1)]; hy<-xyxy[ind.kk,c(2,2)]
   segments(hx,hy,c(10,-10),hy+ang[ia]*(c(10,-10)-hx),lty=2)
 #  text(hx+rnorm(1,,.1),hy+rnorm(1,,.1),ia)
-#print(pgl)
+# print(pgl)
 }
+
 @
 <<debug: plot ini>>=
 if(debug.plots=="all"){ plot(xyxy,type="p",bty="n") 
@@ -1193,11 +1660,11 @@ if(debug.plots=="all"){ plot(xyxy,type="p",bty="n")
 }  
 
 @
-On the way of finding the bag
-the function [[expand.hull]] computes not an exact solution
+\subsection{Finding of the bag}
+To find the bag the function [[expand.hull]] computes not an exact solution
 but a numerical approximation. 
-[[k.1]] indicates the polygon with h-depth $k-1$.
-[[k.1+1]] will usually points to h-depth $k$, to the inner polygon.
+[[k.1]] indicates the polygon ([[exp.dk.1]]) with h-depth $(k-1)$.
+[[k.1+1]] will usually point to h-depth $k$ (polygon: [[exp.dk]]), to the inner polygon.
 
 In computing $\lambda$ we follow Miller et al. (1999). 
 They define $\lambda$ as the relative distance from the bag to the
@@ -1209,39 +1676,41 @@ $J$\% of the original points and $D_{k-1}$ contains $L$\% of the original points
 \frac{\mbox{number in bag}-\mbox{number in inner contour}}
        {\mbox{number in outer contour}-\mbox{number in inner contour}}
 \]
-$\lambda==0$ happens if bag and inner contour is identical.
+If bag and inner contour is identical then $\lambda\leftarrow 0$. 
+
+[[k.1]] is the number of the rows of [[dk]] that represent points
+within the bag / h-depths greater $n/2$.  
 <<find value of [[lambda]]>>=
-# lambda<-if(nrow(d.k)==1 ) 0.5 else  # version 09/2005
-#                    (n/2-d.k[k.1+1,1])/(d.k[k.1,1]-d.k[k.1+1,1]) 
-# data set 1 of W. Meuleman runs in difficulties because nrow(d.k)==2 and k.1==2 
-if(nrow(d.k)==1)                  lambda<-0.5
-if(nrow(d.k)==k.1)                lambda<-0 
-if(nrow(d.k)!=1 & nrow(d.k)!=k.1) lambda<-(n/2-d.k[k.1+1,1])/(d.k[k.1,1]-d.k[k.1+1,1]) 
+if(nrow(d.k)==k.1||nrow(d.k)==1)  lambda<-0 else {
+  lambda<-(n/2-d.k[k.1+1,1])/(d.k[k.1,1]-d.k[k.1+1,1]) 
+}
 if(verbose) cat("lambda",lambda)
-@
-<<error>>=
-<<data set 1 of Wouter Meuleman>>
-bagplot(a[,2],a[,3],verbose=TRUE,debug.plots="all",dkmethod=1)
 
 @
-$\lambda==0$ happens if bag and inner contour is identical.
 The bag is constructed by 
-lambda * outer polygon + (1-lambda)* inner polygon
+lambda * outer polygon + (1-lambda)* inner polygon.
+
+In former versions it happened that some lines of [[h]] get [[NaN]] values
+because [[nrow(d.k)==2]] and [[k.1==2]] (e.g. example of Wouter Meuleman). 
+This problem doesn't occur no longer
+but to be sure we have an additional look at [[h]].
+
 <<find [[hull.bag]]>>=
 cut.on.pdk.1<-find.cut.z.pg(exp.dk,  exp.dk.1,center=center)
 cut.on.pdk  <-find.cut.z.pg(exp.dk.1,exp.dk,  center=center)
-# expand inner polgon 
+# expand inner polgon exp.dk
 h1<-(1-lambda)*exp.dk+lambda*cut.on.pdk.1
-# shrink outer polygon
+# shrink outer polygon exp.dk.1
 h2<-(1-lambda)*cut.on.pdk+lambda*exp.dk.1
 h<-rbind(h1,h2); 
-# some lines of h are NaN in example of Wouter Meuleman # print(h) # short correction
 h<-h[!is.nan(h[,1])&!is.nan(h[,2]),] 
 hull.bag<-h[chull(h[,1],h[,2]),]
-if(verbose)cat("bag completed:") #if(verbose)print(hull.bag) 
+if(verbose)cat("bag completed:") #if(verbose) print(hull.bag) 
 if(debug.plots=="all"){   lines(hull.bag,col="red") }
+
 @
-The loop is found by expand [[hull.bag]] by factor [[factor]].
+\subsection{Computation of the loop}
+The loop is found by expanding [[hull.bag]] by factor [[factor]].
 <<find [[hull.loop]]>>=
 hull.loop<-cbind(hull.bag[,1]-center[1],hull.bag[,2]-center[2])
 hull.loop<-factor*hull.loop
@@ -1249,7 +1718,10 @@ hull.loop<-cbind(hull.loop[,1]+center[1],hull.loop[,2]+center[2])
 if(verbose) cat("loop computed")
 
 @
-Now we look for the loop ...
+Now we identify the points of the bag, the outliers and the outer points.
+Remark: There may be some points of h-depth $(k-1)$ that are members
+of the bag. If the data set is very large we will not check whether the
+h-depth $(k-1)$ points are in the bag.
 <<find points outside of bag but inside loop>>=
 if(!very.large.data.set){
   pxy.bag    <-xydata[hdepth>= k   ,,drop=FALSE]
@@ -1278,14 +1750,15 @@ if(length(pkt.not.bag)>0){
 if(verbose) cat("points of bag, outer points and outlier identified")
 
 @
-and compute the hull of the loop points.
+The points of the hull of the loop are stored in [[hull.loop]].
 <<find hull of loop>>=
 hull.loop<-rbind(pxy.outer,hull.bag)
 hull.loop<-hull.loop[chull(hull.loop[,1],hull.loop[,2]),]
 if(verbose) cat("end of computation of loop")
 
 @
-Finally the plot has to be constructed. For this we write a new plot method.
+\subsection{The definition of [[plot.bagplot]]}
+Finally we have to draw the bagplot. This job is managed by a new plot method.
 <<define [[plot.bagplot]]>>=
 plot.bagplot<-function(x,
    show.outlier=TRUE,# if TRUE outlier are shown
@@ -1303,6 +1776,7 @@ plot.bagplot<-function(x,
    col.bagpoints="#000088", # Alternatives: #008800, #880000
    transparency=FALSE,...
 ){
+ <<version of bagplot>>
  # transparency flag and color flags have been proposed by wouter 
     if (transparency==TRUE) {
       col.loophull = paste(col.loophull, "99", sep="")
@@ -1319,19 +1793,20 @@ plot.bagplot<-function(x,
  } 
  <<construct bagplot as usual>>
 }
+
 @
-We need the following elements to be able to construct the bagplot:
-[[xydata]] (data set)
-[[xy]] (sample of data set)
-[[hdepth]] (location depth of data points in xy)
-[[hull.loop]] (points of polygon that define the loop)
-[[hull.bag]] (points of polygon that define the bag)
-[[hull.center]] (region of points with maximal ldepth)
-[[pxy.outlier]] (outlier)
-[[pxy.outer]] (outer points)
-[[pxy.bag]] (points in bag)
-[[center]] (Tukey median)
-[[is.one.dim]] is TRUE if data set is one dimensional
+The following elements allows us to draw the bagplot:
+[[xydata]] (data set),
+[[xy]] (sample of data set),
+[[hdepth]] (location depth of data points in xy),
+[[hull.loop]] (points of polygon that define the loop),
+[[hull.bag]] (points of polygon that define the bag),
+[[hull.center]] (region of points with maximal ldepth),
+[[pxy.outlier]] (outlier),
+[[pxy.outer]] (outer points),
+[[pxy.bag]] (points in bag),
+[[center]] (Tukey median),
+[[is.one.dim]] is TRUE if data set is one dimensional,
 [[prdata]] result of PCA
 <<construct bagplot as usual>>=
 if(!add) plot(xydata,type="n",pch=pch,cex=cex,bty="n",...)
@@ -1355,8 +1830,14 @@ if(show.bagpoints && length(pxy.bag)>0){ # points in bag
 # whiskers
 if(show.whiskers && length(pxy.outer)>0){
     debug.plots<-"not"
-    pkt.cut<-find.cut.z.pg(pxy.outer,hull.bag,center=center)
-    segments(pxy.outer[,1],pxy.outer[,2],pkt.cut[,1],pkt.cut[,2],col="red")
+    if((n<-length(xy[,1]))<15){
+      segments(xy[,1],xy[,2],rep(center[1],n),rep(center[2],n),
+               col="red")
+    }else{
+      pkt.cut<-find.cut.z.pg(pxy.outer,hull.bag,center=center)
+      segments(pxy.outer[,1],pxy.outer[,2],pkt.cut[,1],pkt.cut[,2],
+               col="red")
+    }
 }
 # outlier: --------------------------------------------------
 if(show.outlier && length(pxy.outlier)>0){ # points in loop 
@@ -1409,38 +1890,164 @@ In case of problems some additional plottings may be helpful.
 # points(exp.dk[,1],exp.dk[,2],type="b",col="green")
 # points(exp.dk.1[,1],exp.dk.1[,2],type="b",col="blue")
 
-
 @
-\section{Random data set}
-<<define data [[xy]]>>=
-if(!exists("lll")) lll<-75 #lll<-75 # 267 81 115
-set.seed(lll<-lll+1); print(lll)
-#data<-matrix(sample(1:10000,size=2000),1000,2)
-#data<-matrix(sample(1:10000,size=300),50,2) 
-n<-100;data<-cbind(rnorm(n)+100,rnorm(n)+300)
-par(mfrow=c(1,1))
-
-@
-\section{Definitionn of [[bagplot]] on start}
+\subsection{Some technical leftovers}
+\subsubsection{Definition of [[bagplot]] on start}
 <<start>>=
 <<define [[bagplot]]>>
 
 @
-\section{Extracting of function [[bagplot]]}
-
-<<call [[tangleR]] to extract tangle function [[bagplot()]]>>=
-tangleR("hdeep.rev",expand.roots="define [[bagplot]]")
+\subsubsection{Extracting the R code file [[bagplot.R]]} 
+<<some functions for generating bagplots>>=
+<<define [[bagplot]]>>
 
 @
-\end{document}
-\section{Some old code chunks for documentation}
-\tiny
+<<call [[tangleR]] to extract tangle function [[bagplot()]]>>=
+tangleR("bagplot.rev",expand.roots="some functions for generating bagplots",
+        expand.root.start=FALSE) 
 
+@
+\newpage
+@ 
+\section{Appendix}
+\subsection{Some further examples -- usefull for testing}
+\renewcommand{\codechunkcommands}{\tiny}
+\renewcommand{\textchunkcommands}{\footnotesize}
+@
+<<define rnorm data [[data]], seed: [[seed]], size: [[n]]>>=
+if(!exists("seed")) seed<-75 # 267 81 115
+set.seed(seed)
+#data<-matrix(sample(1:10000,size=2000),1000,2)
+#data<-matrix(sample(1:10000,size=300),50,2) 
+if(!exists("n")) n<-100
+data<-cbind(rnorm(n)+100,rnorm(n)+300)
+par(mfrow=c(1,1))
+
+@
+<<error>>=
+<<define [[bagplot]]>>
+<<data set 1 of Wouter Meuleman>>
+bagplot(a[,2],a[,3],verbose=TRUE,debug.plots="all",dkmethod=2)
+@
+<<*>>=
+seed<-222; n<-100
+<<define rnorm data [[data]], seed: [[seed]], size: [[n]]>>
+datan<-rbind(data,c(106,294)); par(mfrow=c(1,1))
+datan[,2]<-datan[,2]*100
+<<define [[bagplot]]>>
+bagplot(datan,verbose=TRUE)
+
+@
+<<quadratic>>=
+<<define [[bagplot]]>>
+bagplot(x=1:30,y=(1:30)^2,verbose=TRUE,dkmethod=2)
+
+@
+<<error>>=
+<<define [[bagplot]]>>
+<<data set 1 of Wouter Meuleman>>
+bagplot(a[,2],a[,3],verbose=TRUE,debug.plots="all",dkmethod=2)
+
+@
+<<*>>=
+par(mfrow=2:3)
+<<define [[bagplot]]>>
+bagplot(x=cos((1:100)/100*2*pi),y=-sin((1:100)/100*2*pi),
+  precision=1,verbose=TRUE,dkmethod=2,debug.plot="all"); "ok"
+
+
+@
+\subsection{Some old code chunks for comparison}
+
+@
+<<old version of the combination of lower and upper polygon>>=
+pg<-pg[-nrow(pg),][-1,,drop=FALSE]; pgl<-pgl[-nrow(pgl),][-1,,drop=FALSE]
+indl<-pos.to.pg(pgl,pg); indu<-pos.to.pg(pg,pgl,TRUE)
+npg<-nrow(pg); npgl<-nrow(pgl)
+rnuml<-rnumu<-lnuml<-lnumu<-0; sl<-pg[1,1:2]; sr<-pgl[1,1:2]
+# right region
+if(indl[1]=="higher"&indu[npg]=="lower"){ 
+  rnuml<-which(indl=="lower")[1]-1; xyl<-pgl[rnuml,] #
+  rnumu<-which(rev(indu=="higher"))[1]; xyu<-pg[npg+1-rnumu,] #
+  sr<-cut.p.sl.p.sl(xyl[1:2],xyl[3],xyu[1:2],xyu[3])
+}
+# left region
+if(indl[npgl]=="higher"&indu[1]=="lower"){ 
+  lnuml<-which(rev(indl=="lower"))[1]; xyl<-pgl[npgl+1-lnuml,] #
+  lnumu<-which(indu=="higher")[1]-1; xyu<-pg[lnumu,] #?
+  sl<-cut.p.sl.p.sl(xyl[1:2],xyl[3],xyu[1:2],xyu[3])
+}
+pgl<-pgl[(rnuml+1):(npgl-lnuml),1:2,drop=FALSE]
+pg <-pg [(lnumu+1):(npg -rnumu),1:2,drop=FALSE]
+pg<-rbind(pg,sr,pgl,sl)
+pg<-pg[chull(pg[,1],pg[,2]),]
+if(debug.plots=="all") lines(rbind(pg,pg[1,]),col="red")
+
+@
+In the old version of [[out.of.polygon]] the angles
+between the lines that are defined by a point of [[xy] and
+the vertices of [[pg]] are computed. If maximal angle $> 2\pi$ 
+than the point is not an inner point of the polygon:
+<<old version: define function [[out.of.polygon]]>>=
+out.of.polygon<-function(xy,pg){
+  if(nrow(pg)==1) return(pg) 
+  pgcenter<-apply(pg,2,mean) # not necessary
+  pg<-cbind(pg[,1]-pgcenter[1],pg[,2]-pgcenter[2])# not necessary
+  xy<-cbind(xy[,1]-pgcenter[1],xy[,2]-pgcenter[2])# not necessary
+  extr<-rep(FALSE,nrow(xy))
+  for(i in seq(nrow(xy))){
+    alpha<-sort((win(xy[i,1]-pg[,1],xy[i,2]-pg[,2]))%%(2*pi))
+    extr[i]<-pi<max(diff(alpha)) | 
+             pi<(alpha[1]+2*pi-alpha[length(alpha)])
+  }
+  extr
+}
+
+@
+This was an alternative approach to find the center but the brute force 
+method seems to be better.
+<<beta>>=
+#  lam<-matrix(runif(n.c*n.p),n.p,n.c)
+  set.seed(13);  n.p.beta<-10*n.p
+  lam<-matrix(rbeta(n.c*n.p.beta,.5,.5),n.p.beta,n.c)
+  lam<-lam/matrix(apply(lam,1,sum),n.p.beta,n.c,FALSE)
+  tp<-cbind( lam%*%cands[,1],lam%*%cands[,2])
+  tphdepth<-hdepth.of.points(tp,n)
+  hull.center<-tp[which(tphdepth==max(tphdepth)),,drop=FALSE]
+  center<-apply(hull.center,2,mean)
+  hull.center<-hull.center[chull(hull.center[,1],hull.center[,2]),]
+
+@
+<<old version: check points on a grid to find center>>=
+  xyextr<-rbind(apply(cands,2,min),apply(cands,2,max))
+  xydel<-2*(xyextr[2,]-xyextr[1,])/n.p
+  h1<-seq(xyextr[1,1],xyextr[2,1],length=n.p)
+  h2<-seq(xyextr[1,2],xyextr[2,2],length=n.p)
+  tp<-cbind(matrix(h1,n.p,n.p)[1:n.p^2],
+            matrix(h2,n.p,n.p,TRUE)[1:n.p^2])
+  tphdepth<-hdepth.of.points(tp,n)
+  hull.center<-tp[which(tphdepth>=(max(tphdepth))),,drop=FALSE]
+  center<-apply(hull.center,2,mean)
+  cands<-hull.center[chull(hull.center[,1],hull.center[,2]),,drop=FALSE]
+  xyextr<-rbind(apply(cands,2,min),apply(cands,2,max))
+  ##  xydel<-(xyextr[2,]-xyextr[1,])/n.p
+  xyextr<-rbind(xyextr[1,]-xydel,xyextr[2,]+xydel)
+  h1<-seq(xyextr[1,1],xyextr[2,1],length=n.p)
+  h2<-seq(xyextr[1,2],xyextr[2,2],length=n.p)
+  tp<-cbind(matrix(h1,n.p,n.p)[1:n.p^2],
+            matrix(h2,n.p,n.p,TRUE)[1:n.p^2])
+  tphdepth<-hdepth.of.points(tp,n)
+  hull.center<-tp[which(tphdepth>=max(tphdepth)),,drop=FALSE]
+  center<-apply(hull.center,2,mean)
+  hull.center<-hull.center[chull(hull.center[,1],hull.center[,2]),]
+
+@
 <<old: experiment for finding bag>>=
 critical.angles.of.points<-function(tp){
   n.tp<-nrow(tp)
   tphdepth<-rep(0,n.tp); dpi<-2*pi-0.000001
-  minusplus<-c(rep(-1,n),rep(1,n))
+  
+minusplus<-c(rep(-1,n),rep(1,n))
   result<-matrix(0,n.tp,4)
   for(j in 1:n.tp) {
     dx<-tp[j,1]-xy[,1]; dy<-tp[j,2]-xy[,2] 
@@ -1471,8 +2078,8 @@ if(debug.plots=="all"){
 }
   result
 }
-
 a.pdk<-critical.angles.of.points(pdk)
+
 @
 <<old version to find [[lambda]]>>=
 # old version based on polygon of data points
@@ -1483,7 +2090,6 @@ if(nrow(d.k)>1){
 }
 
 @
-\vspace*{-3cm}
 <<old>>=
 pdk.1<-pdk.1-matrix(pcenter,nrow(pdk.1),2,byrow=TRUE)
 
@@ -1586,7 +2192,7 @@ if(verbose) cat("lambda",lambda)
 #  if(any(h)){cut.pkt[h,1]<-pgo[1,1];cut.pkt[h,2]<-pgo[1,2]}
 
 @
-[[# car data: lambda==0.6918136]]
+[[# car data: lambda==0.6918136]]\\
 In this definition it follows: 
 [[lambda==1]] iff bag is identical with inner polygon [[exp.dk]].
 <<old: find value of [[lambda]]>>=
@@ -1603,7 +2209,6 @@ if(lambda<0|lambda>1) lambda<-lambda<-min(1,max(0,median(lambda.i)))
 
 @
 \end{document}
-
 
 @
 
@@ -1626,6 +2231,21 @@ y1 <- rt(100, 3) ; y2 <- rt(20, 7)
 x3 <- rt(199, 4) ; y3 <- rt(199, 7)
 bagplot(x3,y3)$center
 #data(phones) #,package=MASS)
-#apropos("phones")
+#apcutropos("phones")
 bagplot(x0,y0)$center
 capabilities()
+
+@
+
+<<another data set 3>>=
+bagplot(c(rep(0,20),rep(-5,10),rep(5,10),20),
+        c(     1:20,rep( 5,10),rep(5,10),20))
+
+@
+<<another data set 3>>=
+bagplot(c(rep(0,20),rep(-5,10),rep(5,10),20),
+        c(     1:20,rep( 10,10),rep(10,10),20))
+
+
+
+

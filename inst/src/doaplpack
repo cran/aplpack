@@ -1,0 +1,59 @@
+# doaplpack: Installationsskript fuer aplpack
+# pw 08/2007
+
+[ ! -d aplpack/R ] && mv aplpack/r aplpack/R
+
+echo "library(relax);tangleR(\"bagplot.rev\",expand.roots=\"\",expand.root.start=TRUE)" | R --vanilla
+cp -p bagplot.R aplpack/R/bagplot.R
+##notangle -R"define [[bagplot]]"     bagplot.rev > aplpack/R/bagplot.R
+echo "library(relax);tangleR(\"bagplot.rev\",\"bagplot.Rd\", \
+                expand.roots=\"define help of [[bagplot]]\",expand.root.start=FALSE)" | R --vanilla
+grep "^[^#]" bagplot.Rd.R > aplpack/man/bagplot.Rd
+## notangle -R"define help of [[bagplot]]"  bagplot.rev > aplpack/man/bagplot.Rd
+cp -p bagplot.rev aplpack/inst/src/
+cp -p work/bagplot.pdf aplpack/inst/pdf/
+
+notangle -R"define [[faces]]"     faces.rev > aplpack/R/faces.R
+notangle -R"define [[plot.faces]]"     faces.rev > aplpack/R/plot.faces.R
+notangle -R"define [[faces]] help"  faces.rev > aplpack/man/faces.Rd
+cp -p faces.rev aplpack/inst/src/
+
+notangle -R"definiere ms"     ms.rev > aplpack/R/stem.leaf.R
+notangle -R"definiere Hilfe zu [[stem.leaf]]"  ms.rev > aplpack/man/stem.leaf.Rd
+cp -p ms.rev aplpack/inst/src/
+
+notangle -R"definiere [[spin3R]]"     spin3R.rev > aplpack/R/spin3R.R
+notangle -R"definiere Hilfe von [[spin3R]]"  spin3R.rev > aplpack/man/spin3R.Rd
+cp -p spin3R.rev aplpack/inst/src/
+
+notangle -R"start"     sc.rev > aplpack/R/boxplot2D.R
+notangle -R"definiere Hilfe von [[boxplot2D]]" sc.rev > aplpack/man/boxplot2D.Rd
+cp -p sc.rev aplpack/inst/src/
+
+# notangle -Rdefine-DESCRIPTION  ??? > aplpack/DESCRIPTION
+
+R CMD check aplpack;  R CMD build aplpack
+#rm lib/aplpack/R/aplpack.rdb
+R CMD INSTALL --library=lib aplpack_1.1.1.tar.gz
+cd lib; zip -r aplpack_1.1.1.zip aplpack/*
+mv aplpack_1.1.1.zip ..
+cd ..
+
+exit 0
+
+### zur Generierung der pdf-Beschreibungen:
+## cp *rev pdfmake/
+cd pdfmake ; 
+revweb sc; latex sc; latex sc; dvipdf sc;
+revweb faces; latex bagplot; latex faces; dvipdf faces;
+revweb spin3R; latex spin3R; latex spin3R; dvipdf spin3R;
+revweb ms; latex ms; latex ms; dvipdf ms
+cd ../work
+echo "library(relax);weaveR(\"bagplot.rev\")" | R --vanilla
+latex bagplot; latex bagplot; dvipdf bagplot;
+cp bagplot.pdf ../pdfmake/
+cd ../pdfmake/
+cp *pdf ../aplpack/inst/pdf
+cd ..
+
+

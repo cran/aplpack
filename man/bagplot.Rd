@@ -10,7 +10,7 @@
   \code{bagplot()} computes and plots a bagplot.
 }
 \usage{
-bagplot(x, y, factor = 3, approx.limit = 300,  
+bagplot(x, y, factor = 3, na.rm = FALSE, approx.limit = 300,  
        show.outlier = TRUE, show.whiskers = TRUE, 
        show.looppoints = TRUE, show.bagpoints = TRUE,
        show.loophull = TRUE, show.baghull = TRUE, 
@@ -20,11 +20,8 @@ bagplot(x, y, factor = 3, approx.limit = 300,
        col.looppoints="#3355ff", col.baghull="#7799ff", 
        col.bagpoints="#000088", transparency=FALSE, ...
 )
-
-compute.bagplot(x, y, factor = 3, approx.limit = 300, 
-       dkmethod = 2, precision = 1, verbose = FALSE, 
-       debug.plots = "no")
-
+compute.bagplot(x, y, factor = 3, na.rm = FALSE, approx.limit = 300, 
+       dkmethod=2,precision=1,verbose=FALSE,debug.plots="no")
 plot.bagplot(x,  
        show.outlier = TRUE, show.whiskers = TRUE, 
        show.looppoints = TRUE, show.bagpoints = TRUE,
@@ -34,14 +31,16 @@ plot.bagplot(x,
        col.baghull="#7799ff", col.bagpoints="#000088", 
        transparency=FALSE,...)
 }
-
 \arguments{
   \item{x}{ x values of a data set; 
      in \code{bagplot}: an object of class \code{bagplot}
      computed by \code{compute.bagplot} }
   \item{y}{ y values of the data set } 
   \item{factor}{ factor defining the loop }
-  \item{approx.limit}{ precision of approximation, default: 300 }
+  \item{na.rm}{ if TRUE 'NA' values are removed otherwise exchanged by mean}
+  \item{approx.limit}{ if the number of data points exceeds 
+          \code{approx.limit} a sample is used to compute 
+          some of the quantities; default: 300 }
   \item{show.outlier}{ if TRUE outlier are shown }
   \item{show.whiskers}{ if TRUE whiskers are shown }
   \item{show.looppoints}{ if TRUE loop points are plottet }
@@ -53,12 +52,12 @@ plot.bagplot(x,
   \item{pch}{ sets the plotting character }
   \item{cex}{ sets characters size}
   \item{dkmethod}{ 1 or 2, there are two method of  
-     approximating the bag, 
-currently under construction}
+     approximating the bag, method 1 is very rough }
   \item{precision}{ precision of approximation, default: 1 }
   \item{verbose}{ automatic commenting of calculations 
  }
-  \item{debug.plots}{ developers' tool for debugging }
+  \item{debug.plots}{ if TRUE additional plots describing 
+                      intermediate results are constructed }
   \item{col.loophull}{ color of loop hull }
   \item{col.looppoints}{ color of the points of the loop }
   \item{col.baghull}{ color of bag hull }
@@ -70,10 +69,10 @@ currently under construction}
 A bagplot is a bivariate generalization of the well known
 boxplot. It has been proposed by Rousseeuw, Ruts, and Tukey.
 In the bivariate case the box of the boxplot changes to a 
-convex hull, the bag of bagplot. In the bag are 50 percent
-of all points. The fence separates points in the fence from 
+convex polygon, the bag of bagplot. In the bag are 50 percent
+of all points. The fence separates points within the fence from 
 points outside. It is computed by increasing the
-the bag. The loop is defined as the convex polygon containing 
+the bag. The loop is defined as the convex hull containing 
 all points inside the fence. 
 If all points are on a straight line you get a classical
 boxplot.
@@ -81,15 +80,15 @@ boxplot.
 to the one described in Rousseeuw et al. 
 Remarks:
 The two dimensional median is approximated.
-There are known difficulties with small data sets 
-(But I think it is not wise to make a (graphical) 
-summary of e.g. 10 points.)
-
-In case people want to plot multiple (overlappIng) bagplots, it is convenient if the plots are semi-transparent. For this reason
-the \code{transparency} flag has been added to the bagplot
-command. 
+For large data sets the error will be very small.
+On the other hand it is not very wise to make a (graphical) 
+summary of e.g. 10 bivariate data points.
+In case you want to plot multiple (overlapping) bagplots, 
+you may want plots that are semi-transparent. For this 
+you can use the \code{transparency} flag. 
 If \code{transparency==TRUE} the alpha layer is set to '99' (hex).
-This causes the bagplots to appear semi-transparent, but ONLY if the output device is PDF and opened using:
+This causes the bagplots to appear semi-transparent, 
+but ONLY if the output device is PDF and opened using:
 \code{pdf(file="filename.pdf", version="1.4")}. 
 For this reason, the default is \code{transparency==FALSE}. 
 This feature as well as the arguments
@@ -105,8 +104,7 @@ to specify different colors has been proposed by Wouter Meuleman.
     Statistician, vol. 53, no. 4, 382--387 }
 \author{ Peter Wolf }
 \note{
-  The development of the function has not been finished. 
-  Version 02/2006 }
+  Version of bagplot: 08/2007 }
 \seealso{ \code{\link[graphics]{boxplot}} }
 \examples{
   # example: 100 random points and one outlier
@@ -118,7 +116,7 @@ to specify different colors has been proposed by Wouter Meuleman.
      show.whiskers=TRUE,show.loophull=TRUE,
      show.baghull=TRUE,verbose=FALSE)
   # example of Rousseeuw et al., see R-package rpart
-  cardata <- structure(as.integer(c(2560, 2345, 1845, 2260, 2440,
+  cardata <- structure(as.integer( c(2560,2345,1845,2260,2440,
    2285, 2275, 2350, 2295, 1900, 2390, 2075, 2330, 3320, 2885,
    3310, 2695, 2170, 2710, 2775, 2840, 2485, 2670, 2640, 2655,
    3065, 2750, 2920, 2780, 2745, 3110, 2920, 2645, 2575, 2935,
@@ -140,5 +138,3 @@ to specify different colors has been proposed by Wouter Meuleman.
   bagplot(x=1:100,y=1:100)
 }
 \keyword{ misc }
-
-

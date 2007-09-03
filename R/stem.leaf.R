@@ -1,10 +1,20 @@
 ## ms <-
 stem.leaf<-function(data, unit, m, Min, Max, rule.line=c("Dixon", "Velleman", "Sturges"),
-     style=c("Tukey", "bare"), trim.outliers=TRUE, depths=TRUE, reverse.negative.leaves=TRUE){
+     style=c("Tukey", "bare"), trim.outliers=TRUE, depths=TRUE, reverse.negative.leaves=TRUE,
+     na.rm=FALSE){
 #Author:  Peter Wolf 05/2003, (modified slightly by J. Fox, 20 July 03)
 #  03/2005 additional rounding to prevent misclasification
   rule.line <- match.arg(rule.line)
   style <- match.arg(style)
+  if(any(is.na(data))){
+    if(na.rm){ data<-data[!is.na(data)]
+      print("Warning: NA elements have been removed!!")
+     }else{
+      data[is.na(data)]<-mean(data,na.rm=TRUE)
+      print("Warning: NA elements have been exchanged by the mean value!!")
+    }  
+  }
+
 
   debug.show<-function(name){
     if(!exists("debug.cond")) return()

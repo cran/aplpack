@@ -1,5 +1,6 @@
 boxplot2D<-function( xy, add.to.plot=TRUE, box.size=10, box.shift=0, angle=0,
-                angle.type="0", tukey.style=TRUE, coef.out=1.5, coef.h.out=3, design="sl",... ){
+                angle.type="0", tukey.style=TRUE, coef.out=1.5, coef.h.out=3, design="sl",
+                na.rm=FALSE, ... ){
 ##########################################################################
 # boxplot for scatterplots, pw 03/05                                     #
 # xy:          2-col matrix                                              #
@@ -16,6 +17,15 @@ boxplot2D<-function( xy, add.to.plot=TRUE, box.size=10, box.shift=0, angle=0,
 # coef.h.out=3   # heavy outliers are defined outside coef.h.out*boxwidth
 # design:      if "sl" then parallelogram else box                       #
 ##########################################################################
+if(any(is.na(xy))){
+  if(na.rm){ xy<-xy[!apply(is.na(xy),1,any),,drop=FALSE]
+    print("Warning: NAs elements have been removed!!")
+  }else{
+    xy.means<-colMeans(xy,na.rm=TRUE)
+    for(j in 1:ncol(xy)) xy[is.na(xy[,j]),j]<-xy.means[j]
+    print("Warning: NAs elements have been exchanged by mean values!!")
+  }  
+}
 if(!add.to.plot) plot(xy,...)
 
 if(is.numeric(angle.type)){

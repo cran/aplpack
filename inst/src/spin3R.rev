@@ -17,7 +17,7 @@
 \maketitle
 @
 
-Die in diesen Abschnitt definierte Funktion ermÎglicht
+Die in diesen Abschnitt definierte Funktion ermöglicht
 dem Anwender eine Punktwolke interaktiv zu drehen und
 zu betrachten.
 
@@ -35,12 +35,13 @@ zu betrachten.
   a 3-dimensional cloud of points
 }
 \usage{
-  spin3R(x, alpha = 1, delay = 0.015)
+  spin3R(x, alpha = 1, delay = 0.015, na.rm=FALSE)
 }
 \arguments{
   \item{x}{ \code{(nx3)}-matrix of points }
   \item{alpha}{ angle between successive projections }
   \item{delay}{ delay in seconds between two plots }
+  \item{na.rm}{ if TRUE 'NA' values are removed otherwise exchanged by mean}
 }
 \details{
   \code{spin3R} computes two-dimensional projections 
@@ -64,10 +65,10 @@ zu betrachten.
 
 @
 <<definiere [[spin3R]]>>=
-spin3R <- function(x, alpha=1, delay=.015){
+spin3R <- function(x, alpha=1, delay=.015, na.rm=FALSE){
  #################################################################
  # spin3R: simple spin function to rotate a 3-dim cloud of points#
- # pw 160103                                                     #
+ # pwolf 070831                                              #
  #                                                               #
  # arguments:                                                    #
  #                                                               #
@@ -76,6 +77,7 @@ spin3R <- function(x, alpha=1, delay=.015){
  #  delay         sleeping time between rotations                #
  #                                                               #
  #################################################################
+if(ncol(x)!=3) { print("Error: data matrix must have 3 columns"); return() }
  require(tcltk)
  <<generiere Steuerungsfenster>>
  <<definiere Rotationen>>
@@ -119,21 +121,31 @@ tkconfigure(b51,command=function() tclvalue(Rot) <- "reset" )
 tkconfigure(b53,command=function() tclvalue(Rot) <- "exit" )
 
 @
-FÏr die Rotation bezÏglich zwei Achsen wird nur eine 2$\times$2-Rotationsmatrix
-benÎtigt.
+Für die Rotation bezüglich zwei Achsen wird nur eine 2$\times$2-Rotationsmatrix
+benötigt.
 <<definiere Rotationen>>=
 alpha<-alpha/360*2*pi; ca<-cos(alpha); sa<-sin(alpha)
 rot<-matrix(c(ca,-sa,sa,ca),2,2)
 
 @
-[[x]] hÌlt die Daten, [[x.o]] die Originaldaten, [[xa]] die 2-dim Projektionen.
-FÏr die Anschaulichkeit wird ein Andeutung der Achsen mitgeliefert:
+[[x]] hält die Daten, [[x.o]] die Originaldaten, [[xa]] die 2-dim Projektionen.
+Für die Anschaulichkeit wird ein Andeutung der Achsen mitgeliefert:
 [[A]] beschreibt die Achsen, [[A.o]] die Originalachsen, [[Aa]] den
 darzustellenden Teil.
 <<initialisiere Plot>>=
-n <- nrow(x); x <- x - matrix(apply(x,2,min),n,3,T)
-x.o<-x<-x / matrix(apply(x,2,max),n,3,T) - 0.5;                xa <- x[,2:3]
-A.o<-A<-0.5*matrix(c(1,0,0, 0,0,0, 0,1,0, 0,0,0, 0,0,1),5,3,T);Aa <- A[,2:3]
+n <- nrow(x)
+if(any(is.na(x))){
+  if(na.rm){ x<-x[!apply(is.na(x),1,any),,drop=FALSE]
+    print("Warning: NA elements have been removed!!")
+  }else{
+    xy.means<-colMeans(x,na.rm=TRUE)
+    for(j in 1:ncol(x)) x[is.na(x[,j]),j]<-xy.means[j]
+    print("Warning: NA elements have been exchanged by mean values!!")
+  }  
+}
+x <- x - matrix(apply(x,2,min),n,3,TRUE)
+x.o<-x<-x / matrix(apply(x,2,max),n,3,TRUE) - 0.5;                xa <- x[,2:3]
+A.o<-A<-0.5*matrix(c(1,0,0, 0,0,0, 0,1,0, 0,0,0, 0,0,1),5,3,TRUE);Aa <- A[,2:3]
 plot(xa, xlim=.7*c(-1,1), ylim=.7*c(-1,1),
           pch=20, xlab="",ylab="",xaxt="n",yaxt="n")
 lines(Aa)

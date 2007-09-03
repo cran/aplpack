@@ -7,8 +7,8 @@
      \code{plot.faces} plots faces into a scatterplot.
 }
 \usage{
-faces(xy, which.row, fill = FALSE, nrow, ncol, scale = TRUE, 
-         byrow = FALSE, main, labels, plot.faces=TRUE)
+faces(xy, which.row, fill = FALSE, nrow.plot, ncol.plot, scale = TRUE, 
+         byrow = FALSE, main, labels, na.rm = FALSE, plot.faces=TRUE)
 plot.faces(x, x.pos, y.pos, width = 1, height = 1, labels, ...)
 }
 \arguments{
@@ -16,12 +16,13 @@ plot.faces(x, x.pos, y.pos, width = 1, height = 1, labels, ...)
   \item{which.row}{   defines a permutation of the rows of the input matrix   }
   \item{fill}{   \code{if(fill==TRUE)}, only the first \code{nc} attributes of the faces are
                   transformed, \code{nc} is the number of columns of \code{xy}   }
-  \item{nrow}{   number of columns of faces on graphics device   }
-  \item{ncol}{   number of rows of faces   }
+  \item{nrow.plot}{   number of columns of faces on graphics device   }
+  \item{ncol.plot}{   number of rows of faces   }
   \item{scale}{   \code{if(scale==TRUE)}, variables will be normalized   }
   \item{byrow}{   \code{if(byrow==TRUE)}, \code{xy} will be transposed   }
   \item{main}{   title   }
   \item{labels}{   character strings to use as names for the faces   }
+  \item{na.rm}{ if TRUE 'NA' values are removed otherwise exchanged by mean of data}
   \item{plot.faces}{   if \code{FALSE} no face is plotted  }
   \item{x}{ an object of class \code{faces} computed by \code{faces}   }
   \item{x.pos}{ x coordinates of positions of faces  }
