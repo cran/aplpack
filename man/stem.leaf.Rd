@@ -33,7 +33,7 @@ stem.leaf(data, unit, m, Min, Max, rule.line = c("Dixon", "Velleman", "Sturges")
     parentheses.}
   \item{reverse.negative.leaves}{if \code{TRUE} (the default), reverse direction the leaves on negative
     stems (so, e.g., the leaf 9 comes before the leaf 8, etc.).}
-  \item{na.rm}{ if TRUE 'NA' values are removed otherwise exchanged by mean}
+  \item{na.rm}{ if TRUE 'NA' values are removed otherwise the number of NA's are counted}
 }
 
 \details{

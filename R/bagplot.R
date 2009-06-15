@@ -9,7 +9,7 @@ compute.bagplot<-function(x,y,
    verbose=FALSE,debug.plots="no" # tools for debugging
 ){
   
-## 2007/08/31 peter wolf ##
+## 2007/08/31, 2009/02/16 peter wolf ##
   
   
 # define some functions
@@ -770,7 +770,7 @@ plot.bagplot<-function(x,
    transparency=FALSE,...
 ){
  
-## 2007/08/31 peter wolf ##
+## 2007/08/31, 2009/02/16 peter wolf ##
  # transparency flag and color flags have been proposed by wouter 
     if (transparency==TRUE) {
       col.loophull = paste(col.loophull, "99", sep="")
@@ -847,6 +847,11 @@ find.cut.z.pg<-function(z,pg,center=c(0,0),debug.plots="no"){
   cuts<-cbind(cuts[,1]+center[1],cuts[,2]+center[2])
   return(cuts)
 }
+ 
+center<-hull.center<-hull.bag<-hull.loop<-pxy.bag<-pxy.outer<-pxy.outlier<-NULL
+hdepths<-is.one.dim<-prdata<-random.seed<-xy<-xydata<-exp.dk<-exp.dk.1<-hdepth<-NULL
+tphdepth<-tp<-NULL
+ #090216
  bagplotobj<-x
  for(i in seq(along=bagplotobj)) 
     eval(parse(text=paste(names(bagplotobj)[i],"<-bagplotobj[[",i,"]]")))
@@ -918,7 +923,7 @@ if(exists("hull.center")&&length(hull.center)>2){
 if(verbose){
    h<-rbind(exp.dk,exp.dk[1,]); lines(h,col="blue",lty=2)
    h<-rbind(exp.dk.1,exp.dk.1[1,]); lines(h,col="black",lty=2)
-   if(exists("tphdepth"))
+   if(exists("tphdepth")&&0<length(tphdepth))
       text(tp[,1],tp[,2],as.character(tphdepth),col="green")
    text(xy[,1],xy[,2],paste(as.character(hdepth)),cex=2)
    points(center[1],center[2],pch=8,col="red")
@@ -948,7 +953,7 @@ bagplot<-function(x,y,
    transparency=FALSE, ... # to define further parameters of plot
 ){
   
-## 2007/08/31 peter wolf ##
+## 2007/08/31, 2009/02/16 peter wolf ##
   bo<-compute.bagplot(x=x,y=y,factor=factor,na.rm=na.rm,
         approx.limit=approx.limit,dkmethod=dkmethod,
         precision=precision,verbose=verbose,debug.plots=debug.plots)

@@ -55,7 +55,7 @@ In the appendix further examples for testing are given and some
 old code chunks are listed.
 
 <<version of bagplot>>=
-## 2007/08/31 peter wolf ##
+## 2007/08/31, 2009/02/16 peter wolf ##
 
 @
 \newpage 
@@ -597,7 +597,7 @@ computed by hand.
 \paragraph{Memory faults.} 
 There are some other problems with the implementation via the fortran procedure
 because we got some memory faults during testing [[BAGPLOT]]. These
-errors killed the R process and some of the computed result got lost.
+errors killed the R process and some of the computed results got lost.
 But it was not difficult to reconstruct them ... by relax.
 
 \newpage
@@ -973,7 +973,21 @@ points.in.bag<-floor(n/2)
 #             rnorm(n,0,.0001*sd(xy[,2])))
 if(verbose) cat("end of initialization")
 
-
+@
+A day yuankun shi asked how the proportion of data points of the bag could be changed. 
+Although this may result in misinterpretations we show a way to implement a modified bagplot:
+% 090218
+\begin{verbatim}
+# make copy of compute.bagplot and change halve number of points in the
+bag,
+#  for example by "n*myproportion":
+mycompute.bagplot<-eval(parse(text=sub("n/2","n*myproportion",deparse(compute.bagplot))))
+# define your own bagplot version which calls "mycompute.bagplot":
+mybagplot<-eval(parse(text=
+sub("compute.bagplot","mycompute.bagplot",deparse(bagplot))))
+# example application:
+myproportion<-0.2; set.seed(13); mybagplot(cbind(rnorm(100),rnorm(100)))
+\end{verbatim}
 @
 \subsection{Some local functions to find intersection points}
 \paragraph{win:}
@@ -1785,6 +1799,7 @@ plot.bagplot<-function(x,
  <<define function [[win]]>>
  <<define function [[cut.z.pg]]>>
  <<define function [[find.cut.z.pg]]>>
+ <<initialize some variable>> #090216
  bagplotobj<-x
  for(i in seq(along=bagplotobj)) 
     eval(parse(text=paste(names(bagplotobj)[i],"<-bagplotobj[[",i,"]]")))
@@ -1793,7 +1808,30 @@ plot.bagplot<-function(x,
  } 
  <<construct bagplot as usual>>
 }
-
+@
+% 090216
+To prevent "no visible binding" messages during the package building
+we initialize all variable that may be referenced. The following list
+shows the elements of a bagplot object (copied from [[compute.bagplot]]).
+\begin{verbatim}
+res<-list(
+ center=center, 
+ hull.center=hull.center, hull.bag=hull.bag, hull.loop=hull.loop,
+ pxy.bag=pxy.bag,
+ pxy.outer=if(length(pxy.outer)>0) pxy.outer else NULL,
+ pxy.outlier=if(length(pxy.outlier)>0) pxy.outlier else NULL,
+ hdepths=hdepth,
+ is.one.dim=is.one.dim,
+ prdata=prdata,
+ random.seed=random.seed,
+ xy=xy,xydata=xydata
+)
+if(verbose) res<-c(res,list(exp.dk=exp.dk,exp.dk.1=exp.dk.1,hdepth=hdepth))
+\end{verbatim}
+<<initialize some variable>>=
+center<-hull.center<-hull.bag<-hull.loop<-pxy.bag<-pxy.outer<-pxy.outlier<-NULL
+hdepths<-is.one.dim<-prdata<-random.seed<-xy<-xydata<-exp.dk<-exp.dk.1<-hdepth<-NULL
+tphdepth<-tp<-NULL
 @
 The following elements allows us to draw the bagplot:
 [[xydata]] (data set),
@@ -1852,7 +1890,7 @@ if(exists("hull.center")&&length(hull.center)>2){
 if(verbose){
    h<-rbind(exp.dk,exp.dk[1,]); lines(h,col="blue",lty=2)
    h<-rbind(exp.dk.1,exp.dk.1[1,]); lines(h,col="black",lty=2)
-   if(exists("tphdepth"))
+   if(exists("tphdepth")&&0<length(tphdepth))
       text(tp[,1],tp[,2],as.character(tphdepth),col="green")
    text(xy[,1],xy[,2],paste(as.character(hdepth)),cex=2)
    points(center[1],center[2],pch=8,col="red")

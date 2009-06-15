@@ -1,21 +1,32 @@
 ## ms <-
-stem.leaf<-function(data, unit, m, Min, Max, rule.line=c("Dixon", "Velleman", "Sturges"),
-     style=c("Tukey", "bare"), trim.outliers=TRUE, depths=TRUE, reverse.negative.leaves=TRUE,
-     na.rm=FALSE){
-#Author:  Peter Wolf 05/2003, (modified slightly by J. Fox, 20 July 03)
-#  03/2005 additional rounding to prevent misclasification
+stem.leaf<-function(data, unit, m, Min, Max, 
+     rule.line=c("Dixon", "Velleman", "Sturges"),
+     style=c("Tukey", "bare"), trim.outliers=TRUE, depths=TRUE,
+     reverse.negative.leaves=TRUE,na.rm=FALSE){
+  if(missing(data)){cat("Author:  Peter Wolf 05/2003,", 
+                        "(modified slightly by J. Fox, 20 July 03)",
+                        "03/2006 additional rounding to prevent misclasification",
+                        "07/2008 counting of NA's, 04/2009 improvement of rounding",
+                        "syntax: stem.leaf(data.set)\n",sep="\n")
+                    return("Warning: no data set found by stem.leaf")
+  }                  
   rule.line <- match.arg(rule.line)
   style <- match.arg(style)
-  if(any(is.na(data))){
-    if(na.rm){ data<-data[!is.na(data)]
+  n.na<-sum(is.na(data))
+  if(0<n.na){
+    data<-data[!is.na(data)]
+    if(na.rm){ # data<-data[!is.na(data)]
       print("Warning: NA elements have been removed!!")
-     }else{
-      data[is.na(data)]<-mean(data,na.rm=TRUE)
-      print("Warning: NA elements have been exchanged by the mean value!!")
+    }else{
+  #   data[is.na(data)]<-mean(data,na.rm=TRUE)
+  #   print("Warning: NA elements have been exchanged by the mean value!!")
     }  
   }
 
 
+  if(0<length(h<-find("debug.cond")) && ".GlobalEnv" %in% h){
+    debug.cond<-get("debug.cond",env=.GlobalEnv)
+  } else debug.cond<-""
   debug.show<-function(name){
     if(!exists("debug.cond")) return()
     if(debug.cond=="all"|| (name %in% debug.cond) ){
@@ -31,7 +42,10 @@ stem.leaf<-function(data, unit, m, Min, Max, rule.line=c("Dixon", "Velleman", "S
   #                                                                #
   #Usage:                                                          #
   #   stem.leaf(data)                                              #
-  #   stem.leaf(data,unit=100,m=5,Min=50,Max=1000,rule.line="Dixon"#
+  #   stem.leaf(data,unit=100,m=5,Min=50,Max=1000,                 #
+  #     rule.line=c("Dixon", "Velleman", "Sturges"),               #
+  #     style=c("Tukey", "bare"), trim.outliers=TRUE, depths=TRUE, #
+  #     reverse.negative.leaves=TRUE,na.rm=FALSE)                  #
   #                                                                #
   #Arguments:                                                      #
   #   data:      vector of input data                              #
@@ -49,6 +63,7 @@ stem.leaf<-function(data, unit, m, Min, Max, rule.line=c("Dixon", "Velleman", "S
   #Author:                                                         #
   #   Peter Wolf 05/2003 (modified slightly by J. Fox, 20 July 03) #
   #   rounding operation for comparing added 29 March 06           #
+  #   07/2008 NA-values are counted if na.rm==FALSE                #
   ##################################################################
 
   n<-length(data<-sort(data))
@@ -103,7 +118,8 @@ stem.leaf<-function(data, unit, m, Min, Max, rule.line=c("Dixon", "Velleman", "S
 
 
   stem <- ifelse(data.tr.red<0, ceiling(data.tr.red), floor(data.tr.red) )
-  leaf <- floor(abs(data.tr.red*10-stem*10))
+  # eps<-1e-12; leaf <- floor(abs(data.tr.red*10-stem*10)+eps)
+  leaf <- floor(10*abs(signif(data.tr.red-stem,10)))
   debug.show("leaf"); debug.show("stem")
 
   class.of.data.tr<-unlist(c(
@@ -117,8 +133,6 @@ stem.leaf<-function(data, unit, m, Min, Max, rule.line=c("Dixon", "Velleman", "S
   leaf.grouped      <- split(c(rep(-1,length(skala)),leaf),class.of.data.tr)
   leaf.grouped      <- lapply(leaf.grouped, function(x){ sort(x[-1]) })
   # debug.show("leaf.grouped")
-
-
 
   leaf.grouped.ch <- paste("|",unlist(lapply(leaf.grouped,paste,collapse="")))
   # debug.show("leaf.grouped")
@@ -182,8 +196,6 @@ stem.leaf<-function(data, unit, m, Min, Max, rule.line=c("Dixon", "Velleman", "S
   depth <- if (depths) ragged.left(depth) else ""
 
 
-
-
   info<-     c(  paste("1 | 2: represents",1.2*factor),
              #  paste("    m:",m     ),
                  paste(" leaf unit:",factor/10),
@@ -195,6 +207,7 @@ stem.leaf<-function(data, unit, m, Min, Max, rule.line=c("Dixon", "Velleman", "S
   result<-list( stem=stem)
   if(exists("lower.line")) result<-c(lower=lower.line,result)
   if(exists("upper.line")) result<-c(result,upper=upper.line)
+  if(0<n.na&&!na.rm) result<-c(result,NAs=paste("NA's:",n.na,collapse=" "))
   result<-c(list( info=info), result)
   for(i in seq(result)) cat(result[[i]],sep="\n")
   invisible(result)

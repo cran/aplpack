@@ -1,3 +1,17 @@
+% New Report: Mon Feb 16 18:03:23 2009 
+
+% New Report: Fri Jan 16 11:15:22 2009 
+
+% New Report: Fri Jan 16 11:09:25 2009 
+
+% New Report: Fri Jan 16 11:05:43 2009 
+
+% New Report: Tue Jan  6 13:01:43 2009 
+
+% New Report: Wed Dec 17 15:37:00 2008 
+
+% New Report: Wed Dec 10 16:05:38 2008 
+
 % New Report: Wed Mar 29 13:40:48 2006
 % notangle -R"define [[faces]]"     faces.rev > faces.R
 % notangle -R"define [[plot.faces]]"     faces.rev > plot.faces.R
@@ -10,23 +24,27 @@
 \noweboptions{webnumbering,smallcode}
 \author{H. P. Wolf}
 \title{Chernoff Faces and Spline Interpolation}
-\date{file: faces.rev, 13.01.2004, printed: \today}
+\date{file: faces.rev, 08/January/2009, printed: \today}
 \begin{document}
 \maketitle\tableofcontents
-
+\newcommand{\ShowChunkIndex}{yes}
+\newcommand{\ConstructObjectIndex}{yes}
 
 @
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 @
 \section{Definition of [[faces]]}
-In R a function to plot Chernoff Faces is missing.
-Therefore we will present a simple proposal.
-Hopefully the structure is quiet clear and the reader is invited to
-modify [[faces]] for one's own end.
+Chernoff Faces are funny repesentations of  multi dimensional data sets.
+For there is no [[faces]] function in R 
+we present a simple version in this paper.
+The construction of the faces is quiet clear and the reader is invited to
+modify [[faces]] as she / he likes it.
 
-A spline function is used to compute smooth curves for eyes, ears and so on. This is
-defined at first. Then the data matrix is checked and the standardized according to
+The smooth curves for drawing the elements of a face (eyes, ears, etc.) 
+are computed by fitting spline functions. At first we define a function to be 
+able to plot smooth curves.
+Then the data matrix is checked and the standardized according to
 the input parameters [[which.row]], [[fill]], [[scale]] and [[byrow]].
 In the initialisation part of the function
 characteristic points of a standard face and some graphics parameter are fixed.
@@ -41,26 +59,43 @@ of a face
 smooth curves fitted to the sets of points are plotted on the graphics device
 \end{enumerate}
 Finally a title is placed above the faces.
+
 @
+rbind(1:3,5:3,3:5,5:7)
 <<define [[faces]]>>=
-faces<-function(xy=rbind(1:3,5:3,3:5,5:7),which.row,fill=FALSE,
-                nrow.plot,ncol.plot,scale=TRUE,byrow=FALSE,main,labels,na.rm = FALSE,
-                plot.faces=TRUE){
-  # 070831 pwolf
+faces<-function(xy,which.row,fill=FALSE,face.type=1,
+                nrow.plot,ncol.plot,scale=TRUE,byrow=FALSE,main,
+                labels,na.rm = FALSE,
+                <<define some colors>>
+                plot.faces=TRUE){  # 070831 pwolf
+  if((demo<-missing(xy))){
+    xy<-rbind(
+              c(1,3,5),c(3,5,7),
+              c(1,5,3),c(3,7,5),
+              c(3,1,5),c(5,3,7),
+              c(3,5,1),c(5,7,3),
+              c(5,1,3),c(7,3,5),
+              c(5,3,1),c(7,5,3),
+              c(1,1,1),c(4,4,4),c(7,7,7)
+    )
+    labels<-apply(xy,1,function(x) paste(x,collapse="-"))
+  }  
   <<define [[spline]]>>
   <<standardize input>>
   <<define characteristic points of standard face>>
   <<define graphics parameter>>
   <<loop over faces>>
   <<finish plot>>
+  <<info about the effects of the variables>>
   <<output face.list>>
 }
 
 @
 <<output face.list>>=
 names(face.list)<-xnames
-class(face.list)<-"faces"
-invisible(face.list)
+out<-list(faces=face.list,info=info,xy=t(xy))
+class(out)<-"faces"
+invisible(out)
 
 @
 Let's start with some simple tasks.
@@ -76,6 +111,7 @@ if(plot.faces){
   opar<-par(mfrow=c(ceiling(c(nr,nc))),oma=rep(6,4), mar=rep(.7,4))
   on.exit(par(opar))
 }
+
 @
 If a title is given it has to be placed at the top of the page.
 <<finish plot>>=
@@ -86,13 +122,13 @@ if(plot.faces&&!missing(main)){
 }
 
 @
-The data have to be structured as matrix. [[byrow=T]] results in a transposition of
+The data have to be structured as matrix. [[byrow=TRUE]] results in a transposition of
 the input data [[xy]]. [[which.row]] allows to permute the order of the rows.
 In effect the representation of data attribute will be changed.
 [[labels]] can be used to name the faces.
-If [[fill=T]] and [[n.c]] equals the number of columns of the data matrix
+If [[fill=TRUE]] and [[n.c]] equals the number of columns of the data matrix
 the first [[n.c]] items of the standard face will be modified whereas all the
-rest will be unchanged. If [[scale=F]] the variables of the input are not standardized
+rest will be unchanged. If [[scale=FALSE]] the variables of the input are not standardized
 to the intervall [-1,1]. However, the data are rounded to the interval.
 <<standardize input>>=
 n.char<-15
@@ -120,7 +156,7 @@ if(scale){
            x<-x-min(x); x<-if(max(x)>0) 2*x/max(x)-1 else x })
 } else xy[]<-pmin(pmax(-1,xy),1)
 xy<-rbind(xy);n.c<-dim(xy)[2]
-xy<-xy[,(h<-rep(1:mm,ceiling(n.char/mm))),drop=FALSE]
+xy<-xy[,(rows.orig<-h<-rep(1:mm,ceiling(n.char/mm))),drop=FALSE]
 if(fill) xy[,-(1:n.c)]<-0
 
 @
@@ -212,10 +248,41 @@ As an initilisation the standard face is copied to [[face]] and the
 values of the variables are stored in [[factors]].
 <<initialize new face>>=
 factors<-xy[ind,]
-face <- face.orig
+face<-face.orig
 
 @
 Now we have to transform the face according to the data.
+
+<<info about the effects of the variables>>=
+info<-c(
+  "var1"="height of face   ",
+  "var2"="width of face    ",
+  "var3"="structure of face",
+  "var4"="height of mouth  ",
+  "var5"="width of mouth   ",
+  "var6"="smiling          ",
+  "var7"="height of eyes   ",
+  "var8"="width of eyes    ",
+  "var9"="height of hair   ",
+  "var10"="width of hair   ",
+  "var11"="style of hair   ",
+  "var12"="height of nose  ",
+  "var13"="width of nose   ",
+  "var14"="width of ear    ",
+  "var15"="height of ear   ")
+var.names<-dimnames(xy)[[2]]
+if(0==length(var.names)) var.names<-paste("Var",rows.orig,sep="")
+info<-cbind("modified item"=info,"Var"=var.names[1:length(info)])
+rownames(info)<-rep("",15)
+cat("effect of variables:\n")
+print(info)
+if(demo&&plot.faces) {
+  plot(1:15,1:15,type="n",axes=FALSE,bty="n")
+  text(rep(1,15),15:1,adj=0,apply(info,1,function(x) 
+      paste(x,collapse="   -   ")),cex=0.7)
+}
+
+@
 Height, width and structure of the faces is changed by [[factors[1:3]]].
 In the actual version [[factor[1:3]]] have an overall scaling effect.
 The comment lines show how the effect can be reduced to the 
@@ -231,7 +298,6 @@ face<-lapply(face,function(x){ x[,1]<-ifelse(x[,1]>0,
 #face$shape[,1]<-face$shape[,1]<-ifelse(face$shape[,1]>0,
 #   ifelse(face$shape[,2] > -30, face$shape[,1],
 #      pmax(0,face$shape[,1]+(face$shape[,2]+50)*0.2*sin(1.5*(-factors[3])))),0)
-
 
 @
 Factor 4 and 5 have a scaling effect on the mouth. Factor 6 changes the
@@ -305,43 +371,75 @@ face.list<-c(face.list,list(face.obj))
 
 @
 Now we are ready to compose the specific faces by drawing smooth curves
-fitted to the polygons.
+fitted to the polygons. 
+The following code chunk uses a chunk that is also referenced in the function [[plot.face]].  
+This function allows the user to place faces anywhere in a plot. Therefore, 
+transformations are needed and are done by the functions [[xtrans]] and [[ytrans]]. 
+Here these two functions do not change the input values.
+For plainting we need to map the data values ([[factors]]) on colors. 
+[[f]] is the corresponding index of the palettes.
 <<plot specific face>>=
 if(plot.faces){
   plot(1,type="n",xlim=c(-105,105)*1.1, axes=FALSE,
        ylab="",ylim=c(-105,105)*1.3)
   title(xnames[ind])
+  f<-1+(ncolors-1)*(factors+1)/2 # translate factors into color numbers
+  xtrans<-function(x){x};  ytrans<-function(y){y}
+  for(obj.ind in seq(face.obj)[c(10:11,1:9)]) {
+    x <-face.obj[[obj.ind]][,1]; y<-face.obj[[obj.ind]][,2]
+    xx<-spline(1:length(x),x,40,FALSE)[,2]
+    yy<-spline(1:length(y),y,40,FALSE)[,2]
+    if(plot.faces){ 
+      lines(xx,yy)
+      if(face.type>0){
+        <<paint elements of a face>>
+      }
+    }
+  }
 }
-for(obj.ind in seq(face.obj)) {
-       x <-face.obj[[obj.ind]][,1]; y<-face.obj[[obj.ind]][,2]
-       xx<-spline(1:length(x),x,40,FALSE)[,2]
-       yy<-spline(1:length(y),y,40,FALSE)[,2]
-       if(plot.faces) lines(xx,yy)
+
+@
+For painting parts of the faces the order of painting has to been recognized.
+The colors are found by averaging over the color indices of the relevant variables. 
+<<paint elements of a face>>=
+if(obj.ind==10) 
+  polygon(xtrans(xx),ytrans(yy),col=col.hair[ceiling(mean(f[9:11]))],xpd=NA) # hair
+if(obj.ind==11){ 
+  polygon(xtrans(xx),ytrans(yy),col=col.face[ceiling(mean(f[1:2 ]))],xpd=NA) # face
+  <<paint christmas like if [[2==face.type]]>>
 }
+xx<-xtrans(xx); yy<-ytrans(yy)
+if(obj.ind %in% 1:2) polygon(xx,yy,col="#eeeeee") # eyes
+if(obj.ind %in% 3:4) polygon(xx,yy,col=col.eyes[ceiling(mean(f[7:8 ]))],xpd=NA) # eyes
+if(obj.ind %in% 9)   polygon(xx,yy,col=col.nose[ceiling(mean(f[12:13]))],xpd=NA)# nose
+if(obj.ind %in% 5:6) polygon(xx,yy,col=col.lips[ceiling(mean(f[1:3]))],xpd=NA)  # lips
+if(obj.ind %in% 7:8) polygon(xx,yy,col=col.ears[ceiling(mean(f[14:15]))],xpd=NA)# ears
 
 @
-That's it.
-<define [[faces]] and [[faces.plot]]> =
-<<*>>=
-<<define [[faces]]>>
-<<define [[plot.faces]]>>
+For painted faces it is nice to have suitable colors. 
+Different elements of a face are painted with colors of different color palettes.
+<<define some colors>>=
+ncolors=20,
+col.nose=rainbow(ncolors),                   # nose
+col.eyes=rainbow(ncolors,start=0.6,end=0.85),# eyes
+col.hair=terrain.colors(ncolors),            # hair
+col.face=heat.colors(ncolors),               # face
+col.lips=rainbow(ncolors,start=0.0,end=0.2), # lips
+col.ears=rainbow(ncolors,start=0.0,end=0.2), # ears
 
 @
-<<start>>=
-"relax"
-
-@
-Sometimes it is nice to draw a face a certain position
-of an existing plot. For this the function
-[[plot.faces]] will do the job.
-
-Compare to plot  statement of faces:
-
-[[plot(1,type="n",xlim=c(-105,105)*1.1,  ylab="",ylim=c(-105,105)*1.3)]]
+That's it for usual applications.
+Sometimes it is nice to draw a face at a certain position of an existing plot. 
+For this the function [[plot.faces]] will do the job.
+This function takes a face object and reconstructs faces either at 
+positions fixed by the user or the faces we be drawn on a chess board.
 <<define [[plot.faces]]>>=
-plot.faces<-function(x,x.pos,y.pos,width=1,height=1,labels,...){
+plot.faces<-function(x,x.pos,y.pos,face.type = 1, 
+                     width=1,height=1,labels,
+                     <<define some colors>>
+                     ...){
   if(missing(x)) return("no face.list object in call")
-  face.list<-x
+  face.list<-x$faces; face.data<-x$xy
   if(class(face.list)!="faces") {
       if(!is.list(face.list) || !any(names(face.list[[1]])=="lipso") )
         return("input not of class faces")
@@ -350,59 +448,130 @@ plot.faces<-function(x,x.pos,y.pos,width=1,height=1,labels,...){
   n<-length(face.list)
   if(missing(x.pos)){
      co<-ro<-ceiling(n^0.5)
-     plot(0:(1+ro),0:(1+co),type="n",xlab="",ylab="",axes=FALSE)
+     plot((0:ro)+.5,(0:co)+.5,type="n",xlab="",ylab="",axes=FALSE)
      m<-matrix(1,ro,co); x.pos<-col(m); y.pos<-(1+ro)-row(m)
   } 
-  if(!missing(labels)) names(face.list)<-labels
+  if(!missing(labels)) names(face.list)<-labels 
   fac.x<-width/1.1/210; fac.y<-height/1.3/210
+  xtrans<-function(x){x.pos[j]+fac.x*x};  ytrans<-function(y){y.pos[j]+fac.y*y}
   for(j in seq(face.list)){
-    face.obj<-face.list[[j]]
-    for(ind in seq(face.obj)) {
-       x <-face.obj[[ind]][,1]; y<-face.obj[[ind]][,2]
+    face.obj<-face.list[[j]]; factors<-face.data[,j]
+    f<-1+(ncolors-1)*(factors+1)/2 # translate factors into color numbers
+    for(obj.ind in seq(face.obj)[c(10:11,1:9)]) {
+       x <-face.obj[[obj.ind]][,1]; y<-face.obj[[obj.ind]][,2]
        xx<-spline(1:length(x),x,40,FALSE)[,2]
        yy<-spline(1:length(y),y,40,FALSE)[,2]
-       xx<-x.pos[j]+fac.x*xx; yy<-y.pos[j]+fac.y*yy
-       lines(xx,yy,...)
+       lines(xtrans(xx),ytrans(yy),...)
+       if(face.type>0){ <<paint elements of a face>> }
     }
     lab<-names(face.list)[j]
-    text(x.pos[j],y.pos[j]-0.5*height,lab)
+    text(x.pos[j],y.pos[j]-0.5*height,lab,xpd=NA)
   }
+}
+
+@
+The expressions for computing the christmas version are extracted to increase the readability.
+<<paint christmas like if [[2==face.type]]>>=
+if(face.type==2){
+    # beard
+    for(zzz in seq(hhh<-max(face.obj[[8]][,1]),-hhh,length=30)){
+      hrx<-rnorm(8,zzz,2); hry<-0:7*-3*rnorm(1,3)+abs(hrx)^2/150
+      hry<-min(face.obj[[9]][,2])+hry
+      lines(xtrans(hrx),ytrans(hry),lwd=5,col="#eeeeee",xpd=NA)
+    }
+    ind<-which.max(xx); wx<-xx[ind]; ind<-which.max(yy); wy<-yy[ind]
+    # edge of hat
+    wxh<-wx<-seq(-wx,wx,length=20); wyh<-wy<-wy-(wx-mean(wx))^2/250+runif(20)*3
+    lines(xtrans(wxh),ytrans(wyh)); wx<-c(wx,rev(wx)); wy<-c(wy-10,rev(wy)+20)
+    wmxy1<-wmxy0<-c(min(wx),min(wy)+20)
+    wmxy2<-wmxy3<-c(runif(1,wmxy0[1],-wmxy0[1]), wy[1]+100)
+    wmxy1[2]<-0.5*(wmxy0[2]+wmxy3[2]); wmxy2[1]<-0.5*(wmxy2[1]+wmxy0[1])
+    npxy<-20; pxy<-seq(0,1,length=npxy)
+    gew<-outer(pxy,0:3,"^")*outer(1-pxy,3:0,"^")*
+         matrix(c(1,3,3,1),npxy,4,byrow=TRUE)
+    wxl<-wmxy0[1]*gew[,1]+wmxy1[1]*gew[,2]+wmxy2[1]*gew[,3]+wmxy3[1]*gew[,4]
+    wyl<-wmxy0[2]*gew[,1]+wmxy1[2]*gew[,2]+wmxy2[2]*gew[,3]+wmxy3[2]*gew[,4]
+    lines(xtrans(wxl),ytrans(wyl),col="green")
+    wmxy1[1]<- wmxy0[1]<- -wmxy0[1]
+    wmxy1[2]<-0.5*(wmxy0[2]+wmxy3[2]); wmxy2[1]<-0.5*(wmxy2[1]+wmxy0[1])
+    wxr<-wmxy0[1]*gew[,1]+wmxy1[1]*gew[,2]+wmxy2[1]*gew[,3]+wmxy3[1]*gew[,4]
+    wyr<-wmxy0[2]*gew[,1]+wmxy1[2]*gew[,2]+wmxy2[2]*gew[,3]+wmxy3[2]*gew[,4]
+    points(xtrans(wmxy3[1]),ytrans(wmxy3[2]),pch=19,cex=2,col="#ffffff",xpd=NA)
+    points(xtrans(wmxy3[1]),ytrans(wmxy3[2]),pch=11,cex=2.53,col="red",xpd=NA)
+    polygon(xtrans(c(wxl,rev(wxr))),ytrans(c(wyl,rev(wyr))),col="red",xpd=NA) # hat
+    polygon(xtrans(wx),ytrans(wy),col="#ffffff",xpd=NA) # edge of hat
 }
 
 @
 \section{Code extraction}
 <<extract code>>=
 tangleR("faces",expand.roots="define [[faces]] and [[faces.plot]]")
+@
+<<*>>=
+tangleR("faces",expand.roots="christmas")
+@
+<<start>>=
+"relax"
 
 @
 \section{Some tests}
 Some tests may be useful.
+Here is a chunk that will trigger the definition of the functions.
+<<define [[faces]] and [[faces.plot]]>>=
+<<define [[faces]]>>
+<<define [[plot.faces]]>>
+faces(face.type=2); ""
+args(plot.faces)
+@
+Here are the arguments of [[plot.faces]] -- 
+\begin{verbatim}
+Wed Jan  7 15:08:19 2009
+function (x, x.pos, y.pos, face.type = 1, width = 1, height = 1, labels, 
+        ncolors = 20, col.nose = rainbow(ncolors), col.eyes = rainbow(ncolors, 
+        start = 0.6, end = 0.85), col.hair = terrain.colors(ncolors), 
+        col.face = heat.colors(ncolors), col.lips = rainbow(ncolors, 
+        start = 0, end = 0.2), col.ears = rainbow(ncolors, start = 0, 
+        end = 0.2), ...) 
+\end{verbatim}
+
+@
+This code chunk shows different ways of constructing faces.
 <<test1>>=
 <<define [[faces]]>>
 <<define [[plot.faces]]>>
-plot(1:4,type="n")
-a<-faces(rbind(1:3,5:3,3:5,5:7),plot=FALSE)
-plot.faces(a,x.pos=1:4,y.pos=1:4,1.2,.3)
-args(plot.faces)
+a<-faces(rbind(1:3,5:3,3:5,5:7),plot=!FALSE,face.type=2)
+plot.faces(a,face.type=0)
+plot(1:4,type="n");plot.faces(a,x.pos=1:4,y.pos=1:4,width=0.5,height=1,face.type=1)
+""
 
-@
-\begin{verbatim}
-Wed Mar 29 14:27:12 2006
-function(x,x.pos,y.pos,width=1,height=1,labels,...)
-\end{verbatim}
-%function (face.list, x.pos, y.pos, width = 1, height = 1)
-%NULL
 @
 <<test2>>=
 <<define [[faces]]>>
 faces(rbind(rep(1,3),rep(5,3),c(1,1,5),c(1,5,1),c(1,5,5),c(5,5,1),
             c(5,1,5),c(3,3,3),c(1,5,1)))
+""
 
 @
 <<test3>>=
 <<define [[faces]]>>
 data(longley)
 faces(longley[1:9,])
+
+@
+<<*>>=
+a<-faces(longley[1:16,],plot=FALSE)
+plot(longley[1:16,2:3],bty="n")
+plot.faces(a,longley[1:16,2],longley[1:16,3],width=35,height=30)
+
+@
+ \begin{center}\includegraphics[height=10cm]{p182146-Jan-9}\end{center}
+
+% <p><img src="p182146-Jan-9.jpg">
+@
+@
+
+<<*>>=
+dim(longley)
 
 @
 <<test4>>=
@@ -418,6 +587,29 @@ Here is the result:
 % <p><img src="p20618291De3NA.jpg">
 
 @
+<<christmas>>=
+christmas<-function(){
+delay<-.1
+<<define [[faces]]>>
+par(bg="white")
+faces(face.type=0)
+title("the old  chernoff faces")
+Sys.sleep(delay)
+faces()
+title("new chernoff faces")
+Sys.sleep(delay)
+par(bg="blue")
+faces(face.type=2)
+title("chernoff faces -> december 2008")
+}
+christmas()
+
+@
+ \begin{center}\includegraphics[height=10cm]{p2008-Dec22-152042.ps}\end{center}
+
+% <p><img src="p2008-Dec22-152042.jpg">
+
+@
 \section{Rd-file}
 
 % \footnotesize
@@ -431,15 +623,30 @@ Here is the result:
      \code{plot.faces} plots faces into a scatterplot.
 }
 \usage{
-faces(xy, which.row, fill = FALSE, nrow.plot, ncol.plot, scale = TRUE, 
-         byrow = FALSE, main, labels, na.rm = FALSE, plot.faces=TRUE)
-plot.faces(x, x.pos, y.pos, width = 1, height = 1, labels, ...)
+faces(xy, which.row, fill = FALSE, face.type = 1, nrow.plot, 
+    ncol.plot, scale = TRUE, byrow = FALSE, main, labels, na.rm = FALSE, 
+    ncolors = 20, col.nose = rainbow(ncolors), col.eyes = rainbow(ncolors, 
+        start = 0.6, end = 0.85), col.hair = terrain.colors(ncolors), 
+    col.face = heat.colors(ncolors), col.lips = rainbow(ncolors, 
+        start = 0, end = 0.2), col.ears = rainbow(ncolors, start = 0, 
+        end = 0.2), plot.faces = TRUE) 
+
+plot.faces(x, x.pos, y.pos, face.type = 1, width = 1, height = 1, labels, 
+        ncolors = 20, col.nose = rainbow(ncolors), col.eyes = rainbow(ncolors, 
+        start = 0.6, end = 0.85), col.hair = terrain.colors(ncolors), 
+        col.face = heat.colors(ncolors), col.lips = rainbow(ncolors, 
+        start = 0, end = 0.2), col.ears = rainbow(ncolors, start = 0, 
+        end = 0.2), ...)
 }
 \arguments{
   \item{xy}{   \code{xy} data matrix, rows represent individuals and columns variables  }
   \item{which.row}{   defines a permutation of the rows of the input matrix   }
   \item{fill}{   \code{if(fill==TRUE)}, only the first \code{nc} attributes of the faces are
                   transformed, \code{nc} is the number of columns of \code{xy}   }
+  \item{face.type}{  an integer between 0 and 2 with the meanings: 
+                     0 = line drawing faces, 
+                     1 = the elements of the faces are painted,
+                     2 = Santa Claus faces are drawn }
   \item{nrow.plot}{   number of columns of faces on graphics device   }
   \item{ncol.plot}{   number of rows of faces   }
   \item{scale}{   \code{if(scale==TRUE)}, variables will be normalized   }
@@ -453,6 +660,13 @@ plot.faces(x, x.pos, y.pos, width = 1, height = 1, labels, ...)
   \item{y.pos}{ y coordinates of positions of faces  }
   \item{width}{ width of the faces }
   \item{height}{ height of the faces }
+  \item{ncolors}{ number of colors in the palettes for painting the elements of the faces }
+  \item{col.nose}{ palette of colors for painting the nose }
+  \item{col.eyes}{ palette of colors for painting the eyes }
+  \item{col.hair}{ palette of colors for painting the hair }
+  \item{col.face}{ palette of colors for painting the face }
+  \item{col.lips}{ palette of colors for painting the lips }
+  \item{col.ears}{ palette of colors for painting the ears }
   \item{...}{ additional graphical arguments }
 }
 \details{
@@ -474,28 +688,39 @@ Explanation of parameters:
 15-height of ears. For details look at the literate program of \code{faces}
 }
 \value{
-  list of standardized faces of \code{class faces},
+  list of two elements: The first element \code{out$faces} 
+  is a list of standardized faces of \code{class faces},
   this object could be plotted by plot.faces;
   a plot of faces is created on the graphics device if 
   \code{plot.faces=TRUE}.
+  The second list is short description of the effects of the variables.
 }
 \references{  Chernoff, H. (1973): The use of faces to represent statistiscal assoziation,
 JASA, 68, pp 361--368.
 The smooth curves are computed by an algorithm found in
 Ralston, A. and Rabinowitz, P. (1985):
 A first course in numerical analysis, McGraw-Hill, pp 76ff.
-\url{http://www.wiwi.uni-bielefeld.de/~wolf/} : S/R - functions : faces
+\url{http://www.wiwi.uni-bielefeld.de/mitarbeiter/wolf/} : 
+S/R - functions : faces
    }
 \author{   H. P. Wolf    }
-\note{ version 04/2006   }
+\note{ version 01/2009   }
 
 \seealso{   ---    }
 \examples{
 
+faces()
+faces(face.type=1)
+
 faces(rbind(1:3,5:3,3:5,5:7))
 
 data(longley)
-faces(longley[1:9,])
+faces(longley[1:9,],face.type=0)
+faces(longley[1:9,],face.type=1)
+
+plot(longley[1:16,2:3],bty="n")
+a<-faces(longley[1:16,],plot=FALSE)
+plot.faces(a,longley[1:16,2],longley[1:16,3],width=35,height=30)
 
 set.seed(17)
 faces(matrix(sample(1:1000,128,),16,8),main="random faces")
@@ -503,11 +728,22 @@ faces(matrix(sample(1:1000,128,),16,8),main="random faces")
 a<-faces(rbind(1:3,5:3,3:5,5:7),plot.faces=FALSE)
 plot(0:5,0:5,type="n")
 plot(a,x.pos=1:4,y.pos=1:4,1.5,0.7)
+# during Christmastime
+faces(face.type=2)
 }
 \keyword{misc}
 
 
 
+
+@
+Chunk to test the help examples.
+<<*>>=
+<<define [[faces]]>>
+<<define [[plot.faces]]>>
+a<-faces(rbind(1:3,5:3,3:5,5:7),plot.faces=FALSE)
+plot(0:5,0:5,type="n")
+plot(a,x.pos=1:4,y.pos=1:4,1.5,0.7)
 @
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -775,6 +1011,12 @@ longley[1:9,]
 
 @
 Now we know what to do and we can rewrite [[faces]] in a literate style. See p 1 ff.
+
+
+@
+
+<<*>>=
+data(longley)
 
 @
 \end{document}

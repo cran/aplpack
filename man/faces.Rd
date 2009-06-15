@@ -7,15 +7,30 @@
      \code{plot.faces} plots faces into a scatterplot.
 }
 \usage{
-faces(xy, which.row, fill = FALSE, nrow.plot, ncol.plot, scale = TRUE, 
-         byrow = FALSE, main, labels, na.rm = FALSE, plot.faces=TRUE)
-plot.faces(x, x.pos, y.pos, width = 1, height = 1, labels, ...)
+faces(xy, which.row, fill = FALSE, face.type = 1, nrow.plot, 
+    ncol.plot, scale = TRUE, byrow = FALSE, main, labels, na.rm = FALSE, 
+    ncolors = 20, col.nose = rainbow(ncolors), col.eyes = rainbow(ncolors, 
+        start = 0.6, end = 0.85), col.hair = terrain.colors(ncolors), 
+    col.face = heat.colors(ncolors), col.lips = rainbow(ncolors, 
+        start = 0, end = 0.2), col.ears = rainbow(ncolors, start = 0, 
+        end = 0.2), plot.faces = TRUE) 
+
+plot.faces(x, x.pos, y.pos, face.type = 1, width = 1, height = 1, labels, 
+        ncolors = 20, col.nose = rainbow(ncolors), col.eyes = rainbow(ncolors, 
+        start = 0.6, end = 0.85), col.hair = terrain.colors(ncolors), 
+        col.face = heat.colors(ncolors), col.lips = rainbow(ncolors, 
+        start = 0, end = 0.2), col.ears = rainbow(ncolors, start = 0, 
+        end = 0.2), ...)
 }
 \arguments{
   \item{xy}{   \code{xy} data matrix, rows represent individuals and columns variables  }
   \item{which.row}{   defines a permutation of the rows of the input matrix   }
   \item{fill}{   \code{if(fill==TRUE)}, only the first \code{nc} attributes of the faces are
                   transformed, \code{nc} is the number of columns of \code{xy}   }
+  \item{face.type}{  an integer between 0 and 2 with the meanings: 
+                     0 = line drawing faces, 
+                     1 = the elements of the faces are painted,
+                     2 = Santa Claus faces are drawn }
   \item{nrow.plot}{   number of columns of faces on graphics device   }
   \item{ncol.plot}{   number of rows of faces   }
   \item{scale}{   \code{if(scale==TRUE)}, variables will be normalized   }
@@ -29,6 +44,13 @@ plot.faces(x, x.pos, y.pos, width = 1, height = 1, labels, ...)
   \item{y.pos}{ y coordinates of positions of faces  }
   \item{width}{ width of the faces }
   \item{height}{ height of the faces }
+  \item{ncolors}{ number of colors in the palettes for painting the elements of the faces }
+  \item{col.nose}{ palette of colors for painting the nose }
+  \item{col.eyes}{ palette of colors for painting the eyes }
+  \item{col.hair}{ palette of colors for painting the hair }
+  \item{col.face}{ palette of colors for painting the face }
+  \item{col.lips}{ palette of colors for painting the lips }
+  \item{col.ears}{ palette of colors for painting the ears }
   \item{...}{ additional graphical arguments }
 }
 \details{
@@ -50,28 +72,39 @@ Explanation of parameters:
 15-height of ears. For details look at the literate program of \code{faces}
 }
 \value{
-  list of standardized faces of \code{class faces},
+  list of two elements: The first element \code{out$faces} 
+  is a list of standardized faces of \code{class faces},
   this object could be plotted by plot.faces;
   a plot of faces is created on the graphics device if 
   \code{plot.faces=TRUE}.
+  The second list is short description of the effects of the variables.
 }
 \references{  Chernoff, H. (1973): The use of faces to represent statistiscal assoziation,
 JASA, 68, pp 361--368.
 The smooth curves are computed by an algorithm found in
 Ralston, A. and Rabinowitz, P. (1985):
 A first course in numerical analysis, McGraw-Hill, pp 76ff.
-\url{http://www.wiwi.uni-bielefeld.de/~wolf/} : S/R - functions : faces
+\url{http://www.wiwi.uni-bielefeld.de/mitarbeiter/wolf/} : 
+S/R - functions : faces
    }
 \author{   H. P. Wolf    }
-\note{ version 04/2006   }
+\note{ version 01/2009   }
 
 \seealso{   ---    }
 \examples{
 
+faces()
+faces(face.type=1)
+
 faces(rbind(1:3,5:3,3:5,5:7))
 
 data(longley)
-faces(longley[1:9,])
+faces(longley[1:9,],face.type=0)
+faces(longley[1:9,],face.type=1)
+
+plot(longley[1:16,2:3],bty="n")
+a<-faces(longley[1:16,],plot=FALSE)
+plot.faces(a,longley[1:16,2],longley[1:16,3],width=35,height=30)
 
 set.seed(17)
 faces(matrix(sample(1:1000,128,),16,8),main="random faces")
@@ -79,8 +112,11 @@ faces(matrix(sample(1:1000,128,),16,8),main="random faces")
 a<-faces(rbind(1:3,5:3,3:5,5:7),plot.faces=FALSE)
 plot(0:5,0:5,type="n")
 plot(a,x.pos=1:4,y.pos=1:4,1.5,0.7)
+# during Christmastime
+faces(face.type=2)
 }
 \keyword{misc}
+
 
 
 

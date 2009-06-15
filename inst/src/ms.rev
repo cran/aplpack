@@ -1,3 +1,5 @@
+% New Report: Tue Apr 14 13:12:40 2009 
+
 % New Report: Wed Mar 29 11:00:59 2006
 
 
@@ -50,7 +52,10 @@ Hierzu stehen folgende Argumente bereit:
 #                                                                #
 #Usage:                                                          #
 #   stem.leaf(data)                                              #
-#   stem.leaf(data,unit=100,m=5,Min=50,Max=1000,rule.line="Dixon"#
+#   stem.leaf(data,unit=100,m=5,Min=50,Max=1000,                 #
+#     rule.line=c("Dixon", "Velleman", "Sturges"),               #
+#     style=c("Tukey", "bare"), trim.outliers=TRUE, depths=TRUE, #
+#     reverse.negative.leaves=TRUE,na.rm=FALSE)                  #
 #                                                                #
 #Arguments:                                                      #
 #   data:      vector of input data                              #
@@ -68,6 +73,7 @@ Hierzu stehen folgende Argumente bereit:
 #Author:                                                         #
 #   Peter Wolf 05/2003 (modified slightly by J. Fox, 20 July 03) #
 #   rounding operation for comparing added 29 March 06           #
+#   07/2008 NA-values are counted if na.rm==FALSE                #
 ##################################################################
 
 @
@@ -82,11 +88,17 @@ Am 29.3.2006 wurde ein Rundungsproblem behoben.
 @
 <<definiere ms>>=
 ## ms <-
-stem.leaf<-function(data, unit, m, Min, Max, rule.line=c("Dixon", "Velleman", "Sturges"),
-     style=c("Tukey", "bare"), trim.outliers=TRUE, depths=TRUE, reverse.negative.leaves=TRUE,
-     na.rm=FALSE){
-#Author:  Peter Wolf 05/2003, (modified slightly by J. Fox, 20 July 03)
-#  03/2005 additional rounding to prevent misclasification
+stem.leaf<-function(data, unit, m, Min, Max, 
+     rule.line=c("Dixon", "Velleman", "Sturges"),
+     style=c("Tukey", "bare"), trim.outliers=TRUE, depths=TRUE,
+     reverse.negative.leaves=TRUE,na.rm=FALSE){
+  if(missing(data)){cat("Author:  Peter Wolf 05/2003,", 
+                        "(modified slightly by J. Fox, 20 July 03)",
+                        "03/2006 additional rounding to prevent misclasification",
+                        "07/2008 counting of NA's, 04/2009 improvement of rounding",
+                        "syntax: stem.leaf(data.set)\n",sep="\n")
+                    return("Warning: no data set found by stem.leaf")
+  }                  
   <<checke Input>>
   <<setze ggf.\ [[verb]] gemäß Debugging-Wunsch>>
   <<definiere Kurzkommentar>>
@@ -122,15 +134,18 @@ kann dann die endgültige Skala erstellt werden.
 
 @
 Zunächst gilt es den Input zu checken.
+080711: Zeile mit NA-Zählung [[n.na]] eingebaut.
 <<checke Input>>=
 rule.line <- match.arg(rule.line)
 style <- match.arg(style)
-if(any(is.na(data))){
-  if(na.rm){ data<-data[!is.na(data)]
+n.na<-sum(is.na(data))
+if(0<n.na){
+  data<-data[!is.na(data)]
+  if(na.rm){ # data<-data[!is.na(data)]
     print("Warning: NA elements have been removed!!")
-   }else{
-    data[is.na(data)]<-mean(data,na.rm=TRUE)
-    print("Warning: NA elements have been exchanged by the mean value!!")
+  }else{
+#   data[is.na(data)]<-mean(data,na.rm=TRUE)
+#   print("Warning: NA elements have been exchanged by the mean value!!")
   }  
 }
 
@@ -372,8 +387,6 @@ die Tiefeninformation zu ermitteln und anzubringen.
 <<konstruiere Skala und füge sie an den zentralen Plot an>>
 <<ermittle Tiefen und füge sie an zentralen Plot an>>
 
-
-
 @
 \paragraph{Zerlegung der Werte}
 Stämme werden durch Abschneiden gebildet. Für negative Werte geschieht
@@ -384,8 +397,53 @@ sind dann aufzurunden, die anderen abzurunden.
 Übrigens führte [[ceiling((data.tr.red-stem)*10)]] zu Fehlern.
 <<zerlege Zahlen in Stamm und Blatt>>=
 stem <- ifelse(data.tr.red<0, ceiling(data.tr.red), floor(data.tr.red) )
-leaf <- floor(abs(data.tr.red*10-stem*10))
+# eps<-1e-12; leaf <- floor(abs(data.tr.red*10-stem*10)+eps)
+leaf <- floor(10*abs(signif(data.tr.red-stem,10)))
 debug.show("leaf"); debug.show("stem")
+
+@
+Der Vergleich von Dezimalzahlen wird problematisch. wenn wir an die Grenzen
+von Dezimalzahlendarstellungen herankommen.
+Shiften wir 0.95 durch Multiplikation mit 0.1 um eine Stelle nach links, erhalten wir 
+scheinbar 9.5. Jedoch stellt sich 9.5 nicht ganz genau ein, 
+wie nach einer Restbildung mit 1 oder durch Subtraktion von 9.0 deutlich wird:
+<<*>>=
+print(rbind("      .95/0.1-9.0  ="=as.character( .95/0.1-9.0),   
+#                                  as.character((.95/0.1)%%1),
+            "      .95/0.1-9.5  ="=as.character( .95/0.1-9.5),
+            "floor(.95/0.1-9.5) ="=as.character(floor(.95/0.1-9.5))))
+@
+\begin{verbatim}
+                     [,1]                   
+      .95/0.1-9.0  = "0.499999999999998"    
+      .95/0.1-9.5  = "-1.77635683940025e-15"
+floor(.95/0.1-9.5) = "-1"                   
+\end{verbatim}
+@
+Die Differenz ist relativ klein, kann jedoch wirkungsvoll sein. 
+Deshalb können / sollten wir vor einem Abrundungsprozess
+ein Sicherheits-Epsilon addieren, um dann auf der sicheren Seite zu sein.
+<<*>>=
+eps<-1e-12
+print(rbind("      .95/0.1-9.0+eps  ="=as.character( .95/0.1-9.0+eps),   
+#                                      as.character((.95/0.1)%%1+eps),
+            "      .95/0.1-9.5+eps  ="=as.character( .95/0.1-9.5+eps),
+            "floor(.95/0.1-9.5+eps) ="=as.character(floor(.95/0.1-9.5+eps))))
+
+@
+\begin{verbatim}
+                         [,1]                
+      .95/0.1-9.0+eps  = "0.500000000000998" 
+      .95/0.1-9.5+eps  = "9.982236431606e-13"
+floor(.95/0.1-9.5+eps) = "0"                 
+\end{verbatim}
+@
+Die Technik, etwas Schmutz zu addieren, erscheint nicht so richtig überzeugend zur
+Lösung der Diskretisierungsungenauigkeit. Besser gefällt die Idee, die Differenz von 
+[[data.tr.red]] und [[stem]] nach 10 Stellen abzuschneiden und dann erst abzurunden.
+Falls sich weitere Probleme einstellen, kann ggf.\ auf die erste Lösung mit Addition
+eines [[eps]] zurückgegriffen werden, denn die entsprechende Zeile ist als 
+Kommentarzeile noch existent.
 
 @
 \paragraph{Blätterzuordnung}
@@ -400,8 +458,28 @@ wird in jede Klasse zwischenzeitlich ein Dummyelement plaziert.
 Anhand von [[class.of.data.tr]] werden die Blätter gesplittet
 und die Dummyelemente wieder entfernt.
 
-2.8 ist nicht gleich 2.8. Deshalb wurde am 29.3.2006 
-Rundungen mit [[signif]] in den Vergleichsprozess eingebaut.
+6.8 ist nicht gleich 6.8. Deshalb wurden am 29.3.2006 
+Rundungen mit [[signif]] in den Vergleichsprozess eingebaut --
+nach einem Fehlerhinweis von Dietrich Trenkler. 
+%Auf gleichen Fehler stieß Michael Hallquist [[mhallqu1@binghamton.edu]]
+%am [[July-08-08 6:55 PM]] bei der Verwendung von [[stem.leaf]] 
+%aus dem Paket [[Rcmdr]] von John Fox ([[jfox@mcmaster.ca]]).
+\begin{raggedright}
+Betrachten wir bspw. den Wert 68, dann kann Folgendes passieren:
+Es wird eine Skala erzeugt mit Schrittweite: 0.2 durch
+[[seq(4,7,by=0.2)]]. Dieses liefert selbst bei 
+[[options(digits=22)]] die Werte:
+[[ [1] 4.0 4.2 4.4 4.6 4.8 5.0 5.2 5.4 5.6 5.8 6.0 6.2 6.4 6.6 6.8 7.0 ]]
+Aus dem Wert 68 wird durch Transformation [[68/10]] also 6.8. Leider
+gilt nicht [[seq(4,7,by=0.2)[15]==(68/10)]], sondern: 
+[[(seq(4,7,by=0.2)[15]-(68/10))==8.881784197001252e-16]].
+Der Skalenwert ist also etwas größer und die 68 wir in die 
+Klasse vor der richtigen einsortiert. Dadurch führte mit der
+alten Version der Aufruf von 
+[[stem.leaf(2*(24:34),m=5,depths=FALSE)]]
+zu einem Fehler. Ein Runden auf 10 Stellen neutralisiert die 
+Ungenauigkeit.
+\end{raggedright}
 <<verteile Blätter auf passende Klassen>>=
 class.of.data.tr<-unlist(c(
    sapply(signif(data.tr.red[data.tr.red< 0],10),
@@ -414,8 +492,6 @@ class.of.data.tr  <- c(1:length(skala),class.of.data.tr)
 leaf.grouped      <- split(c(rep(-1,length(skala)),leaf),class.of.data.tr)
 leaf.grouped      <- lapply(leaf.grouped, function(x){ sort(x[-1]) })
 # debug.show("leaf.grouped")
-
-
 
 @
 [[paste]] regelt die Astbildung problemlos.
@@ -540,12 +616,14 @@ info<-     c(  paste("1 | 2: represents",1.2*factor),
 \subsection{Ausgabe}
 Zum Schluß werden die Ergebnisse in einem Objekt zusammengebunden
 bzw.\ ausgegeben.
+080711: Zeile mit NA-Zähler eingebaut.
 <<stelle Ergebnis zusammen>>=
 stem <- paste(depth, line.names, leaf.grouped.ch)
 stem <- if((m!=5)||sum(select)>4) stem[select] else stem
 result<-list( stem=stem)
 if(exists("lower.line")) result<-c(lower=lower.line,result)
 if(exists("upper.line")) result<-c(result,upper=upper.line)
+if(0<n.na&&!na.rm) result<-c(result,NAs=paste("NA's:",n.na,collapse=" "))
 result<-c(list( info=info), result)
 for(i in seq(result)) cat(result[[i]],sep="\n")
 invisible(result)
@@ -621,7 +699,7 @@ stem.leaf(data, unit, m, Min, Max, rule.line = c("Dixon", "Velleman", "Sturges")
     parentheses.}
   \item{reverse.negative.leaves}{if \code{TRUE} (the default), reverse direction the leaves on negative
     stems (so, e.g., the leaf 9 comes before the leaf 8, etc.).}
-  \item{na.rm}{ if TRUE 'NA' values are removed otherwise exchanged by mean}
+  \item{na.rm}{ if TRUE 'NA' values are removed otherwise the number of NA's are counted}
 }
 
 \details{
@@ -664,8 +742,12 @@ Zunächst empfiehlt es sich schon während des Entwicklungsprozesses,
 an bestimmten Punkten Öffnungen einzubauen, die bei Bedarf
 Auskunft über die Innereien während der Bearbeitung, also des Prozesses,
 geben. Dieses ist im Code umgesetzt durch [[debug.show("xyz")]]-Konstruktionen.
-Jetzt gilt es die Funktion [[debug.show]] geeignet zu definieren.
+Jetzt gilt es die Funktion [[debug.show]] geeignet zu definieren. 
+% 090216: debug.cond explizit eingeführt.
 <<setze ggf.\ [[verb]] gemäß Debugging-Wunsch>>=
+if(0<length(h<-find("debug.cond")) && ".GlobalEnv" %in% h){
+  debug.cond<-get("debug.cond",env=.GlobalEnv)
+} else debug.cond<-""
 debug.show<-function(name){
   if(!exists("debug.cond")) return()
   if(debug.cond=="all"|| (name %in% debug.cond) ){
@@ -684,7 +766,7 @@ Zur Erinnerung hier noch einmal die Argumente.
 @
 \subsection{Code-Erzeugung}
 <<*>>=
-tangleR("ms.rev",expand.roots = "", expand.root.start = TRUE))
+tangleR("ms.rev",expand.roots = "", expand.root.start = TRUE)
 
 @
 \subsection{Diverse Tests}
@@ -711,8 +793,31 @@ debug.cond<<-""
 "Pflaumen,getrocknet", "Preiselbeeren","Rosinen", "Satsuma",
 "Stachelbeeren", "Wassermelone", "Weintrauben","Zitrone"))
 names(a)<-NULL; aa<-c(rev(sort(a))[1:5],sort(a)[1:5])
-print(stem.leaf(a,Min=0,Max=300) )
+test('stem.leaf(a,Min=0,Max=300)')
 
+@
+\begin{verbatim}
+stem.leaf(a,Min=0,Max=300) 
+1 | 2: represents 120
+ leaf unit: 10
+            n: 43
+    2    0* | 11
+   14     t | 222333333333
+  (15)    f | 444444444555555
+   14     s | 6677777
+         0. | 
+         1* | 
+    7     t | 3
+          f | 
+          s | 
+         1. | 
+         2* | 
+          t | 
+    6     f | 5
+    5     s | 677
+    2    2. | 8
+    1    3* | 0
+\end{verbatim}
 @
 \subsubsection{Erfolgreiche Tests}
 Als Datensätze wollen wir [[oz]] wie auch [[co2]] verwenden.
@@ -740,9 +845,9 @@ cat("style-Test-start\n")
 test('stem.leaf(oz,m=1,style="Tukey")')
 test('stem.leaf(oz,m=2,style="Tukey")')
 test('stem.leaf(oz,m=5,style="Tukey")')
-test('stem.leaf(oz,m=1,style="")')
-test('stem.leaf(oz,m=2,style="")')
-test('stem.leaf(oz,m=5,style="")')
+test('stem.leaf(oz,m=1)')
+test('stem.leaf(oz,m=2)')
+test('stem.leaf(oz,m=5)')
 cat("style-Test-end\n")
 
 @
@@ -971,10 +1076,14 @@ Test von [[unit]]
 <<Test von [[unit]]>>=
 cat("unit-Test-start\n")
 test('stem.leaf(oz,unit=10)')
+# test('stem.leaf(c(oz,-oz),unit=10)'); oz
 test('stem.leaf(oz,unit=1)')
 test('stem.leaf(oz,unit=.1)')
 cat("unit-Test-end\n")
 @
+Achtung: in dem ersten Stem-And-Leaf ist die erste 6 in der falschen Zeile!
+Sie muss hinter [[s]] stehen, was die aktuelle [[stem.leaf]]-Version auch 
+so macht.
 \begin{verbatim}
 unit-Test-start
 stem.leaf(oz,unit=10)
@@ -1220,6 +1329,63 @@ Klassen-Test-end
 Thu May 22 14:19:01 2003
 \end{verbatim}
 
+
+
+
+@
+Jim Albert mailte am 12.4.09 folgende Fehlersituation:
+<<Example of Jim Albert>>=
+#debug.cond<<-"all"
+<<definiere ms>>
+y<-c(0.99,0.96,0.98,0.94,0.98,0.98,0.97,0.97,0.98,0.96,0.94,0.96,
+0.96,0.96,0.96,
+0.97,0.96,0.92,0.98,0.95,0.97,0.92,0.92,0.96,0.95,0.96,0.93,0.96,
+0.94,0.96,
+0.94,0.90,0.92,0.92,0.94,0.92,0.94,0.94,0.91,0.94,0.87,0.91,0.93,
+0.84,0.90,
+0.93,0.85,0.87,0.91,0.88,0.89,0.89)
+print(table(y))
+test('stem.leaf(y,unit=.01,m=5)')
+
+@
+\begin{verbatim}
+y
+0.84 0.85 0.87 0.88 0.89  0.9 0.91 0.92 0.93 0.94 0.95 0.96 0.97 0.98 0.99 
+   1    1    2    1    2    2    3    6    3    8    2   11    4    5    1 
+1 | 2: represents 0.12
+ leaf unit: 0.01
+            n: 52
+    2      f | 35
+    4      s | 77
+    7     8. | 799
+   12     9* | 00111
+   21      t | 222222333
+  (10)     f | 3333333344
+   21      s | 666666666667777
+    6     9. | 777778
+\end{verbatim}
+In der Tat muss in der letzten Zeile des Displays [[9. |  888889]].
+Der Fehler geht auf die ungenaue Darstellung von Dezimalzahlen zurück,
+welche durch Addition eines kleines Epsilons [[eps]] vor Rundungprozessen
+behoben werden kann, siehe Chunk: \emph{zerlege Zahlen in Stamm und Blatt}.
+Nach Integration dieser Verbesserung erhalten wir das richtige Ergebnis:
+@
+\begin{verbatim}
+y
+0.84 0.85 0.87 0.88 0.89  0.9 0.91 0.92 0.93 0.94 0.95 0.96 0.97 0.98 0.99 
+   1    1    2    1    2    2    3    6    3    8    2   11    4    5    1 
+1 | 2: represents 0.12
+ leaf unit: 0.01
+            n: 52
+    2      f | 45
+    4      s | 77
+    7     8. | 899
+   12     9* | 00111
+   21      t | 222222333
+  (10)     f | 4444444455
+   21      s | 666666666667777
+    6     9. | 888889
+\end{verbatim}
 @
 Hier noch einmal die Testaufrufe zusammengefaßt:
 <<Testaufrufe>>=
@@ -1228,6 +1394,7 @@ Hier noch einmal die Testaufrufe zusammengefaßt:
 <<Test von [[unit]]>>
 <<Test von [[Min/Max]]>>
 <<Klassenzuordnungstest>>
+<<Example of Jim Albert>>
 
 @
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -1240,7 +1407,7 @@ Hier noch einmal die Testaufrufe zusammengefaßt:
 @
 <<test>>=
 a<-seq(-2,2,length=20)
-stem.leaf( c(-2,-.99,-.5,-.1,0,.1,.5,.99,2),m=2,verb=T)
+test('stem.leaf( c(-2,-.99,-.5,-.1,0,.1,.5,.99,2),m=2)')
 
 
 

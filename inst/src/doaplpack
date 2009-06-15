@@ -1,51 +1,112 @@
-# doaplpack: Installationsskript fuer aplpack
-# pw 08/2007
+# doaplpack: Installation script for aplpack
+# pw 09/2008
 
+### CLEAN
 [ ! -d aplpack/R ] && mv aplpack/r aplpack/R
 
+### BAGPLOT
 echo "library(relax);tangleR(\"bagplot.rev\",expand.roots=\"\",expand.root.start=TRUE)" | R --vanilla
-cp -p bagplot.R aplpack/R/bagplot.R
+mv bagplot.R aplpack/R/bagplot.R
 ##notangle -R"define [[bagplot]]"     bagplot.rev > aplpack/R/bagplot.R
 echo "library(relax);tangleR(\"bagplot.rev\",\"bagplot.Rd\", \
                 expand.roots=\"define help of [[bagplot]]\",expand.root.start=FALSE)" | R --vanilla
 grep "^[^#]" bagplot.Rd.R > aplpack/man/bagplot.Rd
+rm bagplot.Rd.R
 ## notangle -R"define help of [[bagplot]]"  bagplot.rev > aplpack/man/bagplot.Rd
 cp -p bagplot.rev aplpack/inst/src/
 cp -p work/bagplot.pdf aplpack/inst/pdf/
 
+### FACES
 notangle -R"define [[faces]]"     faces.rev > aplpack/R/faces.R
 notangle -R"define [[plot.faces]]"     faces.rev > aplpack/R/plot.faces.R
 notangle -R"define [[faces]] help"  faces.rev > aplpack/man/faces.Rd
 cp -p faces.rev aplpack/inst/src/
 
+### MS stem-and-leaf
 notangle -R"definiere ms"     ms.rev > aplpack/R/stem.leaf.R
 notangle -R"definiere Hilfe zu [[stem.leaf]]"  ms.rev > aplpack/man/stem.leaf.Rd
 cp -p ms.rev aplpack/inst/src/
 
+### SPIN3R
 notangle -R"definiere [[spin3R]]"     spin3R.rev > aplpack/R/spin3R.R
 notangle -R"definiere Hilfe von [[spin3R]]"  spin3R.rev > aplpack/man/spin3R.Rd
 cp -p spin3R.rev aplpack/inst/src/
 
+### BOXPLOT2D
 notangle -R"start"     sc.rev > aplpack/R/boxplot2D.R
 notangle -R"definiere Hilfe von [[boxplot2D]]" sc.rev > aplpack/man/boxplot2D.Rd
 cp -p sc.rev aplpack/inst/src/
 
-# notangle -Rdefine-DESCRIPTION  ??? > aplpack/DESCRIPTION
+### SLIDERFNS
+#cp   sliderfns/*.Rd  aplpack/man/
+notangle -R"define help of [[slider.hist]]" \
+  sliderfns/sliderfns.rev > aplpack/man/slider.hist.Rd
+notangle -R"define help of [[slider.brush.pairs]] and of [[slider.brush.plot.xy]]" \
+  sliderfns/sliderfns.rev > aplpack/man/slider.brush.Rd
+notangle -R"define help of [[slider.split.plot.ts]]" \
+  sliderfns/sliderfns.rev > aplpack/man/slider.split.plot.ts.Rd
+notangle -R"define help of [[slider.zoom.plot.ts]]" \
+  sliderfns/sliderfns.rev > aplpack/man/slider.zoom.plot.ts.Rd
+notangle -R"define help of [[slider.smooth.plot.ts]]" \
+  sliderfns/sliderfns.rev > aplpack/man/slider.smooth.plot.ts.Rd
+notangle -R"define help of [[slider.lowess.plot]]" \
+  sliderfns/sliderfns.rev > aplpack/man/slider.lowess.plot.Rd
+notangle -R"define help of [[slider.bootstrap.lm.plot]]" \
+  sliderfns/sliderfns.rev > aplpack/man/slider.bootstrap.lm.plot.Rd
 
+#cat  sliderfns/*.R > aplpack/R/sl.R
+notangle -R"define [[slider.hist]]" \
+  sliderfns/sliderfns.rev > aplpack/R/slider.hist.R
+notangle -R"define [[slider.density]]" \
+  sliderfns/sliderfns.rev > aplpack/R/slider.density.R
+notangle -R"define [[slider.brush.pairs]]" \
+  sliderfns/sliderfns.rev > aplpack/R/slider.brush.pairs.R
+notangle -R"define [[slider.brush.plot.xy]]" \
+  sliderfns/sliderfns.rev > aplpack/R/slider.brush.plot.xy.R
+notangle -R"define [[slider.split.plot.ts]]" \
+  sliderfns/sliderfns.rev > aplpack/R/slider.split.plot.ts.R
+notangle -R"define [[slider.zoom.plot.ts]]" \
+  sliderfns/sliderfns.rev > aplpack/R/slider.zoom.plot.ts.R
+notangle -R"define [[slider.smooth.plot.ts]]" \
+  sliderfns/sliderfns.rev > aplpack/R/slider.smooth.plot.ts.R
+notangle -R"define [[slider.lowess.plot]]" \
+  sliderfns/sliderfns.rev > aplpack/R/slider.lowess.plot.R
+notangle -R"define [[slider.bootstrap.lm.plot]]" \
+  sliderfns/sliderfns.rev > aplpack/R/slider.bootstrap.lm.plot.R
+
+cp -p sliderfns/sliderfns.rev aplpack/inst/src/
+cp sliderfns/*.jpg aplpack/inst/doc/
+cat sliderfns/sliderfns.tex | sed "s/\\.ps//" > aplpack/inst/doc/sliderfns.Snw
+
+
+### SLIDER
+cp  /home/wiwi/pwolf/R/work/relax/install.dir/relax/man/slider.Rd aplpack/man/
+cp  /home/wiwi/pwolf/R/work/relax/install.dir/relax/R/slider.R aplpack/R/
+
+### NAMESPACE
+echo "exportPattern(\"^slider.[a-z]+\")"                             > tmp.tmp
+echo "export(bagplot,boxplot2D,compute.bagplot,faces,plot.bagplot," >> tmp.tmp
+echo "       plot.faces,spin3R,stem.leaf)"                          >> tmp.tmp
+mv tmp.tmp aplpack/NAMESPACE
+
+### DESCRIPTION
+cp DESCRIPTION aplpack/DESCRIPTION
+
+### CHECK + BUILD
 R CMD check aplpack;  R CMD build aplpack
 #rm lib/aplpack/R/aplpack.rdb
-R CMD INSTALL --library=lib aplpack_1.1.1.tar.gz
-cd lib; zip -r aplpack_1.1.1.zip aplpack/*
-mv aplpack_1.1.1.zip ..
+R CMD INSTALL --library=lib aplpack_1.2.tar.gz
+cd lib; zip -r aplpack_1.2.zip aplpack/*
+mv aplpack_1.2.zip ..
 cd ..
 
 exit 0
 
-### zur Generierung der pdf-Beschreibungen:
+### MANUALS generation of pdf manuals:
 ## cp *rev pdfmake/
 cd pdfmake ; 
 revweb sc; latex sc; latex sc; dvipdf sc;
-revweb faces; latex bagplot; latex faces; dvipdf faces;
+revweb faces; latex faces; latex faces; dvipdf faces;
 revweb spin3R; latex spin3R; latex spin3R; dvipdf spin3R;
 revweb ms; latex ms; latex ms; dvipdf ms
 cd ../work
@@ -56,4 +117,9 @@ cd ../pdfmake/
 cp *pdf ../aplpack/inst/pdf
 cd ..
 
-
+## sliderfns manual
+cd sliderfns
+echo "library(relax); weaveR('sliderfns.rev')" |R --vanilla -q
+latex sliderfns; latex sliderfns; dvi2pdf sliderfns
+cp *.pdf ../pdfmake/
+cp sliderfns.pdf ../aplpack/inst/pdf/
