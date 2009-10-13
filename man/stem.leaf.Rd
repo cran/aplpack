@@ -57,7 +57,7 @@ stem.leaf(data, unit, m, Min, Max, rule.line = c("Dixon", "Velleman", "Sturges")
 \author{Peter Wolf, the code has been slightly modified by John Fox \email{jfox@mcmaster.ca}
     with the original author's permission, help page written by John Fox, the help page has been slightly modified by Peter Wolf.}
 
-\seealso{\code{\link[base]{stem}}}
+\seealso{\code{\link[graphics]{stem}}}
 
 \examples{
 stem.leaf(co2)

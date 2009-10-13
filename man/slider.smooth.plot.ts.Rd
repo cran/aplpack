@@ -1,4 +1,4 @@
-\name{slider functions}
+\name{slider.smooth.plot.ts}
 \title{interactive Tukey smoothing}
 \alias{slider.smooth.plot.ts}
 

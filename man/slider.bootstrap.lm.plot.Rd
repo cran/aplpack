@@ -1,4 +1,4 @@
-\name{slider functions}
+\name{slider.bootstrap.lm.plot}
 \title{interactive bootstapping for lm}
 \alias{slider.bootstrap.lm.plot}
 

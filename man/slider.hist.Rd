@@ -1,4 +1,4 @@
-\name{slider functions}
+\name{slider.hist}
 \title{interactive histogram and density traces}
 \alias{slider.hist}
 \alias{slider.density}

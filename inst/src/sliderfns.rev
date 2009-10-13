@@ -1049,7 +1049,7 @@ slider.density(log(rivers),xlab="rivers",col="red",
 \subsubsection{Help Page}
 %% [[prompt(slider.hist)]]
 <<define help of [[slider.hist]]>>=
-\name{slider functions}
+\name{slider.hist}
 \title{interactive histogram and density traces}
 \alias{slider.hist}
 \alias{slider.density}
@@ -1248,7 +1248,7 @@ slider.brush.plot.xy(iris[,1:3],cex=1.5)
 @
 \subsubsection{Help Page}
 <<define help of [[slider.brush.pairs]] and of [[slider.brush.plot.xy]]>>=
-\name{slider functions}
+\name{slider.brush}
 \title{interactive brushing functions}
 \alias{slider.brush.pairs}
 \alias{slider.brush.plot.xy}
@@ -1266,24 +1266,23 @@ slider.brush.plot.xy(iris[,1:3],cex=1.5)
   \code{(x,y)} will be recolored red if the \code{z} value is in the interval.
 }
 \usage{
-  slider.brush.pairs(data, ...)
+  slider.brush.pairs(x, ...)
   slider.brush.plot.xy(x, y, z, ...)
 }
 \arguments{
-  \item{data}{ matrix or data frame to be used for plotting }
   \item{\dots}{ new settings for global graphics parameters }
   \item{x}{ matrix or data frame or vector }
   \item{y}{ vector of y values if \code{x} is not a matrix }
   \item{z}{ vector of z values if \code{x} is not a matrix }
 }
 \details{
-  \code{slider.brush.pairs} draws a pairs plot of the data set \code{data}.
+  \code{slider.brush.pairs} draws a pairs plot of the data set \code{x}.
   The first slider defines the lower limit of the interval and the
   second its width. By the third slider a variable is selected.
   All data points for which the selected variable is in the interval
   are recolored red.
 
-  \code{slider.brush.plot.xy} draws an xy-plot of the data set \code{data}.
+  \code{slider.brush.plot.xy} draws an xy-plot of the data set \code{x}.
   The first slider defines the lower limit of the interval of z values 
   and the second one its width. All data points for which the variable z
   is in the interval are recolored red.
@@ -1389,7 +1388,7 @@ slider.split.plot.ts(co2,col="red",main="co2")
 @
 \subsubsection{Help Page}
 <<define help of [[slider.split.plot.ts]]>>=
-\name{slider functions}
+\name{slider.split.plot.ts}
 \title{interactive splitting of time series}
 \alias{slider.split.plot.ts}
 
@@ -1399,10 +1398,11 @@ slider.split.plot.ts(co2,col="red",main="co2")
   The sections are controlled by sliders. 
 }
 \usage{
-  slider.split.plot.ts(x, ...)
+  slider.split.plot.ts(x, type="l", ...)
 }
 \arguments{
   \item{x}{ time series or vector}
+  \item{type}{ plotting type: \code{type} will be forwarded to function \code{plot}}
   \item{\dots}{ additional graphics parameters }
 }
 \details{
@@ -1505,7 +1505,7 @@ slider.zoom.plot.ts(sunspots,2)
 @
 \subsubsection{Help Page}
 <<define help of [[slider.zoom.plot.ts]]>>=
-\name{slider functions}
+\name{slider.zoom.plot.ts}
 \title{interactive zooming of time series}
 \alias{slider.zoom.plot.ts}
 
@@ -1605,7 +1605,7 @@ slider.smooth.plot.ts(rnorm(100),main="\nrandom",col="blue")
 @
 \subsubsection{Help Page}
 <<define help of [[slider.smooth.plot.ts]]>>=
-\name{slider functions}
+\name{slider.smooth.plot.ts}
 \title{interactive Tukey smoothing}
 \alias{slider.smooth.plot.ts}
 
@@ -1690,7 +1690,7 @@ slider.lowess.plot(cars,col="red")
 \subsubsection{Help Page}
 
 <<define help of [[slider.lowess.plot]]>>=
-\name{slider functions}
+\name{slider.lowess.plot}
 \title{interactive lowess smoothing}
 \alias{slider.lowess.plot}
 \description{
@@ -1786,7 +1786,7 @@ slider.bootstrap.lm.plot(daten)
 @
 \subsubsection{Help Page}
 <<define help of [[slider.bootstrap.lm.plot]]>>=
-\name{slider functions}
+\name{slider.bootstrap.lm.plot}
 \title{interactive bootstapping for lm}
 \alias{slider.bootstrap.lm.plot}
 
@@ -2093,9 +2093,9 @@ cp DESCRIPTION aplpack/DESCRIPTION
 ### CHECK + BUILD
 R CMD check aplpack;  R CMD build aplpack
 #rm lib/aplpack/R/aplpack.rdb
-R CMD INSTALL --library=lib aplpack_1.2.tar.gz
-cd lib; zip -r aplpack_1.2.zip aplpack/*
-mv aplpack_1.2.zip ..
+R CMD INSTALL --library=lib aplpack_1.2.2.tar.gz
+cd lib; zip -r aplpack_1.2.2.zip aplpack/*
+mv aplpack_1.2.2.zip ..
 cd ..
 
 exit 0

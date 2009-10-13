@@ -1,4 +1,4 @@
-\name{slider functions}
+\name{slider.zoom.plot.ts}
 \title{interactive zooming of time series}
 \alias{slider.zoom.plot.ts}
 

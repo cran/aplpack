@@ -1,4 +1,4 @@
-\newcounter{Rchunkno}\newcounter{IsInCodeChunk}\setcounter{IsInCodeChunk}{1}\newcommand{\codechunkcommands}{\relax}\newcommand{\textchunkcommands}{\relax}\newcommand{\makemarginno}{\par\vspace{-0.5\parskip}\codechunkcommands\stepcounter{Rchunkno}\setcounter{IsInCodeChunk}{1}\noindent\hspace*{-3em}\makebox[0mm]{\arabic{Rchunkno}}\hspace*{3em}}% New Report: Fri Jun 12 11:48:32 2009 
+\newcounter{Rchunkno}\newcounter{IsInCodeChunk}\setcounter{IsInCodeChunk}{1}\newcommand{\codechunkcommands}{\relax}\newcommand{\textchunkcommands}{\relax}\newcommand{\Routputcommands}{\relax}\newcommand{\makemarginno}{\par\vspace{-0.5\parskip}\codechunkcommands\stepcounter{Rchunkno}\setcounter{IsInCodeChunk}{1}\noindent\hspace*{-3em}\makebox[0mm]{\arabic{Rchunkno}}\hspace*{3em}}% New Report: Fri Jun 12 11:48:32 2009 
 
 % New Report: Wed Mar 25 10:10:57 2009 
 
@@ -96,7 +96,7 @@ The following list shows the functions available in this package:
 \rule{0mm}{0mm}\newline\verb· sort(unique(sub("<-.*$","",fns))) ·%
 \rule{0mm}{0mm}\newline\verb·  ·%
 \ifodd\value{IsInCodeChunk}\setcounter{IsInCodeChunk}{0}\vspace{-\parskip}\par\hspace*{-\parindent}\textchunkcommands\fi
-\begin{verbatim}
+\par\Routputcommands\begin{verbatim}
 Wed Mar 25 10:12:18 2009
  [1] "slider"                     "slider.bootstrap.lm.plot"  
  [3] "slider.brush.pairs"         "slider.brush.plot.xy"      
@@ -107,7 +107,7 @@ Wed Mar 25 10:12:18 2009
 [13] "slider.split.plot.ts"       "slider.trimmed.mean"       
 [15] "slider.trimmed.mean.plus"   "slider.trimmed.mean.simple"
 [17] "slider.xyz"                 "slider.zoom.plot.ts"       
-\end{verbatim}
+\end{verbatim}\textchunkcommands
 \ifodd\value{IsInCodeChunk}\setcounter{IsInCodeChunk}{0}\vspace{-\parskip}\par\hspace*{-\parindent}\textchunkcommands\fi
 
 \newpage
@@ -687,9 +687,9 @@ a slider function. But the list of parameters will be very long
 because the user may be want to modify attributes of scale, point size, type, color, etc. 
 
 A second way is to define a {\tt "..."} argument for passing additional parameters.
-\begin{verbatim}
+\par\Routputcommands\begin{verbatim}
 slider.xyz<-function(x,...)
-\end{verbatim}
+\end{verbatim}\textchunkcommands
 
 \ifodd\value{IsInCodeChunk}\setcounter{IsInCodeChunk}{0}\vspace{-\parskip}\par\hspace*{-\parindent}\textchunkcommands\fi
 But there will be some difficulties to be managed if you use the {\tt "..."} construction.
@@ -1049,7 +1049,7 @@ Now we test a call of {\tt slider.density} with a panel function to plot a fitte
 \subsubsection{Help Page}
 %% {\tt prompt(slider.hist)}
 \makemarginno $\langle${\it define help of {\tt slider.hist}}\ $37\rangle\equiv$ \label{CodeChunkLabelAADH}
-\rule{0mm}{0mm}\newline\verb· \name{slider functions} ·%
+\rule{0mm}{0mm}\newline\verb· \name{slider.hist} ·%
 \rule{0mm}{0mm}\newline\verb· \title{interactive histogram and density traces} ·%
 \rule{0mm}{0mm}\newline\verb· \alias{slider.hist} ·%
 \rule{0mm}{0mm}\newline\verb· \alias{slider.density} ·%
@@ -1248,7 +1248,7 @@ a data point {\tt "red"} if the value of its third variable is in the fixed inte
 \ifodd\value{IsInCodeChunk}\setcounter{IsInCodeChunk}{0}\vspace{-\parskip}\par\hspace*{-\parindent}\textchunkcommands\fi
 \subsubsection{Help Page}
 \makemarginno $\langle${\it define help of {\tt slider.brush.pairs} and of {\tt slider.brush.plot.xy}}\ $42\rangle\equiv$ \label{CodeChunkLabelAAEC}
-\rule{0mm}{0mm}\newline\verb· \name{slider functions} ·%
+\rule{0mm}{0mm}\newline\verb· \name{slider.brush} ·%
 \rule{0mm}{0mm}\newline\verb· \title{interactive brushing functions} ·%
 \rule{0mm}{0mm}\newline\verb· \alias{slider.brush.pairs} ·%
 \rule{0mm}{0mm}\newline\verb· \alias{slider.brush.plot.xy} ·%
@@ -1266,24 +1266,23 @@ a data point {\tt "red"} if the value of its third variable is in the fixed inte
 \rule{0mm}{0mm}\newline\verb·   \code{(x,y)} will be recolored red if the \code{z} value is in the interval. ·%
 \rule{0mm}{0mm}\newline\verb· } ·%
 \rule{0mm}{0mm}\newline\verb· \usage{ ·%
-\rule{0mm}{0mm}\newline\verb·   slider.brush.pairs(data, ...) ·%
+\rule{0mm}{0mm}\newline\verb·   slider.brush.pairs(x, ...) ·%
 \rule{0mm}{0mm}\newline\verb·   slider.brush.plot.xy(x, y, z, ...) ·%
 \rule{0mm}{0mm}\newline\verb· } ·%
 \rule{0mm}{0mm}\newline\verb· \arguments{ ·%
-\rule{0mm}{0mm}\newline\verb·   \item{data}{ matrix or data frame to be used for plotting } ·%
 \rule{0mm}{0mm}\newline\verb·   \item{\dots}{ new settings for global graphics parameters } ·%
 \rule{0mm}{0mm}\newline\verb·   \item{x}{ matrix or data frame or vector } ·%
 \rule{0mm}{0mm}\newline\verb·   \item{y}{ vector of y values if \code{x} is not a matrix } ·%
 \rule{0mm}{0mm}\newline\verb·   \item{z}{ vector of z values if \code{x} is not a matrix } ·%
 \rule{0mm}{0mm}\newline\verb· } ·%
 \rule{0mm}{0mm}\newline\verb· \details{ ·%
-\rule{0mm}{0mm}\newline\verb·   \code{slider.brush.pairs} draws a pairs plot of the data set \code{data}. ·%
+\rule{0mm}{0mm}\newline\verb·   \code{slider.brush.pairs} draws a pairs plot of the data set \code{x}. ·%
 \rule{0mm}{0mm}\newline\verb·   The first slider defines the lower limit of the interval and the ·%
 \rule{0mm}{0mm}\newline\verb·   second its width. By the third slider a variable is selected. ·%
 \rule{0mm}{0mm}\newline\verb·   All data points for which the selected variable is in the interval ·%
 \rule{0mm}{0mm}\newline\verb·   are recolored red. ·%
 \rule{0mm}{0mm}\newline\verb·  ·%
-\rule{0mm}{0mm}\newline\verb·   \code{slider.brush.plot.xy} draws an xy-plot of the data set \code{data}. ·%
+\rule{0mm}{0mm}\newline\verb·   \code{slider.brush.plot.xy} draws an xy-plot of the data set \code{x}. ·%
 \rule{0mm}{0mm}\newline\verb·   The first slider defines the lower limit of the interval of z values  ·%
 \rule{0mm}{0mm}\newline\verb·   and the second one its width. All data points for which the variable z ·%
 \rule{0mm}{0mm}\newline\verb·   is in the interval are recolored red. ·%
@@ -1389,7 +1388,7 @@ The test call uses the time series {\tt co2}.
 \ifodd\value{IsInCodeChunk}\setcounter{IsInCodeChunk}{0}\vspace{-\parskip}\par\hspace*{-\parindent}\textchunkcommands\fi
 \subsubsection{Help Page}
 \makemarginno $\langle${\it define help of {\tt slider.split.plot.ts}}\ $45\rangle\equiv$ \label{CodeChunkLabelAAEF}
-\rule{0mm}{0mm}\newline\verb· \name{slider functions} ·%
+\rule{0mm}{0mm}\newline\verb· \name{slider.split.plot.ts} ·%
 \rule{0mm}{0mm}\newline\verb· \title{interactive splitting of time series} ·%
 \rule{0mm}{0mm}\newline\verb· \alias{slider.split.plot.ts} ·%
 \rule{0mm}{0mm}\newline\verb·  ·%
@@ -1399,10 +1398,11 @@ The test call uses the time series {\tt co2}.
 \rule{0mm}{0mm}\newline\verb·   The sections are controlled by sliders.  ·%
 \rule{0mm}{0mm}\newline\verb· } ·%
 \rule{0mm}{0mm}\newline\verb· \usage{ ·%
-\rule{0mm}{0mm}\newline\verb·   slider.split.plot.ts(x, ...) ·%
+\rule{0mm}{0mm}\newline\verb·   slider.split.plot.ts(x, type="l", ...) ·%
 \rule{0mm}{0mm}\newline\verb· } ·%
 \rule{0mm}{0mm}\newline\verb· \arguments{ ·%
 \rule{0mm}{0mm}\newline\verb·   \item{x}{ time series or vector} ·%
+\rule{0mm}{0mm}\newline\verb·   \item{type}{ plotting type: \code{type} will be forwarded to function \code{plot}} ·%
 \rule{0mm}{0mm}\newline\verb·   \item{\dots}{ additional graphics parameters } ·%
 \rule{0mm}{0mm}\newline\verb· } ·%
 \rule{0mm}{0mm}\newline\verb· \details{ ·%
@@ -1505,7 +1505,7 @@ For comparing two sections of a series take a look at {\tt sunspots}.
 \ifodd\value{IsInCodeChunk}\setcounter{IsInCodeChunk}{0}\vspace{-\parskip}\par\hspace*{-\parindent}\textchunkcommands\fi
 \subsubsection{Help Page}
 \makemarginno $\langle${\it define help of {\tt slider.zoom.plot.ts}}\ $49\rangle\equiv$ \label{CodeChunkLabelAAEJ}
-\rule{0mm}{0mm}\newline\verb· \name{slider functions} ·%
+\rule{0mm}{0mm}\newline\verb· \name{slider.zoom.plot.ts} ·%
 \rule{0mm}{0mm}\newline\verb· \title{interactive zooming of time series} ·%
 \rule{0mm}{0mm}\newline\verb· \alias{slider.zoom.plot.ts} ·%
 \rule{0mm}{0mm}\newline\verb·  ·%
@@ -1605,7 +1605,7 @@ For testing we use some random numbers.
 \ifodd\value{IsInCodeChunk}\setcounter{IsInCodeChunk}{0}\vspace{-\parskip}\par\hspace*{-\parindent}\textchunkcommands\fi
 \subsubsection{Help Page}
 \makemarginno $\langle${\it define help of {\tt slider.smooth.plot.ts}}\ $52\rangle\equiv$ \label{CodeChunkLabelAAFC}
-\rule{0mm}{0mm}\newline\verb· \name{slider functions} ·%
+\rule{0mm}{0mm}\newline\verb· \name{slider.smooth.plot.ts} ·%
 \rule{0mm}{0mm}\newline\verb· \title{interactive Tukey smoothing} ·%
 \rule{0mm}{0mm}\newline\verb· \alias{slider.smooth.plot.ts} ·%
 \rule{0mm}{0mm}\newline\verb·  ·%
@@ -1690,7 +1690,7 @@ Furthermore, the number of iterations are set interactively.
 \subsubsection{Help Page}
 
 \makemarginno $\langle${\it define help of {\tt slider.lowess.plot}}\ $55\rangle\equiv$ \label{CodeChunkLabelAAFF}
-\rule{0mm}{0mm}\newline\verb· \name{slider functions} ·%
+\rule{0mm}{0mm}\newline\verb· \name{slider.lowess.plot} ·%
 \rule{0mm}{0mm}\newline\verb· \title{interactive lowess smoothing} ·%
 \rule{0mm}{0mm}\newline\verb· \alias{slider.lowess.plot} ·%
 \rule{0mm}{0mm}\newline\verb· \description{ ·%
@@ -1786,7 +1786,7 @@ the polynomial degree is controlled by sliders.
 \ifodd\value{IsInCodeChunk}\setcounter{IsInCodeChunk}{0}\vspace{-\parskip}\par\hspace*{-\parindent}\textchunkcommands\fi
 \subsubsection{Help Page}
 \makemarginno $\langle${\it define help of {\tt slider.bootstrap.lm.plot}}\ $58\rangle\equiv$ \label{CodeChunkLabelAAFI}
-\rule{0mm}{0mm}\newline\verb· \name{slider functions} ·%
+\rule{0mm}{0mm}\newline\verb· \name{slider.bootstrap.lm.plot} ·%
 \rule{0mm}{0mm}\newline\verb· \title{interactive bootstapping for lm} ·%
 \rule{0mm}{0mm}\newline\verb· \alias{slider.bootstrap.lm.plot} ·%
 \rule{0mm}{0mm}\newline\verb·  ·%
@@ -2093,9 +2093,9 @@ an die geeignete Stelle kopiert:
 \rule{0mm}{0mm}\newline\verb· ### CHECK + BUILD ·%
 \rule{0mm}{0mm}\newline\verb· R CMD check aplpack;  R CMD build aplpack ·%
 \rule{0mm}{0mm}\newline\verb· #rm lib/aplpack/R/aplpack.rdb ·%
-\rule{0mm}{0mm}\newline\verb· R CMD INSTALL --library=lib aplpack_1.2.tar.gz ·%
-\rule{0mm}{0mm}\newline\verb· cd lib; zip -r aplpack_1.2.zip aplpack/* ·%
-\rule{0mm}{0mm}\newline\verb· mv aplpack_1.2.zip .. ·%
+\rule{0mm}{0mm}\newline\verb· R CMD INSTALL --library=lib aplpack_1.2.2.tar.gz ·%
+\rule{0mm}{0mm}\newline\verb· cd lib; zip -r aplpack_1.2.2.zip aplpack/* ·%
+\rule{0mm}{0mm}\newline\verb· mv aplpack_1.2.2.zip .. ·%
 \rule{0mm}{0mm}\newline\verb· cd .. ·%
 \rule{0mm}{0mm}\newline\verb·  ·%
 \rule{0mm}{0mm}\newline\verb· exit 0 ·%

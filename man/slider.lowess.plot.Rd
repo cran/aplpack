@@ -1,4 +1,4 @@
-\name{slider functions}
+\name{slider.lowess.plot}
 \title{interactive lowess smoothing}
 \alias{slider.lowess.plot}
 \description{

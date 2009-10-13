@@ -1,4 +1,4 @@
-\name{slider functions}
+\name{slider.split.plot.ts}
 \title{interactive splitting of time series}
 \alias{slider.split.plot.ts}
 
@@ -8,10 +8,11 @@
   The sections are controlled by sliders. 
 }
 \usage{
-  slider.split.plot.ts(x, ...)
+  slider.split.plot.ts(x, type="l", ...)
 }
 \arguments{
   \item{x}{ time series or vector}
+  \item{type}{ plotting type: \code{type} will be forwarded to function \code{plot}}
   \item{\dots}{ additional graphics parameters }
 }
 \details{

@@ -2,8 +2,8 @@ Package: aplpack
 Type: Package
 Title: Another Plot PACKage: stem.leaf, bagplot, faces, spin3R, and
         some slider functions
-Version: 1.2.1
-Date: 2009-06-15
+Version: 1.2.2
+Date: 2009-10-13
 Author: Peter Wolf, Uni Bielefeld
 Maintainer: Peter Wolf <pwolf@wiwi.uni-bielefeld.de>
 Depends: R (>= 2.6.0), tcltk
@@ -14,6 +14,6 @@ Description: set of functions for drawing some special plots: stem.leaf
 License: GPL (>= 2)
 URL:
         http://www.wiwi.uni-bielefeld.de/statistik/mitarbeiter/wolf/software/aplpack.html
-Packaged: Mon Jun 15 16:55:19 2009; pwolf
+Packaged: 2009-10-13 16:43:32 UTC; pwolf
 Repository: CRAN
-Date/Publication: 2009-06-16 13:11:11
+Date/Publication: 2009-10-13 17:37:45
