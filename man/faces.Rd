@@ -7,14 +7,13 @@
      \code{plot.faces} plots faces into a scatterplot.
 }
 \usage{
-faces(xy, which.row, fill = FALSE, face.type = 1, nrow.plot, 
-    ncol.plot, scale = TRUE, byrow = FALSE, main, labels, na.rm = FALSE, 
-    ncolors = 20, col.nose = rainbow(ncolors), col.eyes = rainbow(ncolors, 
-        start = 0.6, end = 0.85), col.hair = terrain.colors(ncolors), 
-    col.face = heat.colors(ncolors), col.lips = rainbow(ncolors, 
-        start = 0, end = 0.2), col.ears = rainbow(ncolors, start = 0, 
-        end = 0.2), plot.faces = TRUE) 
-
+faces(xy, which.row, fill = FALSE, face.type = 1, nrow.plot, ncol.plot, 
+    scale = TRUE, byrow = FALSE, main, labels, print.info = TRUE, 
+    na.rm = FALSE, ncolors = 20, col.nose = rainbow(ncolors), 
+    col.eyes = rainbow(ncolors, start = 0.6, end = 0.85), 
+    col.hair = terrain.colors(ncolors), col.face = heat.colors(ncolors), 
+    col.lips = rainbow(ncolors, start = 0, end = 0.2), 
+    col.ears = rainbow(ncolors, start = 0, end = 0.2), plot.faces = TRUE) 
 plot.faces(x, x.pos, y.pos, face.type = 1, width = 1, height = 1, labels, 
         ncolors = 20, col.nose = rainbow(ncolors), col.eyes = rainbow(ncolors, 
         start = 0.6, end = 0.85), col.hair = terrain.colors(ncolors), 
@@ -37,6 +36,7 @@ plot.faces(x, x.pos, y.pos, face.type = 1, width = 1, height = 1, labels,
   \item{byrow}{   \code{if(byrow==TRUE)}, \code{xy} will be transposed   }
   \item{main}{   title   }
   \item{labels}{   character strings to use as names for the faces   }
+  \item{print.info}{   if TRUE information about usage of variables for face elements are printed }
   \item{na.rm}{ if TRUE 'NA' values are removed otherwise exchanged by mean of data}
   \item{plot.faces}{   if \code{FALSE} no face is plotted  }
   \item{x}{ an object of class \code{faces} computed by \code{faces}   }
@@ -69,7 +69,14 @@ Explanation of parameters:
 12-height of nose,
 13-width of nose,
 14-width of ears,
-15-height of ears. For details look at the literate program of \code{faces}
+15-height of ears. 
+
+For painting elements of a face the colors of are found by 
+averaging of sets of variables: 
+(7,8)-eyes, (12,13)-iris, (1,2,3)-lips, 
+(14,15)-ears, (9)-nose, (10)-hair, (11)-face.
+
+Further details can be found in the literate program of \code{faces}.
 }
 \value{
   list of two elements: The first element \code{out$faces} 

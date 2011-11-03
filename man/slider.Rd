@@ -1,15 +1,21 @@
 \name{slider}
 \alias{slider}
+\alias{gslider}
 %- Also NEED an '\alias' for EACH other topic documented here.
 %-  cp slider2.Rd /home/wiwi/pwolf/work/relax/install.dir/relax/man/slider.Rd
 \title{slider / button control widgets}
 \description{
-  \code{slider} constructs a Tcl/Tk-widget with sliders and buttons 
-  automated calculation and plotting. For example slider allows complete
-  all axes rotation of objects in a plot.
+  \code{slider} and \code{gslider} construct a Tcl/Tk-widget with sliders and buttons to
+  demonstrate the effects of variation of parameters on calculations and plots. 
 }
 \usage{
-slider(sl.functions, sl.names, sl.mins, sl.maxs, sl.deltas, sl.defaults, but.functions, but.names, no, set.no.value, obj.name, obj.value, reset.function, title, prompt=FALSE)
+slider(sl.functions, sl.names, sl.mins, sl.maxs, sl.deltas, sl.defaults, but.functions,
+  but.names, no, set.no.value, obj.name, obj.value, reset.function, title, prompt=FALSE,
+  sliders.frame.vertical=TRUE)
+
+gslider(sl.functions, sl.names, sl.mins, sl.maxs, sl.deltas, sl.defaults, but.functions,
+  but.names, no, set.no.value, obj.name, obj.value, reset.function, title, prompt=FALSE,
+  sliders.frame.vertical=TRUE, hscale=1, vscale=1)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -33,14 +39,20 @@ slider(sl.functions, sl.names, sl.mins, sl.maxs, sl.deltas, sl.defaults, but.fun
   \item{title}{title of the control window}
   \item{prompt}{ if TRUE slider functions are called by moving a slider,
                  if FALSE slider functions are called after releasing the mouse button}
+  \item{sliders.frame.vertical}{ if TRUE the sliders are stacked one above the other;
+                 otherwise they are positioned side by side }
+  \item{hscale}{horizontal scale factor for image size; compare tkrplot in package tkrplot}
+  \item{vscale}{vertical scale factor for image size; compare tkrplot in package tkrplot}  
 }
 \details{
-  With slider you can:
-  a) define (multiple) sliders and buttons, 
-  b) request or set slider values, and
-  c) request or set variables in the environment \code{slider.env}.
-  Slider function management takes place in the
-  environment \code{slider.env}. If \code{slider.env}
+  \code{slider} constructs a separated panel for controlling the parameters whereas 
+  \code{gslider} integrates a graphical device and buttons and sliders within one window. 
+
+  The following actions can be done:
+  a) definition of (multiple) sliders and buttons, 
+  b) request or specification of slider values, and
+  c) request or specification of variables in the environment \code{slider.env}.
+  The management takes place in the environment \code{slider.env}. If \code{slider.env}
   is not found it is generated.
 
   \bold{Definition} ... of sliders: First of all you have to define sliders, buttons and the attributes of them.
@@ -76,11 +88,14 @@ slider(sl.functions, sl.names, sl.mins, sl.maxs, sl.deltas, sl.defaults, but.fun
   Use \code{slider(obj.name="p.save",obj.value=1-slider(no=2))}
   to assign value  \code{1-slider(no=2)} to the variable \code{p.save} .
   \code{slider(obj.name=p.save)} returns the value of variable \code{p.save}.
+
+  \bold{Dependencies} The function \code{gslider} depends on package \code{tkrplot}.
 }
 \value{
- Using \code{slider} in definition mode \code{slider} returns the value of new created the top level widget.
+ Using \code{slider} in definition mode \code{slider} returns the value of new created the top level widget. 
   \code{slider(no=i)} returns the actual value of slider \code{i}.
   \code{slider(obj.name=name)} returns the value of variable \code{name} in environment \code{slider.env}.
+ \code{gslider} return in definition mode the result of \code{tkrplot} which was called to construct the widget.
 }
 \author{Hans Peter Wolf}
 
@@ -111,6 +126,7 @@ plot.sample.norm.2<-function(){
    x<-rnorm(n,mu,sd)
    plot(seq(x),x,ylim=c(-20,20),type=type)
  }
+ slider(obj.name="type",obj.value="l")
  slider(refresh.code,sl.names=c("value of mu","value of sd","n number of observations"),
        sl.mins=c(-10,.01,5),sl.maxs=c(10,10,100),sl.deltas=c(.01,.01,1),sl.defaults=c(0,1,20),
        but.functions=list(
@@ -119,7 +135,29 @@ plot.sample.norm.2<-function(){
               function(...){slider(obj.name="type",obj.value="b");refresh.code()}
        ),
        but.names=c("lines","points","both"))
-  slider(obj.name="type",obj.value="l")
+}
+plot.sample.norm.2()
+}
+
+# example 2a, sliders and buttons and graphics in one window
+\dontrun{
+## This example cannot be run by examples() but should work in an interactive R session
+plot.sample.norm.2<-function(){
+ refresh.code<-function(...){
+   mu<-slider(no=1); sd<-slider(no=2); n<-slider(no=3)
+   type=  slider(obj.name="type")
+   x<-rnorm(n,mu,sd)
+   plot(seq(x),x,ylim=c(-20,20),type=type)
+ }
+ slider(obj.name="type",obj.value="l")
+ gslider(refresh.code,sl.names=c("value of mu","value of sd","n number of observations"),
+       sl.mins=c(-10,.01,5),sl.maxs=c(10,10,100),sl.deltas=c(.01,.01,1),sl.defaults=c(0,1,20),
+       but.functions=list(
+              function(...){slider(obj.name="type",obj.value="l");refresh.code()},
+              function(...){slider(obj.name="type",obj.value="p");refresh.code()},
+              function(...){slider(obj.name="type",obj.value="b");refresh.code()}
+       ),
+       but.names=c("lines","points","both"))
 }
 plot.sample.norm.2()
 }
@@ -149,14 +187,14 @@ R.veil.in.the.wind<-function(){
   # Mark Hempelmann / Peter Wolf
   par(bg="blue4", col="white", col.main="white", 
       col.sub="white", font.sub=2, fg="white") # set colors and fonts
-  samp  <- function(N,D) N*(1/4+D)/(1/4+D*N) 
-  z<-outer(seq(1, 800, by=10), seq(.0025, 0.2, .0025)^2/1.96^2, samp) # create 3d matrix
-  h<-100 
-  z[10:70,20:25]<-z[10:70,20:25]+h; z[65:70,26:45]<-z[65:70,26:45]+h
-  z[64:45,43:48]<-z[64:45,43:48]+h; z[44:39,26:45]<-z[44:39,26:45]+h
-  x<-26:59; y<-11:38; zz<-outer(x,y,"+"); zz<-zz*(65<zz)*(zz<73)
-  cz<-10+col(zz)[zz>0];rz<-25+row(zz)[zz>0]; z[cbind(cz,rz)]<-z[cbind(cz,rz)]+h
   refresh.code<-function(...){
+    samp        <- function(N,D) N*(1/4+D)/(1/4+D*N) 
+    z<-outer(seq(1, 800, by=10), seq(.0025, 0.2, .0025)^2/1.96^2, samp) # create 3d matrix
+    h<-100 
+    z[10:70,20:25]<-z[10:70,20:25]+h; z[65:70,26:45]<-z[65:70,26:45]+h
+    z[64:45,43:48]<-z[64:45,43:48]+h; z[44:39,26:45]<-z[44:39,26:45]+h
+    x<-26:59; y<-11:38; zz<-outer(x,y,"+"); zz<-zz*(65<zz)*(zz<73)
+    cz<-10+col(zz)[zz>0];rz<-25+row(zz)[zz>0]; z[cbind(cz,rz)]<-z[cbind(cz,rz)]+h
     theta<-slider(no=1); phi<-slider(no=2)
     persp(x=seq(1,800,by=10),y=seq(.0025,0.2,.0025),z=z,theta=theta,phi=phi, 
           scale=T, shade=.9, box=F, ltheta = 45,
@@ -170,4 +208,5 @@ R.veil.in.the.wind()
 }
 \keyword{dynamic}% at least one, from doc/KEYWORDS
 \keyword{iplot}% __ONLY ONE__ keyword per line
+
 

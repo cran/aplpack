@@ -1,6 +1,6 @@
 faces<-function(xy,which.row,fill=FALSE,face.type=1,
                 nrow.plot,ncol.plot,scale=TRUE,byrow=FALSE,main,
-                labels,na.rm = FALSE,
+                labels,print.info = TRUE,na.rm = FALSE,
                 ncolors=20,
                 col.nose=rainbow(ncolors),                   # nose
                 col.eyes=rainbow(ncolors,start=0.6,end=0.85),# eyes
@@ -71,6 +71,7 @@ faces<-function(xy,which.row,fill=FALSE,face.type=1,
              x<-x-min(x); x<-if(max(x)>0) 2*x/max(x)-1 else x })
   } else xy[]<-pmin(pmax(-1,xy),1)
   xy<-rbind(xy);n.c<-dim(xy)[2]
+  # expand input matrix xy by replication of cols
   xy<-xy[,(rows.orig<-h<-rep(1:mm,ceiling(n.char/mm))),drop=FALSE]
   if(fill) xy[,-(1:n.c)]<-0
 
@@ -255,8 +256,10 @@ faces<-function(xy,which.row,fill=FALSE,face.type=1,
   if(0==length(var.names)) var.names<-paste("Var",rows.orig,sep="")
   info<-cbind("modified item"=info,"Var"=var.names[1:length(info)])
   rownames(info)<-rep("",15)
-  cat("effect of variables:\n")
-  print(info)
+  if(print.info){
+    cat("effect of variables:\n")
+    print(info)
+  }
   if(demo&&plot.faces) {
     plot(1:15,1:15,type="n",axes=FALSE,bty="n")
     text(rep(1,15),15:1,adj=0,apply(info,1,function(x) 

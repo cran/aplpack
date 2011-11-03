@@ -1,3 +1,5 @@
+% New Report: Thu Nov  3 14:07:55 2011 
+
 % New Report: Mon Feb 16 18:03:23 2009 
 
 % New Report: Fri Jan 16 11:15:22 2009 
@@ -16,7 +18,7 @@
 % notangle -R"define [[faces]]"     faces.rev > faces.R
 % notangle -R"define [[plot.faces]]"     faces.rev > plot.faces.R
 % revweb faces; latex faces; latex faces; dvips faces; ps2pdf faces.ps
-% New Report: Thu Dec  4 15:47:32 2003
+% New Report: Thu Dec  4 15:47:32 2003, information printing optional: 09/2011
 \documentclass{article}
 \usepackage{noweb}
 \usepackage{graphicx}
@@ -24,7 +26,7 @@
 \noweboptions{webnumbering,smallcode}
 \author{H. P. Wolf}
 \title{Chernoff Faces and Spline Interpolation}
-\date{file: faces.rev, 08/January/2009, printed: \today}
+\date{file: faces.rev, 08/Jan/2009, 03/Nov/2011, printed: \today}
 \begin{document}
 \maketitle\tableofcontents
 \newcommand{\ShowChunkIndex}{yes}
@@ -65,7 +67,7 @@ rbind(1:3,5:3,3:5,5:7)
 <<define [[faces]]>>=
 faces<-function(xy,which.row,fill=FALSE,face.type=1,
                 nrow.plot,ncol.plot,scale=TRUE,byrow=FALSE,main,
-                labels,na.rm = FALSE,
+                labels,print.info = TRUE,na.rm = FALSE,
                 <<define some colors>>
                 plot.faces=TRUE){  # 070831 pwolf
   if((demo<-missing(xy))){
@@ -156,6 +158,7 @@ if(scale){
            x<-x-min(x); x<-if(max(x)>0) 2*x/max(x)-1 else x })
 } else xy[]<-pmin(pmax(-1,xy),1)
 xy<-rbind(xy);n.c<-dim(xy)[2]
+# expand input matrix xy by replication of cols
 xy<-xy[,(rows.orig<-h<-rep(1:mm,ceiling(n.char/mm))),drop=FALSE]
 if(fill) xy[,-(1:n.c)]<-0
 
@@ -244,7 +247,7 @@ for(ind in 1:n){
 }
 
 @
-As an initilisation the standard face is copied to [[face]] and the
+As an initialisation the standard face is copied to [[face]] and the
 values of the variables are stored in [[factors]].
 <<initialize new face>>=
 factors<-xy[ind,]
@@ -252,7 +255,6 @@ face<-face.orig
 
 @
 Now we have to transform the face according to the data.
-
 <<info about the effects of the variables>>=
 info<-c(
   "var1"="height of face   ",
@@ -274,8 +276,10 @@ var.names<-dimnames(xy)[[2]]
 if(0==length(var.names)) var.names<-paste("Var",rows.orig,sep="")
 info<-cbind("modified item"=info,"Var"=var.names[1:length(info)])
 rownames(info)<-rep("",15)
-cat("effect of variables:\n")
-print(info)
+if(print.info){
+  cat("effect of variables:\n")
+  print(info)
+}
 if(demo&&plot.faces) {
   plot(1:15,1:15,type="n",axes=FALSE,bty="n")
   text(rep(1,15),15:1,adj=0,apply(info,1,function(x) 
@@ -623,14 +627,13 @@ christmas()
      \code{plot.faces} plots faces into a scatterplot.
 }
 \usage{
-faces(xy, which.row, fill = FALSE, face.type = 1, nrow.plot, 
-    ncol.plot, scale = TRUE, byrow = FALSE, main, labels, na.rm = FALSE, 
-    ncolors = 20, col.nose = rainbow(ncolors), col.eyes = rainbow(ncolors, 
-        start = 0.6, end = 0.85), col.hair = terrain.colors(ncolors), 
-    col.face = heat.colors(ncolors), col.lips = rainbow(ncolors, 
-        start = 0, end = 0.2), col.ears = rainbow(ncolors, start = 0, 
-        end = 0.2), plot.faces = TRUE) 
-
+faces(xy, which.row, fill = FALSE, face.type = 1, nrow.plot, ncol.plot, 
+    scale = TRUE, byrow = FALSE, main, labels, print.info = TRUE, 
+    na.rm = FALSE, ncolors = 20, col.nose = rainbow(ncolors), 
+    col.eyes = rainbow(ncolors, start = 0.6, end = 0.85), 
+    col.hair = terrain.colors(ncolors), col.face = heat.colors(ncolors), 
+    col.lips = rainbow(ncolors, start = 0, end = 0.2), 
+    col.ears = rainbow(ncolors, start = 0, end = 0.2), plot.faces = TRUE) 
 plot.faces(x, x.pos, y.pos, face.type = 1, width = 1, height = 1, labels, 
         ncolors = 20, col.nose = rainbow(ncolors), col.eyes = rainbow(ncolors, 
         start = 0.6, end = 0.85), col.hair = terrain.colors(ncolors), 
@@ -653,6 +656,7 @@ plot.faces(x, x.pos, y.pos, face.type = 1, width = 1, height = 1, labels,
   \item{byrow}{   \code{if(byrow==TRUE)}, \code{xy} will be transposed   }
   \item{main}{   title   }
   \item{labels}{   character strings to use as names for the faces   }
+  \item{print.info}{   if TRUE information about usage of variables for face elements are printed }
   \item{na.rm}{ if TRUE 'NA' values are removed otherwise exchanged by mean of data}
   \item{plot.faces}{   if \code{FALSE} no face is plotted  }
   \item{x}{ an object of class \code{faces} computed by \code{faces}   }
@@ -685,7 +689,14 @@ Explanation of parameters:
 12-height of nose,
 13-width of nose,
 14-width of ears,
-15-height of ears. For details look at the literate program of \code{faces}
+15-height of ears. 
+
+For painting elements of a face the colors of are found by 
+averaging of sets of variables: 
+(7,8)-eyes, (12,13)-iris, (1,2,3)-lips, 
+(14,15)-ears, (9)-nose, (10)-hair, (11)-face.
+
+Further details can be found in the literate program of \code{faces}.
 }
 \value{
   list of two elements: The first element \code{out$faces} 
@@ -1012,12 +1023,58 @@ longley[1:9,]
 @
 Now we know what to do and we can rewrite [[faces]] in a literate style. See p 1 ff.
 
+@
+<<*>>=
+data(longley)
+
 
 @
 
 <<*>>=
-data(longley)
-
+print
 @
 \end{document}
+
+
+@
+Example of DT 2011/11
+@
+<<*>>=
+X <- structure(c(497, 839, 798, 892, 1585, 755, 388, 617, 248,
+    1641, 1180, 619, 253, 661, 1981, 1746, 1865, 238, 1199, 1524,
+    591, 942, 1308, 842, 781, 764, 655, 879, 438, 440, 1243,
+    684, 422, 739, 869, 746, 915, 522, 1095, 964, 153, 302, 668,
+    287, 2476, 428, 153, 757, 22, 6471, 768, 99, 15, 71, 1489,
+    2662, 5184, 29, 261, 1739, 291, 365, 584, 395, 1740, 438,
+    233, 719, 65, 2063, 813, 204, 48, 188, 1032, 1594, 1767,
+    75, 344, 1410), .Dim = c(20L, 4L), .Dimnames = list(c("M1",
+    "M2", "M3", "M4", "M5", "M6", "M7", "M8", "M9", "M10", "M11",
+    "M12", "M13", "M14", "M15", "M16", "M17", "M18", "M19", "M20"),
+    c("Miete", "Nahrung", "AndereGueter", "DienstLeist")))
+#faces(X); NULL
+X
+@
+ \begin{center}\includegraphics[height=10cm]{p2011-Nov3-141315}\end{center}
+
+% <p><img src="p2011-Nov3-141315.jpg">
+
+\begin{verbatim}
+effect of variables:
+ modified item       Var
+ "height of face   " "Miete"
+ "width of face    " "Nahrung"
+ "structure of face" "AndereGueter"
+ "height of mouth  " "DienstLeist"
+ "width of mouth   " "Miete"
+ "smiling          " "Nahrung"
+ "height of eyes   " "AndereGueter"
+ "width of eyes    " "DienstLeist"
+ "height of hair   " "Miete"
+ "width of hair   "  "Nahrung"
+ "style of hair   "  "AndereGueter"
+ "height of nose  "  "DienstLeist"
+ "width of nose   "  "Miete"
+ "width of ear    "  "Nahrung"
+ "height of ear   "  "AndereGueter"
+\end{verbatim}
 
