@@ -14,12 +14,12 @@ faces(xy, which.row, fill = FALSE, face.type = 1, nrow.plot, ncol.plot,
     col.hair = terrain.colors(ncolors), col.face = heat.colors(ncolors), 
     col.lips = rainbow(ncolors, start = 0, end = 0.2), 
     col.ears = rainbow(ncolors, start = 0, end = 0.2), plot.faces = TRUE) 
-plot.faces(x, x.pos, y.pos, face.type = 1, width = 1, height = 1, labels, 
+\method{plot}{faces}(x, x.pos, y.pos, face.type = 1, width = 1, height = 1, labels, 
         ncolors = 20, col.nose = rainbow(ncolors), col.eyes = rainbow(ncolors, 
         start = 0.6, end = 0.85), col.hair = terrain.colors(ncolors), 
         col.face = heat.colors(ncolors), col.lips = rainbow(ncolors, 
         start = 0, end = 0.2), col.ears = rainbow(ncolors, start = 0, 
-        end = 0.2), ...)
+        end = 0.2), \ldots)
 }
 \arguments{
   \item{xy}{   \code{xy} data matrix, rows represent individuals and columns variables  }

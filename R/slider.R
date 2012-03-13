@@ -8,16 +8,16 @@ function (sl.functions, sl.names, sl.mins, sl.maxs, sl.deltas,
   if (!exists("slider.env")) slider<-slider.env<<-new.env(parent=.GlobalEnv)
   if (!missing(no)) 
           return(as.numeric(tclvalue(get(paste("slider", no, sep = ""), 
-              env = slider.env))))
+              envir = slider.env))))
   if (!missing(set.no.value)) {
           try(eval(parse(text = paste("tclvalue(slider", set.no.value[1], 
-              ")<-", set.no.value[2], sep = "")), env = slider.env))
+              ")<-", set.no.value[2], sep = "")), envir = slider.env))
           return(set.no.value[2])
   }
   if (!missing(obj.name)) {
           if (!missing(obj.value)) 
-              assign(obj.name, obj.value, env = slider.env)
-          else obj.value <- get(obj.name, env = slider.env)
+              assign(obj.name, obj.value, envir = slider.env)
+          else obj.value <- get(obj.name, envir = slider.env)
           return(obj.value)
   }
   if (missing(title))        title<-"slider control widget"
@@ -29,14 +29,14 @@ function (sl.functions, sl.names, sl.mins, sl.maxs, sl.deltas,
   nt <- tktoplevel()
   tkwm.title(nt, title)
   tkwm.geometry(nt, "+0+15")
-  assign("tktop.slider",nt,env=slider.env)
+  assign("tktop.slider",nt,envir=slider.env)
 
   "relax"  
   tkpack(f.slider<-tkframe(nt)) ##vertical
   for (i in seq(sl.names)) {
      "relax"
      eval(parse(text=paste("assign('slider", i, 
-                           "',tclVar(sl.defaults[i]),env=slider.env)",sep="")
+                           "',tclVar(sl.defaults[i]),envir=slider.env)",sep="")
      ))
   }
   for (i in seq(along=sl.names)) {
@@ -46,16 +46,16 @@ function (sl.functions, sl.names, sl.mins, sl.maxs, sl.deltas,
      sc <- tkscale(fr, from = sl.mins[i], to = sl.maxs[i], 
      showvalue = TRUE, resolution = sl.deltas[i], orient = "horiz")
      tkpack(lab, sc, side=if(sliders.frame.vertical) "right" else "top") ##vertical
-     assign("sc", sc, env = slider.env)
+     assign("sc", sc, envir = slider.env)
      eval(parse(text=paste("tkconfigure(sc,variable=slider", 
-                           i, ")", sep = "")), env = slider.env)
+                           i, ")", sep = "")), envir = slider.env)
      sl.fun<-if(length(sl.functions)>1)sl.functions[[i]] else sl.functions
      if(!is.function(sl.fun)) 
        sl.fun <- eval(parse(text = paste("function(...){", sl.fun, "}")))
      if(prompt) tkconfigure(sc,command=sl.fun) else tkbind(sc,"<ButtonRelease>",sl.fun)
   }
 
-  assign("slider.values.old", sl.defaults, env = slider.env)
+  assign("slider.values.old", sl.defaults, envir = slider.env)
   tkpack(f.but <- tkframe(nt), fill = "x")
   tkpack(tkbutton(f.but, text = "Exit", 
          command = function() tkdestroy(nt)), side = "right")
@@ -69,7 +69,7 @@ function (sl.functions, sl.names, sl.mins, sl.maxs, sl.deltas,
            eval(parse(text = 
              paste("tclvalue(slider", 
                    i, ")<-", sl.defaults[i], 
-                   sep = "")), env = slider.env)
+                   sep = "")), envir = slider.env)
          reset.function()
     }), side = "right")
   }
@@ -97,16 +97,16 @@ function (sl.functions, sl.names, sl.mins, sl.maxs, sl.deltas,
   if (!exists("slider.env")) slider<-slider.env<<-new.env(parent=.GlobalEnv)
   if (!missing(no)) 
           return(as.numeric(tclvalue(get(paste("slider", no, sep = ""), 
-              env = slider.env))))
+              envir = slider.env))))
   if (!missing(set.no.value)) {
           try(eval(parse(text = paste("tclvalue(slider", set.no.value[1], 
-              ")<-", set.no.value[2], sep = "")), env = slider.env))
+              ")<-", set.no.value[2], sep = "")), envir = slider.env))
           return(set.no.value[2])
   }
   if (!missing(obj.name)) {
           if (!missing(obj.value)) 
-              assign(obj.name, obj.value, env = slider.env)
-          else obj.value <- get(obj.name, env = slider.env)
+              assign(obj.name, obj.value, envir = slider.env)
+          else obj.value <- get(obj.name, envir = slider.env)
           return(obj.value)
   }
   if (missing(title))        title<-"slider control widget"
@@ -118,20 +118,20 @@ function (sl.functions, sl.names, sl.mins, sl.maxs, sl.deltas,
   nt <- tktoplevel()
   tkwm.title(nt, title)
   tkwm.geometry(nt, "+0+15")
-  assign("tktop.slider",nt,env=slider.env)
+  assign("tktop.slider",nt,envir=slider.env)
 
   "relax"  
   # gslider start:
   newpl<-function(...){ plot(0:2,0:2,type="n",xlab="",ylab=""); text(1,1,"dummy plot") }
   img <- tkrplot(nt, newpl, vscale=vscale, hscale=hscale ); tkpack(img,side="top") 
-  assign("img",img,env=slider.env)
+  assign("img",img,envir=slider.env)
   # :gslider end
   ## sliders.frame.vertical ##vertical
   tkpack(f.slider<-tkframe(nt)) ##vertical
   for (i in seq(along=sl.names)) {
      "relax"
      eval(parse(text=paste("assign('slider", i, 
-                           "',tclVar(sl.defaults[i]),env=slider.env)",sep="")
+                           "',tclVar(sl.defaults[i]),envir=slider.env)",sep="")
      ))
   }
   # gslider start:
@@ -144,9 +144,9 @@ function (sl.functions, sl.names, sl.mins, sl.maxs, sl.deltas,
      sc <- tkscale(fr, from = sl.mins[i], to = sl.maxs[i], 
                    showvalue = TRUE, resolution = sl.deltas[i], orient = "horiz")
      tkpack(lab, sc, side=if(sliders.frame.vertical) "right" else "top") ##vertical
-     assign("sc", sc, env = slider.env)
+     assign("sc", sc, envir = slider.env)
      eval(parse(text=paste("tkconfigure(sc,variable=slider", 
-                           i, ")", sep = "")), env = slider.env)
+                           i, ")", sep = "")), envir = slider.env)
      sl.fun<-if(is.list(sl.functions))sl.functions[[min(i,length(sl.functions))]]
              else                     sl.functions
      if(!is.function(sl.fun)) 
@@ -154,7 +154,7 @@ function (sl.functions, sl.names, sl.mins, sl.maxs, sl.deltas,
     # gslider start:
       fname<-paste("tkrrsl.fun",i,sep="")
       eval(parse(text=c(paste(fname, " <-")," function(...){", 
-                  "tkrreplot(get('img',env=slider.env),fun=function()",
+                  "tkrreplot(get('img',envir=slider.env),fun=function()",
                   deparse(sl.fun)[-1],")", "}" )))       
       eval(parse(text=paste("environment(",fname,")<-parent.env")))     
       if (prompt) tkconfigure(sc, command = get(fname))
@@ -163,7 +163,7 @@ function (sl.functions, sl.names, sl.mins, sl.maxs, sl.deltas,
   if(exists("tkrrsl.fun1")) get("tkrrsl.fun1")() ## gslider only
   # :gslider end
 
-  assign("slider.values.old", sl.defaults, env = slider.env)
+  assign("slider.values.old", sl.defaults, envir = slider.env)
   tkpack(f.but <- tkframe(nt), fill = "x")
   tkpack(tkbutton(f.but, text = "Exit", 
          command = function() tkdestroy(nt)), side = "right")
@@ -174,10 +174,10 @@ function (sl.functions, sl.names, sl.mins, sl.maxs, sl.deltas,
           paste("function(...){",reset.function, "}")))
     fname<-"reset.function"
     idx<-seq(along=sl.names)
-    hhh <- paste(sep = "","sl",idx,"<-get('slider",idx,"',env=slider.env);",
+    hhh <- paste(sep = "","sl",idx,"<-get('slider",idx,"',envir=slider.env);",
                           "tclvalue(sl",idx,")<-",sl.defaults[idx],"\n")
     eval(parse(text = c(paste(fname, " <-"), " function(...){", hhh,
-              "tkrreplot(get('img',env=slider.env),fun=function()", 
+              "tkrreplot(get('img',envir=slider.env),fun=function()", 
               deparse(reset.function)[-1], ")", "}")))
     eval(parse(text = paste("environment(", fname, ")<-parent.env")))
     tkpack(tkbutton(f.but, text = "Reset", command = get(fname)), side = "right")
@@ -192,7 +192,7 @@ function (sl.functions, sl.names, sl.mins, sl.maxs, sl.deltas,
     # gslider start:
     fname<-paste("tkrr.fun",i,sep="")
     eval(parse(text=c(paste(fname, " <-")," function(...){", 
-                  "tkrreplot(get('img',env=slider.env),fun=function()",
+                  "tkrreplot(get('img',envir=slider.env),fun=function()",
                   deparse(but.fun)[-1],")", "}" )))       
     eval(parse(text=paste("environment(",fname,")<-parent.env")))     
     

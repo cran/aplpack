@@ -22,14 +22,14 @@ bagplot(x, y, factor = 3, na.rm = FALSE, approx.limit = 300,
 )
 compute.bagplot(x, y, factor = 3, na.rm = FALSE, approx.limit = 300, 
        dkmethod=2,precision=1,verbose=FALSE,debug.plots="no")
-plot.bagplot(x,  
+\method{plot}{bagplot}(x,  
        show.outlier = TRUE, show.whiskers = TRUE, 
        show.looppoints = TRUE, show.bagpoints = TRUE,
        show.loophull = TRUE, show.baghull = TRUE, 
        add = FALSE, pch = 16, cex = 0.4, verbose = FALSE, 
        col.loophull="#aaccff", col.looppoints="#3355ff", 
        col.baghull="#7799ff", col.bagpoints="#000088", 
-       transparency=FALSE,...)
+       transparency=FALSE,\ldots)
 }
 \arguments{
   \item{x}{ x values of a data set; 

@@ -1,25 +1,65 @@
+% New Report: Mon Feb 27 18:01:51 2012 
+% steps to create a new relax-version: 
+% a) Datum/Version anpassen: Version--2012-03-12 
+% b) "Nr" UND "DATUM" in Datei DESCRIPTION anpassen
+% d) $HOME/R/aplpack/doaplpackl   starten
+% e) upload to cran:
+%    1. mailto:  cran@r-project.org
+%    2a. upload by konquerer!! 
+%          ftp://CRAN.R-project.org/incoming/ 
+%    2b. upload by ftp
+%          ftp ftp://cran.R-project.org/incoming/
+%          ftp> put aplpack_1.2.6.tar.gz
+%          ftp> bye   
+% ==========================================================
+% Paketverteilung fuer Rechner: 138/20/21/102: 
+%   cd /usr/lib/R/library/aplpack; 
+%   cp -rp $HOME/R/aplpack/lib/aplpack/* .
+% ==========================================================
+% Pakettest:
+%   cd /home/wiwi/pwolf/R/aplpack
+%   echo "library(aplpack,lib.loc="lib")" | R --vanilla
+%   library(aplpack,lib.loc="/home/wiwi/pwolf/R/aplpack/lib")
+%   example("stem.leaf") ## ; example("faces"); example("bagplot")
+
+% New Report: Wed Dec 14 11:38:04 2011 
+
 % New Report: Tue Apr 14 13:12:40 2009 
 
 % New Report: Wed Mar 29 11:00:59 2006
 
-
-\documentclass{article}
-\usepackage{/home/wiwi/pwolf/TEX/texinput/noweb}
-\noweboptions{webnumbering,smallcode,longchunks}
+\documentclass[a4paper]{article} %  --- LaTeX preamble ==============
+%  --- title page ===================================================
+   \title{Stem-and-Leaf-Displays --- selbstgemacht}                        
+   \author{File: \jobname.rev\\in: /home/wiwi/pwolf/R/aplpack\\H. P. Wolf}                 
+   \date{Version: 2012-3-12, compiled: \today, file: ms.rev}
+%  --- sizes of non text elements ===================================
+\renewcommand{\textchunkcommands}{\normalsize}
+\renewcommand{\codechunkcommands}{\small}
+\renewcommand{\Routputcommands}{\footnotesize}
+%  ==================================================================
+%  --- packages  \usepackage{graphicx,mathpazo,courier,alltt,amssymb}
 \usepackage{graphicx}
 \input{uml-ok.tex}
+%  --- fonts 
+% \usepackage[scaled=.95]{helvet}
+\usepackage[T1]{fontenc}
+%  --- commands to control the layout of text and code chunks 
+\parskip1ex \parindent0mm
 \textwidth=16.5cm
 \sloppy
 \textheight=25cm
 \topmargin=-30mm
 \oddsidemargin=0mm
 \parindent=0mm
-\author{H. P. Wolf}
-\date{\today, file: ms.rev}
-\title{Stem-and-Leaf-Displays --- selbstgemacht}
-\begin{document}
+%  --- end of preamble ==============================================
+\begin{document}  \maketitle
+%  --- begin of document ============================================
+\renewcommand{\textchunkcommands}{\normalsize}
+\renewcommand{\codechunkcommands}{\small}
+\renewcommand{\Routputcommands}{\footnotesize}
 \maketitle
-
+% 20111214: exchange of some lines so that argument "reverse.negative.leaves" works
 @
 \section{Einleitung}
 In diesem Papier wird eine eigene Umsetzung eines
@@ -59,7 +99,7 @@ Hierzu stehen folgende Argumente bereit:
 #                                                                #
 #Arguments:                                                      #
 #   data:      vector of input data                              #
-#   unit:      unit of leafs in:  { ...,100,10,1,.1,.01,... }    #
+#   unit:      unit of leaves in: { ...,100,10,1,.1,.01,... }    #
 #   m:         1, 2 or 5 -- 10/m=number of possible leaf digits  #
 #   Min:       minimum of stem                                   #
 #   Max:       maximum of stem                                   #
@@ -84,14 +124,15 @@ Zum Schluß ist das Ergebnis geeignet auszugeben.
 Am 29.3.2006 wurde ein Rundungsproblem behoben.
 @
 <<start>>=
-<<definiere ms>>
+<<definiere [[stem.leaf]]>>
+<<definiere [[stem.leaf.backback]]>>
 @
-<<definiere ms>>=
+<<definiere [[stem.leaf]]>>=
 ## ms <-
-stem.leaf<-function(data, unit, m, Min, Max, 
+stem.leaf <- function(data, unit, m, Min, Max, 
      rule.line=c("Dixon", "Velleman", "Sturges"),
      style=c("Tukey", "bare"), trim.outliers=TRUE, depths=TRUE,
-     reverse.negative.leaves=TRUE,na.rm=FALSE){
+     reverse.negative.leaves=TRUE,na.rm=FALSE,printresult=TRUE){
   if(missing(data)){cat("Author:  Peter Wolf 05/2003,", 
                         "(modified slightly by J. Fox, 20 July 03)",
                         "03/2006 additional rounding to prevent misclasification",
@@ -138,13 +179,13 @@ Zunächst gilt es den Input zu checken.
 <<checke Input>>=
 rule.line <- match.arg(rule.line)
 style <- match.arg(style)
-n.na<-sum(is.na(data))
+n.na  <- sum(is.na(data))
 if(0<n.na){
-  data<-data[!is.na(data)]
+  data <- data[!is.na(data)]
   if(na.rm){ # data<-data[!is.na(data)]
     print("Warning: NA elements have been removed!!")
   }else{
-#   data[is.na(data)]<-mean(data,na.rm=TRUE)
+#   data[is.na(data)] <- mean(data,na.rm=TRUE)
 #   print("Warning: NA elements have been exchanged by the mean value!!")
   }  
 }
@@ -164,7 +205,7 @@ Zunächst berechnen wir nach der gewählten Regel die Zeilenanzahl des Plots.
 Dazu wird der Stichprobenumfang auf [[n]] abgelegt und zusätzlich werden
 die Daten sortiert.
 <<stelle gemäß [[rule.line]] maximale Zeilenanzahl fest>>=
-n<-length(data<-sort(data))
+n <- length(data <- sort(data))
 row.max <- floor(  c(Dixon   =10*log(n,10),
                      Velleman=2*sqrt(n),
                      Sturges =1+log(n,2)        ))[rule.line]
@@ -180,7 +221,7 @@ falls [[Min]] oder [[Max]] nicht festgelegt sind, diese mittels
 Die Spannweite der nicht-Ausreißer wird auf
 [[spannweite.red]] abgelegt.
 <<ermittle mittels [[boxplot]] groben Skalenbereich>>=
-stats<-boxplot(data,plot=FALSE)
+stats <- boxplot(data,plot=FALSE)
 if(missing(Min)) Min <- if (trim.outliers) stats$stats[1,1] else min(data, na.rm=TRUE)
 if(missing(Max)) Max <- if (trim.outliers) stats$stats[5,1] else max(data, na.rm=TRUE)
 spannweite.red<-Max - Min
@@ -208,10 +249,10 @@ Faktor 1/10. Nach Regel 2 benötigen wir dann 63 Klassen, nach der dritten 10.
 Im Fall von 5 Werten liefern die Regeln 6, 4 und 3.
 Hier ist eine Übersicht:
 <<zeige Beziehung Werteanzahl Zeilenanzahl gemäß Regel>>=
-anz<-rbind(dixon=floor(10*log(n,10)),
-           velleman=floor(2*sqrt(n)),
-           sturges=floor(1+log(n,2)))
-colnames(anz)<-paste("n=",n,sep="")
+anz <- rbind(dixon=floor(10*log(n,10)),
+             velleman=floor(2*sqrt(n)),
+             sturges=floor(1+log(n,2)))
+colnames(anz) <- paste("n=",n,sep="")
 print(anz)
 
 @
@@ -240,7 +281,7 @@ der Normierungsfaktor mittels [[unit*10]] sowie zur Erzielung einer
 Ist keine Einheit angegeben, ergibt sich diese aus der zur
 Zeilenintervall\-länge nächst größeren Zehnerpotenz.
 <<bestimme Intervall\-länge und ggf.\ Faktor [[factor]]>>=
-zeilen.intervall.laenge<-spannweite.red / row.max
+zeilen.intervall.laenge <- spannweite.red / row.max
 if(missing(unit)){
        factor <- 10^ceiling(log(zeilen.intervall.laenge,10))
 } else factor <- 10^round(log(unit*10,10))
@@ -257,8 +298,8 @@ pathologische Fällen.
 Als Resultat wird eine normierte Zeilenintervall\-länge aus
 [[.2,.5,1]] ausgewählt.
 <<berechne aus [[zeilen.intervall.laenge]] und [[factor]] Tickabstand>>=
-z<-zeilen.intervall.laenge/factor  # z in (0.1 ,1]
-delta.tick<-c(.2,.2,.5,1)[sum(z>c(0,.1,.2,.5))]
+z <- zeilen.intervall.laenge/factor  # z in (0.1 ,1]
+delta.tick <- c(.2,.2,.5,1)[sum(z>c(0,.1,.2,.5))]
 
 @
 \paragraph{Maserung}
@@ -271,7 +312,7 @@ Wird jedoch die Maserung über das Input-Argument [[m]] festgelegt,
 muß [[delta.tick]] angepaßt werden. Hierdurch lassen sich
 übrigens auch Maserungen wie [[m=10]] erzwingen.
 <<bestimme ggf.\ Maserung [[m]]>>=
-if(missing(m)) m<-round(1/delta.tick) else delta.tick<-1/m
+if(missing(m)) m <- round(1/delta.tick) else delta.tick <- 1/m
 debug.show("delta.tick"); debug.show("m")
 
 @
@@ -279,9 +320,9 @@ debug.show("delta.tick"); debug.show("m")
 Im weiteren Verlauf wollen wir mit normierten Werten weiterarbeiten.
 Deshalb transformieren wir Werte wie auch die Extremwerte der Skalen.
 <<transformiere Daten>>=
-data.tr<-data/factor
-Min.tr <- Min/factor
-Max.tr <- Max/factor
+data.tr <- data/factor
+Min.tr  <- Min/factor
+Max.tr  <- Max/factor
 
 @
 \paragraph{Skalenkonstruktion}
@@ -315,12 +356,12 @@ Dann wird ohne Korrektur, wie am kleinen Beispiel zu sehen ist,
 aus der Obergrenze [[sk.max]] von [[seq]] der Eintrag [[-1]] werden,
 der jedoch überflüssig ist.
 <<bestimme Skalenbereich>>=
-spannweite.red<-Max.tr - Min.tr
-sk.min<-  floor(Min.tr)
-sk.max<-ceiling(Max.tr)
-skala <- seq(sk.min,sk.max,by=delta.tick)
-if(sk.min<0) skala<-c(sk.min-delta.tick,skala)
-if(sk.max<0) skala<-skala[-length(skala)]
+spannweite.red <- Max.tr - Min.tr
+sk.min <- floor(Min.tr)
+sk.max <- ceiling(Max.tr)
+skala  <- seq(sk.min,sk.max,by=delta.tick)
+if(sk.min<0) skala <- c(sk.min-delta.tick,skala)
+if(sk.max<0) skala <- skala[-length(skala)]
 debug.show("skala")
 
 @
@@ -365,10 +406,10 @@ hi.log   <- if(skala[n.sk] >= 0) data.tr >= hi.limit else data.tr >  hi.limit
 
 n.lower.extr.values <- sum(lo.log); n.upper.extr.values <- sum(hi.log)
 if(0<n.lower.extr.values){
-  lower.line<- paste("LO:", paste(data[lo.log],collapse=" "))
+  lower.line <- paste("LO:", paste(data[lo.log],collapse=" "))
 }
 if(0<n.upper.extr.values){
-  upper.line<- paste("HI:", paste(data[hi.log],collapse=" "))
+  upper.line <- paste("HI:", paste(data[hi.log],collapse=" "))
 }
 data.tr.red <-data.tr[(!lo.log)&(!hi.log)]
 
@@ -396,9 +437,9 @@ nach links geshifteten Daten und Stämmen. Die Differenzen negativer Werte
 sind dann aufzurunden, die anderen abzurunden.
 Übrigens führte [[ceiling((data.tr.red-stem)*10)]] zu Fehlern.
 <<zerlege Zahlen in Stamm und Blatt>>=
-stem <- ifelse(data.tr.red<0, ceiling(data.tr.red), floor(data.tr.red) )
-# eps<-1e-12; leaf <- floor(abs(data.tr.red*10-stem*10)+eps)
-leaf <- floor(10*abs(signif(data.tr.red-stem,10)))
+stem  <- ifelse(data.tr.red<0, ceiling(data.tr.red), floor(data.tr.red) )
+# eps <- 1e-12; leaf <- floor(abs(data.tr.red*10-stem*10)+eps)
+leaf  <- floor(10*abs(signif(data.tr.red-stem,10)))
 debug.show("leaf"); debug.show("stem")
 
 @
@@ -439,7 +480,7 @@ floor(.95/0.1-9.5+eps) = "0"
 \end{verbatim}
 @
 Die Technik, etwas Schmutz zu addieren, erscheint nicht so richtig überzeugend zur
-Lösung der Diskretisierungsungenauigkeit. Besser gefällt die Idee, die Differenz von 
+Lö\-sung der Dis\-kreti\-sierungs\-unge\-nauig\-keit. Besser gefällt die Idee, die Differenz von 
 [[data.tr.red]] und [[stem]] nach 10 Stellen abzuschneiden und dann erst abzurunden.
 Falls sich weitere Probleme einstellen, kann ggf.\ auf die erste Lösung mit Addition
 eines [[eps]] zurückgegriffen werden, denn die entsprechende Zeile ist als 
@@ -495,16 +536,18 @@ leaf.grouped      <- lapply(leaf.grouped, function(x){ sort(x[-1]) })
 
 @
 [[paste]] regelt die Astbildung problemlos.
+Jedoch ist zu berücksichtigen, wenn die negativen Blätter in absteigender Reihenfolge 
+eingetragen werden sollen.
 <<ermittle Äste mit Blättern>>=
+<<merke negative Klassen und Klasse, die bei $-1$ beginnt>>
+<<spiegele ggf.\ Blätter im negativen Bereich>>
 leaf.grouped.ch <- paste("|",unlist(lapply(leaf.grouped,paste,collapse="")))
 # debug.show("leaf.grouped")
 
 @
 \paragraph{Display-Skala}
-Die Konstruktion der Bezeichnung für die Skalen verläuft in drei Schritten.
+Die Konstruktion der Bezeichnung für die Skalen verläuft in zwei Schritten.
 <<konstruiere Skala und füge sie an den zentralen Plot an>>=
-<<merke negative Klassen und Klasse, die bei $-1$ beginnt>>
-<<spiegele ggf.\ Blätter im negativen Bereich>>
 <<ermittle Zeilennamen für den Stamm>>
 <<modifiziere Zeilennamen gemäß Maserung>>
 
@@ -561,10 +604,10 @@ Damit hinterher die [[|]]-Trennstriche untereinander stehen, ist eine
 Auf\-füllung mit Leerzeichen erforderlich. Dieses leistet die Funktion
 [[ragged.left]].
 <<definiere Funktion [[ragged.left]]>>=
-ragged.left<-function(ch.lines){
-  max.n <-max(n.lines<-nchar(ch.lines))
-  h     <-paste(rep(" ",max.n),collapse="")
-  ch.lines <-paste( substring(h,1,1+max.n-n.lines), ch.lines)
+ragged.left <- function(ch.lines){
+  max.n <- max(n.lines<-nchar(ch.lines))
+  h     <- paste(rep(" ",max.n),collapse="")
+  ch.lines <- paste( substring(h,1,1+max.n-n.lines), ch.lines)
   ch.lines
 }
 
@@ -583,34 +626,34 @@ zwischen den Zählvektoren ist die gesuchte.
 Der jeweils kleinste Wert der Tiefenvektoren ist festzuhalten und
 das entstandene Objekt mit passend vielen Leerzeichen zu füllen.
 Weiter sind Tiefeneinträge in Zeilen ohne Blätter zu löschen.
-Nebenbei werden die Positionen leerer Zeilen vermerkt [[select==F]].
+Nebenbei werden die Positionen leerer Zeilen vermerkt [[select==FALSE]].
 <<ermittle Tiefen und füge sie an zentralen Plot an>>=
-n.class<-unlist(lapply(leaf.grouped,length))
+n.class <- unlist(lapply(leaf.grouped,length))
 select <- (cumsum(n.class) > 0) & rev((cumsum(rev(n.class)) > 0))
-depth    <-    cumsum(n.class)          + n.lower.extr.values
-depth.rev<-rev(cumsum(rev(n.class))     + n.upper.extr.values)
+depth     <-     cumsum(n.class)          + n.lower.extr.values
+depth.rev <- rev(cumsum(rev(n.class))     + n.upper.extr.values)
 debug.show("depth")
 
-uplow<-depth>=depth.rev
-pos.median<-which(uplow)[1] + (-1:0)
+uplow <- depth>=depth.rev
+pos.median <- which(uplow)[1] + (-1:0)
 h <- abs(depth[pos.median]-depth.rev[pos.median])
-pos.median<-pos.median[1]+(h[1]>h[2])
+pos.median <- pos.median[1]+(h[1]>h[2])
 debug.show("pos.median")
 
-depth[uplow]<-depth.rev[uplow]
-depth<-paste(depth,"")
-depth[pos.median]<-paste("(",n.class[pos.median],")",sep="")
-depth[n.class==0]<-" "
+depth[uplow] <- depth.rev[uplow]
+depth <- paste(depth,"")
+depth[pos.median] <- paste("(",n.class[pos.median],")",sep="")
+depth[n.class==0] <- " "
 depth <- if (depths) ragged.left(depth) else ""
 
 @
 Zur Information werden die wesentlichen Infos in der Variablen [[info]]
 zusammengefaßt.
 <<erstelle Interpretationshilfen>>=
-info<-     c(  paste("1 | 2: represents",1.2*factor),
-           #  paste("    m:",m     ),
-               paste(" leaf unit:",factor/10),
-               paste("            n:",n     ))
+info <- c(  paste("1 | 2: represents",1.2*factor),
+         #  paste("    m:",m     ),
+            paste(" leaf unit:",factor/10),
+            paste("            n:",n     ))
 
 @
 \subsection{Ausgabe}
@@ -620,12 +663,13 @@ bzw.\ ausgegeben.
 <<stelle Ergebnis zusammen>>=
 stem <- paste(depth, line.names, leaf.grouped.ch)
 stem <- if((m!=5)||sum(select)>4) stem[select] else stem
-result<-list( stem=stem)
+result <- list(display=stem)
 if(exists("lower.line")) result<-c(lower=lower.line,result)
 if(exists("upper.line")) result<-c(result,upper=upper.line)
 if(0<n.na&&!na.rm) result<-c(result,NAs=paste("NA's:",n.na,collapse=" "))
-result<-c(list( info=info), result)
-for(i in seq(result)) cat(result[[i]],sep="\n")
+result <- c(list( info=info), result)
+if(printresult){ for(i in seq(result)) cat(result[[i]],sep="\n") }
+result <- c(result, list(depths=depth, stem=line.names, leaves=leaf.grouped.ch))
 invisible(result)
 
 @
@@ -634,7 +678,7 @@ Für Demonstrationen bietet sich Chambers, Cleveland, Kleiner, Tukey (1983):
 {\em Graphical Methods for Data Analysis}, S.27, an.
 Dort wird ein Teil eines im Buch abgedruckten Ozon-Datensatzes
 mit verschiedenen [[m]]-Werten dargestellt:
-<<a>>=
+<<teste [[stem.leaf]]>>=
 # Chambers, Cleveland, Kleiner, Tukey (1983), p27
 oz<-c( 60+c(0,1,1,4,4,4,4,6,6,8,8,8,9),
        70+c(1,1,1,1,1,1,1,2,2,3,5,5),
@@ -661,25 +705,34 @@ repeat{
 
 @
 \section{RD-File}
-John Fox wrote the following RD-File
+John Fox wrote the first version of the following RD-File
 (some small changes are done by Peter Wolf).
+\renewcommand{\codechunkcommands}{\footnotesize}
+
 <<definiere Hilfe zu [[stem.leaf]]>>=
 \name{stem.leaf}
 \alias{stem.leaf}
+\alias{stem.leaf.backback}
 
-\title{Stem-and-Leaf Display}
+\title{stem and leaf display and back to back stem and leaf display}
 \description{
-  Creates a classical ("Tukey-style") stem-and-leaf display.
+  Creates a classical ("Tukey-style") stem and leaf display / back-to-back stem and leaf display.
 }
 
 \usage{
 stem.leaf(data, unit, m, Min, Max, rule.line = c("Dixon", "Velleman", "Sturges"),
     style = c("Tukey", "bare"), trim.outliers = TRUE, depths = TRUE,
-    reverse.negative.leaves = TRUE, na.rm = FALSE)
+    reverse.negative.leaves = TRUE, na.rm = FALSE, printresult = TRUE)
+stem.leaf.backback(x,y, unit, m, Min, Max, rule.line = c("Dixon", "Velleman", 
+    "Sturges"), style = c("Tukey", "bare"), trim.outliers = TRUE, 
+    depths = TRUE, reverse.negative.leaves = TRUE, na.rm = FALSE,
+    printresult=TRUE, show.no.depths = FALSE, add.more.blanks = 0,
+    back.to.back = TRUE)
 }
-
 \arguments{
-  \item{data}{a numeric vector.}
+  \item{data}{a numeric vector of data}
+  \item{x}{first dataset for \code{stem.leaf.backback}}
+  \item{y}{first dataset for \code{stem.leaf.backback}}
   \item{unit}{leaf unit, as a power of 10 (e.g., \code{100}, \code{.01});
     if \code{unit} is missing \code{unit} is choosen by \code{stem.leaf}.}
   \item{m}{number of parts (1, 2, or 5) into which each stem will be separated;
@@ -699,20 +752,26 @@ stem.leaf(data, unit, m, Min, Max, rule.line = c("Dixon", "Velleman", "Sturges")
     parentheses.}
   \item{reverse.negative.leaves}{if \code{TRUE} (the default), reverse direction the leaves on negative
     stems (so, e.g., the leaf 9 comes before the leaf 8, etc.).}
-  \item{na.rm}{ if TRUE 'NA' values are removed otherwise the number of NA's are counted}
+  \item{na.rm}{ if TRUE "NA" values are removed otherwise the number of NAs are counted.}
+  \item{printresult}{ if TRUE output of the stem and leaf display by \code{cat}.}
+  \item{show.no.depths}{ if TRUE no depths are printed.}
+  \item{add.more.blanks}{ number of blanks that are added besides the leaves.}
+  \item{back.to.back}{ if FALSE two parallel stem and leaf displays are constructed.}
 }
 
 \details{
-  Unlike the \code{stem} function in the \code{base} package, this function produces
+  Unlike the \code{stem} function in the \code{base} package, \code{stem.leaf} produces
   classic stem-and-leaf displays, as described in Tukey's \emph{Exploratory Data Analysis}.
+  The function \code{stem.leaf.backback} creates back-to-back stem and leaf displays.
 }
 
 \value{
   The computed stem and leaf display is printed out.
   Invisibly \code{stem.leaf} returns the stem and leaf
   display as a list containing the elements
-  \code{info} (legend), \code{stem} (display as character vecter), \code{lower} (very small values) , 
-  and \code{upper} (very large values).
+  \code{info} (legend), \code{display} (stem and leaf display as character vecter), 
+  \code{lower} (very small values), \code{upper} (very large values), \code{depths} (vector of depths), 
+  \code{stem} (stem information as a vector), and \code{leaves} (vector of leaves).
 }
 \references{
     Tukey, J.
@@ -721,18 +780,27 @@ stem.leaf(data, unit, m, Min, Max, rule.line = c("Dixon", "Velleman", "Sturges")
     }
 
 \author{Peter Wolf, the code has been slightly modified by John Fox \email{jfox@mcmaster.ca}
-    with the original author's permission, help page written by John Fox, the help page has been slightly modified by Peter Wolf.}
+    with the original author's permission, help page written by John Fox, 
+    the help page has been slightly modified by Peter Wolf.}
 
 \seealso{\code{\link[graphics]{stem}}}
 
 \examples{
 stem.leaf(co2)
+stem.leaf.backback(co2[1:120],co2[121:240])
+stem.leaf.backback(co2[1:120],co2[121:240], back.to.back = FALSE)
+stem.leaf.backback(co2[1:120],co2[121:240], back.to.back = FALSE,
+                   add.more.blanks = 3, show.no.depths = TRUE)
+stem.leaf.backback(rivers[-(1:30)],rivers[1:30], back.to.back = FALSE, unit=10, m=5, 
+                   Min=200, Max=900, add.more.blanks = 20, show.no.depths = TRUE)
 }
 
 \keyword{misc}
 
 
 @
+\renewcommand{\codechunkcommands}{\small}
+
 \section{Test}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -746,7 +814,7 @@ Jetzt gilt es die Funktion [[debug.show]] geeignet zu definieren.
 % 090216: debug.cond explizit eingeführt.
 <<setze ggf.\ [[verb]] gemäß Debugging-Wunsch>>=
 if(0<length(h<-find("debug.cond")) && ".GlobalEnv" %in% h){
-  debug.cond<-get("debug.cond",env=.GlobalEnv)
+  debug.cond<-get("debug.cond",envir=.GlobalEnv)
 } else debug.cond<-""
 debug.show<-function(name){
   if(!exists("debug.cond")) return()
@@ -786,16 +854,22 @@ debug.cond<<-""
 "a" <- structure(c(12, 29, 49, 280, 78, 41, 49, 308, 70, 57,
  41, 37, 275, 33, 267, 37, 33, 57, 37, 41, 25, 41, 53, 74, 
 57, 53, 37, 49, 66, 70, 134, 33, 57, 45, 62, 250, 37, 271,
-37, 41, 12, 70, 25), .Names = c("Acerola", "Ananas", "Apfel",                         "Apfel, getrocknet", "Apfelmus", "Apfelsine, Orange", "Aprikose",                     "Aprikose, getrocknet", "Banane", "Birne", "Brombeeren",                              "Clementine", "Datteln, getrocknet", "Erdbeeren", "Feigen, getrockne",
-"Granatapfel", "Grapefruit", "Heidelbeeren", "Himbeeren",                             "Holunderbeeren", "Honigmelone", "Johannisbeeren, rot", 
-"Johannisbeeren, schwarz", "Kaki", "Kirsche, süß", "Kiwi", "Mandarine", "Mango", "Mirabellen", "Nektarine", "Oliven, mariniert", "Papaya",
-"Passionsfrucht", "Pfirsich", "Pflaumen",
-"Pflaumen,getrocknet", "Preiselbeeren","Rosinen", "Satsuma",
-"Stachelbeeren", "Wassermelone", "Weintrauben","Zitrone"))
-names(a)<-NULL; aa<-c(rev(sort(a))[1:5],sort(a)[1:5])
+37, 41, 12, 70, 25), .Names = c("Acerola", "Ananas", "Apfel", 
+ "Apfel, getrocknet", "Apfelmus", "Apfelsine, Orange", "Aprikose",    
+ "Aprikose, getrocknet", "Banane", "Birne", "Brombeeren",                
+ "Clementine", "Datteln, getrocknet", "Erdbeeren", "Feigen, getrockne",
+ "Granatapfel", "Grapefruit", "Heidelbeeren", "Himbeeren",                   
+ "Holunderbeeren", "Honigmelone", "Johannisbeeren, rot", 
+ "Johannisbeeren, schwarz", "Kaki", "Kirsche, süß", "Kiwi",
+ "Mandarine", "Mango", "Mirabellen", "Nektarine", "Oliven, mariniert", 
+ "Papaya","Passionsfrucht", "Pfirsich", "Pflaumen",
+ "Pflaumen,getrocknet", "Preiselbeeren","Rosinen", "Satsuma",
+ "Stachelbeeren", "Wassermelone", "Weintrauben","Zitrone"))
+ names(a)<-NULL; aa<-c(rev(sort(a))[1:5],sort(a)[1:5])
 test('stem.leaf(a,Min=0,Max=300)')
 
 @
+\renewcommand{\Routputcommands}{\tiny}
 \begin{verbatim}
 stem.leaf(a,Min=0,Max=300) 
 1 | 2: represents 120
@@ -818,6 +892,7 @@ stem.leaf(a,Min=0,Max=300)
     2    2. | 8
     1    3* | 0
 \end{verbatim}
+
 @
 \subsubsection{Erfolgreiche Tests}
 Als Datensätze wollen wir [[oz]] wie auch [[co2]] verwenden.
@@ -831,14 +906,13 @@ test<-function(what) {
 }
 
 @
-\tiny
 Mit [[test]] lassen sich bequem einige Tests erledigen.
 Von hinten beginnend testen wir, ob [[style]] für [[m=2]] und [[m=5]]
 wirksam wird, sofern es auf [["Tukey"]] gesetzt ist.
 Damit ist auch gleich ein erster Test für [[m]] beschrieben.
 
-\def\endmoddef{\RA\ifmmode\equiv\else\unhcopy\equivbox\fi
-               \nobreak\hfill\nobreak\small         }
+%\def\endmoddef{\RA\ifmmode\equiv\else\unhcopy\equivbox\fi
+  %             \nobreak\hfill\nobreak\small         }
 
 <<Test von [[style]]>>=
 cat("style-Test-start\n")
@@ -1273,7 +1347,7 @@ Thu May 22 14:11:37 2003
 @
 Klassenzuordnungstest:
 <<Klassenzuordnungstest>>=
-debug.cond<-"skala"
+# debug.cond<-"skala"
 cat("Klassen-Test-start\n")
 test('stem.leaf(c(.7+(1:12),4.999,5.0,5.001,7,7.001,7.999,
       8,8.001,8.999,9,9.001,9.999),Min=5,Max=8,unit=.1,m=1)')
@@ -1364,11 +1438,14 @@ y
    21      s | 666666666667777
     6     9. | 777778
 \end{verbatim}
+
+@
 In der Tat muss in der letzten Zeile des Displays [[9. |  888889]].
 Der Fehler geht auf die ungenaue Darstellung von Dezimalzahlen zurück,
 welche durch Addition eines kleines Epsilons [[eps]] vor Rundungprozessen
 behoben werden kann, siehe Chunk: \emph{zerlege Zahlen in Stamm und Blatt}.
 Nach Integration dieser Verbesserung erhalten wir das richtige Ergebnis:
+
 @
 \begin{verbatim}
 y
@@ -1386,28 +1463,835 @@ y
    21      s | 666666666667777
     6     9. | 888889
 \end{verbatim}
+
+@
+Negative-Reverse-Test:
+<<reverse-Test>>=
+# debug.cond<-"skala"
+cat("Reverse-Test-start\n")
+test('stem.leaf(-c(.7+(1:12),4.999,5.0,5.001,7,7.001,7.999,
+      8,8.001,8.999,9,9.001,9.999),Min=-8,Max=-5,unit=.1,m=1,
+      reverse.negative.leaves=TRUE)')
+test('stem.leaf(-c(.7+(1:12),4.999,5.0,5.001,7,7.001,7.999,
+      8,8.001,8.999,9,9.001,9.999),Min=-8,Max=-5,unit=.1,m=1,
+      reverse.negative.leaves=!TRUE)')
+test('stem.leaf(c(.7+(-5:5),-4.001,-4,-3.999, -3, 0, 3, 3.999,
+      4, 4.001),Min=-3,Max=3,unit=.1,m=1,
+      reverse.negative.leaves=TRUE)')
+test('stem.leaf(c(.7+(-5:5),-4.001,-4,-3.999, -3, 0, 3, 3.999,
+      4, 4.001),Min=-3,Max=3,unit=.1,m=1,
+      reverse.negative.leaves=!TRUE)')
+cat("Reverse-Test-end\n")
+
 @
 Hier noch einmal die Testaufrufe zusammengefaßt:
 <<Testaufrufe>>=
+<<definiere ms>>
+<<definiere [[test]]>>
 <<Test von [[style]]>>
 <<Test von [[rule.line]]>>
 <<Test von [[unit]]>>
 <<Test von [[Min/Max]]>>
 <<Klassenzuordnungstest>>
 <<Example of Jim Albert>>
+<<reverse-Test>>
 
 @
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 @
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\end{document}
+\section{Back-to-back-stem-and-leaf-Plots}
+Naheliegend ist die Konstruktion zweier Stem-and-leaf-displays, bei denen die Blätter zweier Stichproben zu den beiden Seiten eines 
+gemeinsamen Stammes eingetragen werden. Es entstehen dann Plots, die wie Bevölkerungspyramiden aussehen. Mit Hilfe der
+Funktion [[stem.leaf]] müsste sich schnell eine Umsetzung finden lassen. Um leicht auf einzelne Einheiten zugreifen zu können,
+ist zunächst die Ausgabe der [[stem.leaf()]]-Funktion gegenüber älteren Versionen erweitert worden.
 
+Wir gehen, wie folgt, vor:
+\begin{enumerate}
+\item Kombiniere beide Stichproben und ermittele mit den gemeinsamen Daten einen geeigneten Stamm, 
+der zu beiden Stichproben passt.
+\item Berechne für beide Stichproben getrennt die stem and leaf displays.
+\item Extrahiere aus beiden Displays die notwendigen Größen.
+\item Füge aus den Einzelteilen das neue Display zusammen.
+\end{enumerate}
 
 @
-<<test>>=
-a<-seq(-2,2,length=20)
-test('stem.leaf( c(-2,-.99,-.5,-.1,0,.1,.5,.99,2),m=2)')
+\subsection{Der grobe Aufbau der Funktion [[stem.leaf.backback()]]}
+Auf der groben Beschreibungsebene ergibt sich aus dem Vorgehen folgender Funktionaufbau.
+Wir definieren hier die Funktion [[stem.leaf()]] als lokale Funktion, da sich möglicherweise jemand
+die Funktion [[stem.leaf.backbak()]] kopieren und ohne das Paket [[aplpack]] verwenden möchte.
+<<definiere [[stem.leaf.backback]]>>=
+stem.leaf.backback <- function(x,y, unit, m, Min, Max, rule.line = c("Dixon", "Velleman", 
+    "Sturges"), style = c("Tukey", "bare"), trim.outliers = TRUE, 
+    depths = TRUE, reverse.negative.leaves = TRUE, na.rm = FALSE,
+    printresult=TRUE, show.no.depths = FALSE, add.more.blanks = 0,
+    back.to.back = TRUE){
+  <<checke Input-Daten [[stem.leaf.backback()]]>>
+  <<definiere [[stem.leaf]]>>
+  <<suche gemeinsamen Stamm in [[stem.leaf.backback()]]>>
+  <<ermittle Blätter u.ä. der beiden Datensätze in [[stem.leaf.backback()]]>>
+  <<synchronisiere stems, leaves und depths der beiden Datensätze [[stem.leaf.backback()]]>>
+  <<komponiere Output von [[stem.leaf.backback()]]>>
+}
 
+@
+\subsection{Input-Check}
+Wenn nur ein Datensatz eingegeben wird, wird er doppelt verwendet. Es werden die Namen und 
+die Anzahlen der fehlenden Werte festgestellt.
+<<checke Input-Daten [[stem.leaf.backback()]]>>=
+x.name <- paste(deparse(substitute(x)),collapse="")
+if(missing(y)){ y <- x; y.name <- x.name } 
+else y.name <- paste(deparse(substitute(y)),collapse="")
+n.na.x <- sum(is.na(x)); n.na.y <- sum(is.na(y))
 
+@
+\subsection{Kombination der beiden Datensätze}
 
+Es ist kein Problem die Datensätze zusammenzufassen. Jedoch gilt es ggf. geeignete Parameter-Werte 
+für [[m]], [[Min]] usw.\ zu ermitteln, damit diese dann explizit für die weiteren Berechnungen zur Verfügung
+stehen. Dann erstellen wir virtuell einen gemeinsamen stem and leaf display und können über
+[[sl.xy]] auf alle wesentlichen Informationen zugreifen. Insbesondere benötigen wir die Variable 
+[[unit]], die die Dezimalstelle festlegt.
+<<suche gemeinsamen Stamm in [[stem.leaf.backback()]]>>=
+<<ermittle geeignete Parameterwerte, sofern nicht festgelegt>>
+sl.xy <- stem.leaf(c(x,y),unit=unit,m=m,Min=Min, Max=Max, rule.line=rule.line,
+                   style=style,trim.outliers=trim.outliers,depths=depths,
+                   reverse.negative.leaves = reverse.negative.leaves, 
+                   na.rm = na.rm, printresult=FALSE)
+h <- grep(" leaf unit: ",sl.xy$info,value=TRUE)
+unit <- as.numeric(sub(" leaf unit: ","",h))
+
+@
+Zur Parameterermittlung führen wir die ersten Schritte einer stem and leaf display-Konstruktion durch
+und können danach die notwendigen Größen zugreifen. Hiernach liegt eine Vorstellung über Stamm und 
+Maserung vor.
+<<ermittle geeignete Parameterwerte, sofern nicht festgelegt>>=
+data <- c(x,y)
+<<checke Input>>
+<<setze ggf.\ [[verb]] gemäß Debugging-Wunsch>>
+<<stelle gemäß [[rule.line]] maximale Zeilenanzahl fest>>
+<<ermittle mittels [[boxplot]] groben Skalenbereich>>
+<<bestimme Intervall\-länge und ggf.\ Faktor [[factor]]>>
+<<berechne aus [[zeilen.intervall.laenge]] und [[factor]] Tickabstand>>
+<<bestimme ggf.\ Maserung [[m]]>>
+
+@
+\subsection{Berechnung der Display-Elemente und Synchronisation der Stämme}
+Die Blätter der einzelnen Stichproben finden wir durch getrennte Aufrufe von [[stem.leaf()]].
+<<ermittle Blätter u.ä. der beiden Datensätze in [[stem.leaf.backback()]]>>=
+  sl.x  <- stem.leaf(x,     unit=unit,m=m,Min=Min, Max=Max, rule.line=rule.line,
+                     style=style,trim.outliers=trim.outliers,depths=depths,
+                     reverse.negative.leaves = reverse.negative.leaves, na.rm = na.rm,
+                     printresult=FALSE)
+  sl.y  <- stem.leaf(y,     unit=unit,m=m,Min=Min, Max=Max, rule.line=rule.line,
+                     style=style,trim.outliers=trim.outliers,depths=depths,
+                     reverse.negative.leaves = reverse.negative.leaves, na.rm = na.rm,
+                     printresult=FALSE)
+
+@
+Das Zusammenfügen ist mehr Textverarbeitung als Berechnung, also Fließarbeit. 
+Zunächst extrahieren wir die relevanten Infos aus den Displays [[sl.x]] und [[sl.y]].
+In den Stämmen suchen wir dann einen Eintrag mit Ziffern, der in beiden vorkommt. 
+Anhand dieses Eintrags müssen die Stämme ggf. geeignet verlängert werden. Entsprechend
+zu den Anfügungen müssen auch die Vektoren mit den Blättern expandiert werden.
+Es kann notwendig sein, den ersten Datensatz vorn und oder oder hinten zu verlängern. 
+Gleiches gilt für den zweiten Datensatz. Hierdurch erklären sich die vier
+If-Konstruktionen. Nach diesem Chunk müssen [[x.stem]] und [[y.stem]] identisch sein.
+<<synchronisiere stems, leaves und depths der beiden Datensätze [[stem.leaf.backback()]]>>=
+x.stem   <- gsub(" ","",sl.x$stem);          y.stem   <- gsub(" ","",sl.y$stem)
+x.leaves <- substring(sl.x$leaves,3);        y.leaves <- substring(sl.y$leaves,3)
+x.depths <- substring(sl.x$depths,3);        y.depths <- substring(sl.y$depths,3)
+x.digits <- grep("[0-9]",x.stem,value=TRUE); y.digits <- grep("[0-9]",y.stem,value=TRUE)
+h <- match(y.digits, x.digits); h <- h[!is.na(h)][1]
+x.pos <- which(x.stem==x.digits[h]); y.pos <- which(y.stem==x.digits[h])
+LZ <- rep(" ",d <- abs(y.pos - x.pos))
+if(x.pos < y.pos) { # x vorn verlängern 
+  x.stem <- c(y.stem[1:d],x.stem); x.leaves <- c(LZ,x.leaves); x.depths <- c(LZ,x.depths)
+}
+if(y.pos < x.pos) { # y vorn verlängern 
+  y.stem <- c(x.stem[1:d],y.stem); y.leaves <- c(LZ,y.leaves); y.depths <- c(LZ,y.depths)
+}
+x.l <- length(x.stem); y.l <- length(y.stem)
+LZ <- rep(" ",d <- abs(y.l-x.l))
+if(x.l < y.l) { # x hinten verlängern 
+  x.stem <- c(x.stem,y.stem[-(1:x.l)]); x.leaves <- c(x.leaves,LZ)
+  x.depths <- c(LZ,x.depths,LZ)
+}
+if(y.l < x.l) { # y hinten verlängern 
+  y.stem <- c(y.stem,x.stem[-(1:y.l)]); y.leaves <- c(y.leaves,LZ)
+  y.depths <- c(LZ,y.depths,LZ)
+}
+
+@
+\subsection{Output-Generierung}
+Der Output ergibt sich aus den gesammelten Zwischenergebnissen, die alle textlicher Natur sind.
+Es gilt also Textvektoren vertikal und horizontal zusammenzufügen. Hierzu werden eine Reihe
+von Hilfsfunktionen definiert, die auch an anderer Stelle hilfreich sein können.
+Zuerst passen wir die Variablen, die Stämme und Blätter der beiden Datensätze merken, 
+in ihrer Größe an. Dabei werden auch die Blätter des ersten Datensatz gedreht.
+Dann fügen wir Tiefen, Stamm und Blätter zusammen. 
+Im dritten Schritt komponieren wir die Informationszeilen, die uns Anzahlen, fehlende Werte,
+Extremwerte und Datensatznamen zeigen.
+Zum Schluss wird das entstandene Gebilde per [[cat()]] und als explizites Ergebnis ausgegeben.
+<<komponiere Output von [[stem.leaf.backback()]]>>=
+<<definiere einige Funktionen zur Anordnung von Textobjekten>>
+<<ergänze Leerzeichen zur Vereinheitlichung der Blatt-Variablen>>
+<<kombiniere depths, stem and leaves>>
+<<komponiere Zeilen mit Infos, Namen, Längen und NA-Anzahlen>>
+<<compose info of HI values>>    
+<<compose info of LO values>>
+# komponiere Ergebnisvektor
+line   <- paste(rep("_",max(nchar(result))),collapse="")
+result <- c(line,info.line,name.line,lower.line,line,result,line,upper.line,n.line,
+            if(substring(na.line,1,1)=="N") na.line,line)
+result <- result[grep("[^ ]",result)]
+# zeige Output
+if(printresult){ cat(result,sep="\n") }
+invisible(list(info=sl.x$info, display=result,lower.x=sl.x$lower,upper.x=sl.x$upper,
+               lower.y=sl.y$lower,upper.y=sl.y$upper,
+               x.depths=x.depths,y.depths=y.depths,stem=x.stem,x.leaves,y.leaves))
+
+@
+Die Blätteranzahl an jeder Stammstelle werden unterschiedlich sein. Gleiches gilt 
+evtl. für den Stamm ebenfalls. Deshalb werden zur Erzielung einer rechteckigen Struktur
+Leerzeichen angefügt. Danach enthalten alle Elemente eines so vereinheitlichten 
+Vektors gleich viele Zeichen. Zusätzlich werden gemäß Anwenderwunsch weitere
+[[add.more.blanks]] den Ästen mit den Blättern hinzugefügt. Zum Schluss wird sichergestellt,
+dass die beiden Objekte mit den Blättern wirklich gleich groß sind.
+<<ergänze Leerzeichen zur Vereinheitlichung der Blatt-Variablen>>=
+x.leaves <- expand.text(x.leaves,fill.right=TRUE,O=add.more.blanks)
+x.leaves <- rotate.string(x.leaves)
+x.stem   <- expand.text(x.stem,fill.right=FALSE)
+y.leaves <- expand.text(y.leaves,fill.right=TRUE,O=add.more.blanks)
+# Zweige egalisieren
+x.leaves <- expand.a.to.b(x.leaves,y.leaves,fill.right=FALSE)
+y.leaves <- expand.a.to.b(y.leaves,x.leaves)
+
+@
+Für die Umsetzung der Angleichung finden Hilfsfunktionen Verwendung:
+[[rotate.string()]], [[expand.text()]] und [[expand.a.to.b()]]. Die erste rotiert einen String, die zweite 
+macht die Elemente gleichgroß
+bzgl. der Zeichenzahl, die dritte expandiert einen Vektor auf die Größe eines zweiten
+Vektors. In [[expand.text()]] werden erst die Verlängerungswünsche umgesetzt
+und dann eine Angleichung vorgenommen. Das Auffüllen mit Leerzeichen 
+kann prinzipiell rechts wie auch links erwünscht sein.
+<<definiere einige Funktionen zur Anordnung von Textobjekten>>=
+expand.text <- function(x,N=0,O=0,S=0,W=0,fill.right=TRUE,sep=" "){
+  # bringt Elemente auf gleiche Laenge und ergaenzt Leerzeichen in den Himmelsrichtungen
+  if(0<O) x <- paste(x,paste(rep(sep,O),collapse=""),sep="")
+  if(0<W) x <- paste(  paste(rep(sep,W),collapse=""),x,sep="")
+  if(0<S) x <- c(x,rep(sep,S)); if(0<N) x <- c(rep(sep,N),x)
+  maxch <- max(nchar(x));  LZ <- paste(rep(sep,maxch),collapse="")
+  ch <- substring(LZ,1,maxch-nchar(x))
+  x <- if(fill.right) paste(x,ch,sep="") else paste(ch,x,sep="")
+  return(x)
+} # test: cbind(expand.text("asdf",3,2,1,4,fill.right=FALSE,sep=" "))
+
+@
+[[expand.a.to.b]] geht von dem Ansatz aus, dass das erste Objekt anhand der
+Verhältnisse des zweiten Objekts angepasst und dabei aber nur vergrößert werden soll. 
+Unterscheiden sich die Längen, kann eine Verlängerung hinten ([[fill.tail=TRUE]]) 
+aber auch vorn erwünscht sein. Der Fall einer Zentrierung wird noch nicht berücksichtigt.
+Hat Objekt [[a]] nun mindestens die Länge von [[b]], wird in einem zweiten Schritt
+die maximale Zeichenzahl der Elemente beider Vektoren festgestellt und dann 
+werden entweder rechts ([[fill.right=TRUE]]) oder links so viele Leerzeichen ergänzt,
+dass alle Elemente von [[a]] die maximale Zeichenzahl besitzen.
+<<definiere einige Funktionen zur Anordnung von Textobjekten>>=
+expand.a.to.b <- function(a,b,fill.right=TRUE,fill.tail=TRUE){
+  # expandiert Vektor a auf die Dimensionen von Vektor b
+  d <- length(b) - length(a)
+  if(0 < d) a <- if(fill.tail) c(a, rep(" ",d)) else c(rep(" ",d), a)
+  n.LZ <- max(nchar(b),nchar(a)); d <- n.LZ - nchar(a)
+  LZ <- paste(rep(" ",n.LZ),collapse="")
+  a <- ifelse( d <= 0, a, if(fill.right) paste(a,substring(LZ,1,d),sep="") 
+                          else paste(substring(LZ,1,d),a,sep=""))
+  return(a)
+}
+
+@
+[[rotate.string()]] ist wird mit einer impliziten Schleife in Form von 
+[[sapply()]] umgesetzt.
+<<definiere einige Funktionen zur Anordnung von Textobjekten>>=
+rotate.string <- function(x){
+    x <- sapply(x,function(y) { h <- nchar(y); paste(substring(y,h:1,h:1),collapse="") })
+}
+
+@
+Jetzt können wir die Kombination der Tiefen, Blätter und des Stammes ins Auge fassen.
+Falls ein richtiger Back-To-Back-Display entstehen soll, ist das Zusammenfügen etwas anders,
+als wenn der Anwender lieber zwei parallele Halbbäume mit einem Stamm ganz links
+bekommen möchte. Weiterhin ergibt sich ein Unterschied dadurch, wenn auf die Tiefeninformation
+verzichtet werden soll.
+Je nach den verschiedenen Fällen merken wir uns ein paar markante Stellen, 
+um für die Platzierung weiterer Informationen eine Orientierung zu haben.
+Außerdem legen wir einen String aus Leerzeichen auf [[LZ]] ab, 
+dessen Zeichenzahl mit denen der Elemente von [[result]] übereinstimmt.
+<<kombiniere depths, stem and leaves>>=
+if(back.to.back){ 
+  if(show.no.depths){
+    result <- vecpaste("",x.leaves,x.stem,y.leaves,"",sep=c("  ","","| "," |","","  ")) 
+  } else {
+    result <- vecpaste(x.depths,x.leaves,x.stem,y.leaves,y.depths,
+                       sep=c("  ","  ","| "," |","  ","  "))
+  }
+  end.of.x.leaves <- sum(result$widths[1:4])
+  end.of.x.attributes <- sum(result$widths[1:4])
+  start.of.y.attributes <- sum(result$widths[1:7]) # falls x.name sehr lang
+  space.x.to.y   <- sum(result$widths[5:7])
+  end.of.left.stem <- 0 
+  extr.width <- end.of.x.leaves 
+} else { # parallel displays
+  if(show.no.depths){
+    result <- vecpaste(x.stem,rotate.string(x.leaves),y.leaves,sep=c("  "," |","  |","  "))
+    end.of.x.leaves <- sum(result$widths[1:4])
+    end.of.x.attributes <- sum(result$widths[1:4])
+    start.of.y.attributes <- sum(result$widths[1:4]) # falls x.name sehr lang
+    space.x.to.y   <- sum(result$widths[5])
+  } else {
+    result <- vecpaste(x.stem,rotate.string(x.leaves),x.depths,y.leaves,y.depths,
+                       sep=c("  "," |","  "," |","  ","  "))
+    end.of.x.leaves <- sum(result$widths[1:6]) 
+    end.of.x.attributes <- sum(result$widths[1:6]) 
+    start.of.y.attributes <- sum(result$widths[1:7]) # falls x.name sehr lang
+    space.x.to.y   <- sum(result$widths[7]) #- 5
+  }
+  end.of.left.stem <- sum(result$widths[1:3]) 
+  extr.width <- end.of.x.leaves-end.of.left.stem
+}
+result <- result$result
+LZ <- paste(rep(" ",max(nchar(result))),collapse="")
+
+@
+Für die Operation "Zusammenfügen" wurde die Funktion [[vecpaste()]] verwendet.
+Dieser Funktion kann eine Liste von zu verschmelzenden Objekten übergeben werden. 
+Diese Liste ist zunächst zu identifizieren. 
+An den Verschmelzungsstellen lässt sich eine Fuge einbringen, die über das Argument [[sep]] beschrieben wird. 
+Sollen alle Fugen oder Verbindungsstellen gleich aussehen, reicht die Angabe eines skalaren Wertes aus. 
+Sonst muss [[sep]] ein Vektor sein, der einen Wert mehr als die Objektzahl umfasst. 
+Denn die Fugen werden nicht nur zwischen den Objekten eingefügt, sondern auch am Rand. 
+Ist [[sep]] nummerisch, wird die Angabe als gewünschte Anzahl von Leerzeichen interpretiert.  
+Zur Verschmelzung werden sicherheitshalber 
+die Elemente eines Objekts vereinheitlicht und dann mit der zugehörigen Fuge auf dem
+Ergebnisvektor abgelegt. Damit später die Information über die Größen der Teilblöcke 
+verfügt werden kann, werden auf [[widths]] diese Breiten (in Zeichenanzahlen) gesammelt und
+mit ausgegeben. 
+
+Um eine zweite Situation abzubilden, können für die einzelnen
+Blöcke, die verschmolzen werden sollen auch Breiten vorgegeben werden. 
+Für diesen Fall müssen an das Argument [[widths]] die Bereiten übergeben werden. 
+Dann erhalten Zwischenräume eine Ausdehnung von 0, 
+die Blöcke werden um Leerzeichen erweitert und dann aneinandergefügt.
+<<definiere einige Funktionen zur Anordnung von Textobjekten>>=
+vecpaste <- function(..., sep=" ", widths=NULL, fill.right = TRUE){  ## ???
+  # vecpaste pastet Vektoren zusammen
+  xyz <- list(...); n <- length(xyz)
+  LZ <- paste(rep(" ",200),collapse="")
+  if(0 < length(widths)) sep <- "" else widths <- rep(0,n)
+  if(is.numeric(sep)) sep <- substring(LZ,1,sep)
+  if(length(sep)==1)  sep <- rep(sep,n+1)
+  if(length(fill.right)==1)  fill.right <- rep(fill.right,n)
+  result <- ""; w <- NULL
+  for(i in 1:n){ #print(fill.right[i]); cat("n",n,"i",i)
+    h <- as.character(xyz[[i]]); h <- expand.text(h,fill.right=fill.right[i])
+    if(nchar(h[1]) < widths[i]) 
+      if(fill.right[i]){
+        h <- paste(h,substring(LZ,1,widths[i]-nchar(h[1])),sep="")
+      }else{
+        h <- paste(substring(LZ,1,widths[i]-nchar(h[1])),h,sep="")
+      }
+    result <- paste(result,h,sep=sep[i])
+    w <- c(w, nchar(sep[i]), nchar(h[1]))
+  }
+  if(0 == length(widths)) widths <- c(w,nchar(sep[n+1])) else widths <- w
+  result <- paste(result,"",sep=sep[n+1])
+  return(list(result=result,widths=widths))
+}
+
+@
+Mit Hilfe von [[vecpaste()]] und den Blockbreiten ist die Erstellung der
+Informationszeilen nicht weiter problematisch. Es muss immer aufgezählt werden,
+was zu kombinieren ist, und es müssen die Breiten in einem Vektor 
+zusammengefasst angegeben werden. Falls der erste Datensatzname zu lang ist,
+soll der zweite in einer gesonderten Zeile eingetragen werden.
+<<komponiere Zeilen mit Infos, Namen, Längen und NA-Anzahlen>>=
+# compose info line
+info.line <- vecpaste(sl.x$info[1],sl.x$info[2],sep=c("  ",","," "))$result
+end.of.attr <- max(end.of.left.stem,4)
+# compose name line
+if( nchar(x.name) < end.of.x.leaves) {
+   name.line <- vecpaste("    ",x.name," ",y.name,
+        widths=c(end.of.attr, end.of.x.leaves-end.of.attr, space.x.to.y, end.of.x.leaves-4),
+        fill.right=c(TRUE,!back.to.back,TRUE,TRUE))$result
+} else {
+   name.line <- c(vecpaste(x.name,sep=c(end.of.x.leaves - nchar(x.name),0))$result,
+                  vecpaste(y.name,sep=c(start.of.y.attributes,0))$result)
+}
+# compose length line
+n.line <- vecpaste("n:  ",length(x)," ",length(y),
+        widths=c(end.of.attr, end.of.x.leaves-end.of.attr, space.x.to.y, end.of.x.leaves-4),
+        fill.right=c(TRUE,!back.to.back,TRUE,TRUE))$result
+# compose NA line
+na.line <- vecpaste("NAs:",n.na.x," ",n.na.y,
+        widths=c(end.of.attr, end.of.x.leaves-end.of.attr, space.x.to.y, end.of.x.leaves-4),
+        fill.right=c(TRUE,!back.to.back,TRUE,TRUE))$result
+if(0==length(grep("[1-9]",na.line))) na.line <- "    "
+
+@
+Jetzt müssen nur noch die Extremwerte abgehandelt werden. Da sich eine ganze Reihe
+einstellen können, sollte man diese ggf. auf mehrere Zeilen aufteilen. Die Textvektoren 
+der jeweiligen Extremwerte sind dann an passenden Stellen aufzusplitten.
+Diesen Job übernimmt die Funktion [[line.to.textvec()]].
+Sowohl für die Lower- wie auch für die Upper-Werte müssen die sich ergebenden 
+Textvariablen zum Schluss wieder mit [[expand.a.to.b()]] geeignet expandiert werden.
+<<compose info of HI values>>=
+# compose info of HI values
+## split HI info of x in smaller parts
+upper.x.res <- line.to.textvec(sl.x$upper, extr.width)
+## split HI info of y in smaller parts
+upper.y.res <- line.to.textvec(sl.y$upper, extr.width)
+## unify x and y HI values
+upper.x.res <- expand.a.to.b(upper.x.res, upper.y.res)
+upper.y.res <- expand.a.to.b(upper.y.res, upper.x.res)
+## compose HI line
+if(back.to.back){
+  upper.line <- vecpaste(upper.x.res,upper.y.res,sep=c(0,space.x.to.y,0))$result
+} else {
+  upper.line <- vecpaste(" ",upper.x.res," ",upper.y.res,
+     widths=c(end.of.attr,end.of.x.leaves-end.of.attr,space.x.to.y,end.of.x.leaves-4),
+     fill.right=c(TRUE,TRUE,TRUE,TRUE))$result
+}
+@
+Für die extrem kleinen Werte sind die selben Überlegungen wie zu den extrem großen Werten
+anzustellen.
+<<compose info of LO values>>=
+# compose info of LO values
+## width=space by depths, leaves and 2 outer and 2 between
+## split LO info of x in smaller parts
+lower.x.res <- line.to.textvec(sl.x$lower, extr.width)
+## split LO info of y in smaller parts
+lower.y.res <- line.to.textvec(sl.y$lower, extr.width)
+## unify x and y LO values
+lower.x.res <- expand.a.to.b(lower.x.res, lower.y.res)
+lower.y.res <- expand.a.to.b(lower.y.res, lower.x.res)
+## compose LO line
+if(back.to.back){
+  lower.line <- vecpaste(lower.x.res,lower.y.res,sep=c(0,space.x.to.y,0))$result
+} else {
+  lower.line <- vecpaste(" ",lower.x.res," ",lower.y.res,
+     widths=c(end.of.attr,end.of.x.leaves-end.of.attr,space.x.to.y,end.of.x.leaves-4),
+     fill.right=c(TRUE,TRUE,TRUE,TRUE))$result
+}
+
+@
+Für die Aufspaltung eines Textvektors in Zeilen, wird der Input zunächst zu einem Element
+verschmolzen. Falls es keine Beschränkung der Zeilenbreite gibt, ist nichts zu tun.
+Wenn der Input in eine Zeile passt, wird er auf die angegebene Zeilenlänge mit Leerzeichen 
+aufgefüllt. Das Vorgehen ist, wie folgt: Der Input wird an Stellen des Separators 
+[[sep]] in Einzelstücke zerlegt. Dann werden immer so viele Einzelstücke genommen,
+wie in eine Zeile passen. Passt ein sehr langes Stück nicht in eine Zeile, wird dieses gesplittet
+und eine Warnung ausgegeben. 
+<<definiere einige Funktionen zur Anordnung von Textobjekten>>=
+line.to.textvec <- function(vec,width,sep=" "){
+  # wandelt Textzeile in Textvektor vorgegebener maximaler Zeichenanzahl um
+  vec <- paste(vec,collapse=" "); if(width==Inf) return(vec)
+  d <- width - nchar(vec); LZ <- paste(rep(" ",width),collapse="")
+  if( 0 < d ) return(paste(vec,substring(LZ,1,d),sep=""))
+  vec.sep <- unlist(strsplit(vec,sep)); result <- NULL; imax <- 200
+  while(0 < length(vec.sep)){        if( (imax<-imax-1) < 0 ) break
+    h <- sum( cumsum(nchar(vec.sep)+1) <= width ) # +1 fuer Trennzeichen
+    if( h==0 ) { 
+      h <- 1; cat("Warning: word '",vec.sep[1],"' too long ...",sep="") 
+      vec.sep <- c(substring(vec.sep[1],1,width),substring(vec.sep[1],1+width),vec.sep[-1])
+      h <- 1; cat("  and has been split to '",vec.sep[1],"' and '",vec.sep[2],"'",sep="") 
+    }
+    new.line <- paste(vec.sep[1:h],collapse=sep)
+    d <- width - nchar(new.line)
+    if( d < 0 ) new.line <- substring(new.line,1,width)
+    if( 0 < d ) new.line <- paste(new.line,substring(LZ,1,d),sep="")
+    result <- c(result, new.line); vec.sep <- vec.sep[-(1:h)]
+  }
+  return(result)
+}
+
+@
+\subsection{Some Tests}
+@
+Wir definieren eine Reihe von Tests ganz einfach dadurch, dass wir die Test-Aufrufe von 
+[[stem.leaf()]] abändern. Hierzu definieren wir zunächst die Funktion [[test()]] so, 
+dass sie statt [[stem.leaf()]] die Funktion [[stem.leaf.backback()]] mit doppelter 
+Verwendung der Daten aufruft.
+<<*>>=
+test <- function(what) {
+  what <- sub("stem.leaf","stem.leaf.backback",what)
+  cat(what,"\n"); eval(parse(text=what)); return()
+}
+<<Test von [[style]]>>
+<<Test von [[rule.line]]>>
+<<Test von [[unit]]>>
+<<Test von [[Min/Max]]>>
+<<Klassenzuordnungstest>> 
+<<Example of Jim Albert>>
+<<reverse-Test>> 
+
+@
+Als nächstes schauen wir, ob die Veränderung weiterer Parameter klappt.
+Paralleles Blätterwerk erhalten wir mit Hilfe von [[back.to.back=FALSE]].
+<<*>>=
+test <- function(what) {
+  what <- sub("stem.leaf.","stem.leaf.backback(back.to.back=FALSE,",what)
+  cat(what,"\n"); eval(parse(text=what)); return()
+}
+<<Test von [[style]]>>
+<<Test von [[rule.line]]>>
+<<Test von [[unit]]>>
+<<Test von [[Min/Max]]>>
+<<Klassenzuordnungstest>> 
+<<Example of Jim Albert>>
+<<reverse-Test>> 
+
+@
+Wie sehen die Displays aus, wenn auf die Tiefeninformation verzichtet werden soll?
+<<*>>=
+test <- function(what) {
+  what <- sub("stem.leaf.",
+              "stem.leaf.backback(show.no.depths=TRUE,add.more.blanks=10,",what)
+  cat(what,"\n"); eval(parse(text=what)); return()
+}
+<<Test von [[style]]>>
+<<Test von [[rule.line]]>>
+<<Test von [[unit]]>>
+<<Test von [[Min/Max]]>>
+<<Klassenzuordnungstest>> 
+<<Example of Jim Albert>>
+<<reverse-Test>> 
+@
+Für singuläre Tests kann folgender Chunk verwendet werden:
+<<doit>>=
+<<definiere [[stem.leaf.backback]]>>
+"a" <- structure(c(12, 29, 49, 280, 78, 41, 49, 308, 70, 57,
+ 41, 37, 275, 33, 267, 37, 33, 57, 37, 41, 25, 41, 53, 74, 
+57, 53, 37, 49, 66, 70, 134, 33, 57, 45, 62, 250, 37, 271,
+37, 41, 12, 70, 25))
+stem.leaf(a); stem.leaf(a,Max=70)
+dat1 <- c(-2000,co2[113:130],NA,NA,500,600,700,1000)
+dat2 <- c(-1000,-10000,-5000,co2[170:140],NA,NA,NA,500,600,700,10000)
+dat1 <- c(co2[113:130],NA,NA,500,600,700,1000)#; dat2 <- dat1
+dat1 <- dat2
+a <- stem.leaf.backback(dat1, c(dat2,dat2,dat2) ,m=2,unit=.1)
+a <- stem.leaf.backback(c(co2[113:130],NA,NA,500),c(co2[170:140],NA),
+                        m=2,unit=.1)
+stem.leaf(c(co2[1:50],NA,400),m=5,unit=1)
+stem.leaf.backback(co2)
+NULL
+
+@
+<<*>>=
+<<definiere [[stem.leaf.backback]]>>
+a <- stem.leaf.backback(dat1, c(dat2,dat2,dat2) ,m=2,unit=.1,
+                        show.no.depths=TRUE,add.more.blanks=0)
+a <- stem.leaf.backback(c(dat2,dat2), c(dat2,dat2) ,m=2,unit=.1,
+                        show.no.depths=!TRUE,add.more.blanks=10)
+NULL
+@
+<<*>>=
+<<definiere [[stem.leaf.backback]]>>
+a <- stem.leaf.backback(dat1, c(dat2,dat2,dat2) ,m=2,unit=.1, 
+                        show.no.depths=TRUE,add.more.blanks=0)
+a <- stem.leaf.backback(c(dat2,dat2), c(dat2,dat2) ,m=2,unit=.1, 
+                        show.no.depths=TRUE,add.more.blanks=10)
+a <- stem.leaf.backback(c(dat2,dat2), c(dat2,dat2) ,m=2,unit=.1, 
+                        show.no.depths=TRUE,add.more.blanks=10,back.to.back=!TRUE)
+NULL
+@
+<<*>>=
+<<definiere [[stem.leaf.backback]]>>
+a <- stem.leaf.backback(dat1, c(dat2,dat2,dat2) ,m=2,unit=.1,
+                        show.no.depths=TRUE,add.more.blanks=0)
+a <- stem.leaf.backback(c(dat2), 1.02*c(dat2,dat2) ,m=2,unit=.1,
+                      show.no.depths=TRUE,add.more.blanks=0)
+a <- stem.leaf.backback(c(co2[1:284]), c(co2[1:100]) ,m=1,unit=1,
+                      show.no.depths=!TRUE,add.more.blanks=2,rule.line="Sturges")
+a <- stem.leaf.backback(co2,co2 ,m=2,unit=1,
+                        show.no.depths=!TRUE,add.more.blanks=2,rule.line="Sturges")
+NULL
+@
+Beispiele aus der Hilfe:
+<<*>>=
+<<definiere [[stem.leaf.backback]]>>
+stem.leaf(co2)
+stem.leaf.backback(co2[1:120],co2[121:240])
+stem.leaf.backback(co2[1:120],co2[121:240], back.to.back = FALSE)
+stem.leaf.backback(co2[1:120],co2[121:240], back.to.back = FALSE,
+                   add.more.blanks = 3, show.no.depths = TRUE)
+stem.leaf.backback(rivers[-(1:30)],rivers[1:30], back.to.back = FALSE, unit=10, m=5, 
+                   Min=200, Max=900, add.more.blanks = 20, show.no.depths = TRUE)
+
+NULL
+
+@
+\section{Anhang}
+
+\subsection{Chunk-Liste}
+% list of code chunks -- remove next line to disable list of chunks
+@list.of.chunks
+
+\subsection{Objekt-Index}
+% object index -- remove next line to disable object index
+@index.of.objects
+\end{document}
+
+@
+Dokumentation, Namespace?, 
+offene Fragen: mehrere stem and leaf displays?
+
+\subsection{Reste}
+In der Entwicklungsphase wurden noch weitere Funktionen entworfen.
+<<Zugabe: expand.A.to.B>>=
+expand.A.to.B <- function(A,B,fill.right=TRUE,fill.bottom=TRUE){
+  # expandiert Matrix A auf die Dimensionen von Matrix B
+  if(!is.matrix(A)) A <- matrix(A,length(A),1)
+  if(!is.matrix(B)) B <- matrix(B,length(B),1)
+  if(dim(A)[2] < dim(B)[2]){
+    if(fill.right) 
+      A <- cbind(A, matrix(" ",dim(A)[1],dim(B)[2]-dim(A)[2]))
+    else
+      A <- cbind(matrix(" ",dim(A)[1],dim(B)[2]-dim(A)[2]),A)
+  } 
+  if(dim(A)[1] < dim(B)[1]){
+    if(fill.bottom)
+      A <- rbind(A, matrix(" ",dim(B)[1]-dim(A)[1],dim(A)[2]))
+    else
+      A <- rbind(matrix(" ",dim(B)[1]-dim(A)[1],dim(A)[2]),A)
+  } 
+  LZ <- paste(rep(" ",200),collapse="")
+  I <- seq(dim(B)[1]); J <- seq(dim(B)[2])
+  A[I,J] <- ifelse(nchar(A[I,J]) < nchar(B),
+                   if(fill.right) paste(A[I,J],substring(LZ,1,nchar(B)-nchar(A[I,J])),sep="") 
+                   else paste(substring(LZ,1,nchar(B)-nchar(A[I,J])),A[I,J],sep=""), A[I,J])  
+  A
+}
+append.blanks <- function(x,add.on.the.right.side=TRUE,add.blanks=0){
+  add.blanks <- max(0,add.blanks)
+  if(length(x) == 0) return(x)
+  LZ <- paste(rep(" ",mh<-max(h<-nchar(x))),collapse="")
+  LA <- paste(rep(" ",add.blanks),collapse="")
+  if(add.on.the.right.side){ 
+       x <- paste(x,substring(LZ,1,mh-h),LA,sep="")
+  } else {
+       x <- paste(LA,substring(LZ,1,mh-h),x,sep="") }
+  x
+}
+
+@
+<<Zugabe: line.to.textmat>>=
+line.to.textmat <- function(vec,width=Inf,sep=" "){
+  # UNUSED: wandelt Textzeile in Textmatrix vorgegebener Breite um
+  vec <- paste(vec,collapse=" ")
+  if(width==Inf) return(matrix(vec,1,1))
+  LZ <- paste(rep(" ",200),collapse="")
+  d <- width - nchar(vec)
+  if( 0 < d ) return(matrix(paste(vec,substring(LZ,1,d),sep=""),1,1))
+  vec.sep <- unlist(strsplit(vec,sep)); mat <- NULL; imax <- 20
+  while(0 < length(vec.sep)){ if( (imax<-imax-1) < 0 ) break
+    h <- sum( cumsum(nchar(vec.sep)+1) <= width ) # +1 fuer Trennzeichen
+    if( h==0 ) { 
+      h <- 1; cat("Warning: word '",vec.sep[1],"' too long ...",sep="") 
+      vec.sep <- c(substring(vec.sep[1],1,width),substring(vec.sep[1],1+width),vec.sep[-1])
+      h <- 1; cat("  and has been split to '",vec.sep[1],"' and '",vec.sep[2],"'",sep="") 
+    }
+    new.line <- paste(vec.sep[1:h],collapse=sep)
+    d <- width - nchar(new.line)
+    if( d < 0 ) new.line <- substring(new.line,1,width)
+    if( 0 < d ) new.line <- paste(new.line,substring(LZ,1,d),sep="")
+    mat <- c(mat, new.line); vec.sep <- vec.sep[-(1:h)]
+  }
+  return(matrix(mat,length(mat),1))
+}
+line.to.textmat(NULL)
+line.to.textmat("asd")
+line.to.textmat("asd asdf  asdf asdf asd f asdf asdf asdf a sdfasdf ",10)
+line.to.textmat("asdasdf asdfasdf",3)
+A<-matrix("aaaaaaaaaaaaaa",1,1);B<-matrix(c("asdfadf","asdfad","yxcv","adsfasdfdsf"),2,2)
+C<-expand.A.to.B(B,A)
+print(A); print(B); print(C)
+
+@
+
+<<Zugabe>>=
+# old lower
+# compose info of LO values
+lower.x.res <- lower.y.res <- NULL
+## split LO info of x in smaller parts
+if(!is.null(sl.x$lower)){
+  ul <- unlist(strsplit(sl.x$lower," ")); u.res <- NULL
+  while(0 < length(ul)){
+    h <-  max(1, sum( cumsum(nchar(ul)+1) < (n.LZ.x.depths + 4 + n.LZ.x.leaves)))
+    u.res <- c(u.res, paste(ul[1:h],collapse=" ")); ul <- ul[-(1:h)]
+  }
+  lower.x.res <- u.res[u.res!=""]
+}
+print(lower.x.res)
+lower.x.res <- line.to.textmat(sl.x$lower,n.LZ.x.depths + 4 + n.LZ.x.leaves)
+## split LO info of y in smaller parts
+if(!is.null(sl.y$lower)){
+  ul <- unlist(strsplit(sl.y$lower," ")); u.res <- NULL
+  while(0 < length(ul)){
+    h <-   max(1,sum( cumsum(nchar(ul)+1) < (n.LZ.y.depths + 4 + n.LZ.y.leaves)))
+    u.res <- c(u.res, paste(ul[1:h],collapse=" ")); ul <- ul[-(1:h)]
+  }
+  lower.y.res <- u.res[u.res!=""]
+}
+print(lower.y.res)
+lower.y.res <- line.to.textmat(sl.y$lower,n.LZ.y.depths + 4 + n.LZ.y.leaves)
+print(lower.y.res)
+## combine x and y HI values
+d <- length(lower.x.res) - length(lower.y.res)
+if(d < 0) lower.x.res <- c(lower.x.res,rep(" ",-d))
+if(0 < d) lower.y.res <- c(lower.y.res,rep(" ",d))
+n.symbols <- if(length(lower.x.res)== 0) 0 else max(nchar(lower.x.res))
+lower.x.res <- append.blanks(lower.x.res,add.blanks=n.LZ.x.depths + n.LZ.x.leaves + 4 - n.symbols)
+n.symbols <- if(length(lower.y.res)== 0) 0 else max(nchar(lower.y.res))
+lower.y.res <- append.blanks(lower.y.res,add.blanks=n.LZ.y.depths + n.LZ.y.leaves - n.symbols)
+## compose LO line
+lower.line <- paste(lower.x.res,substring(LZ,1,2+n.LZ.stem),lower.y.res)
+
+upper.x.res <- upper.y.res <- NULL
+## split HI info of x in smaller parts
+if(!is.null(sl.x$upper)){
+  ul <- unlist(strsplit(sl.x$upper," ")); u.res <- NULL
+  while(0 < length(ul)){
+    h <-  max(1, sum( cumsum(nchar(ul)+1) < (n.LZ.x.depths + 4 + n.LZ.x.leaves)))
+    u.res <- c(u.res, paste(ul[1:h],collapse=" ")); ul <- ul[-(1:h)]
+  }
+  upper.x.res <- u.res[u.res!=""]
+}
+## split HI info of y in smaller parts
+if(!is.null(sl.y$upper)){
+  ul <- unlist(strsplit(sl.y$upper," ")); u.res <- NULL
+  while(0 < length(ul)){
+    h <-   max(1,sum( cumsum(nchar(ul)+1) < (n.LZ.y.depths + 4 + n.LZ.y.leaves)))
+    u.res <- c(u.res, paste(ul[1:h],collapse=" ")); ul <- ul[-(1:h)]
+  }
+  upper.y.res <- u.res[u.res!=""]
+}
+## combine x and y HI values
+d <- length(upper.x.res) - length(upper.y.res)
+if(d < 0) upper.x.res <- c(upper.x.res,rep(" ",-d))
+if(0 < d) upper.y.res <- c(upper.y.res,rep(" ",d))
+n.symbols <- if(length(upper.x.res)== 0) 0 else max(nchar(upper.x.res))
+upper.x.res <- append.blanks(upper.x.res,add.blanks=n.LZ.x.depths + n.LZ.x.leaves + 4 - n.symbols)
+n.symbols <- if(length(upper.y.res)== 0) 0 else max(nchar(upper.y.res))
+upper.y.res <- append.blanks(upper.y.res,add.blanks=n.LZ.y.depths + n.LZ.y.leaves - n.symbols)
+
+# compose line        sep=c(0,n.LZ.x.depths+n.LZ.x.leaves-nchar(as.character(n.na.x)),
+#                            4+n.LZ.stem,0))$result
+# name.line             sep=c(n.LZ.x.depths + n.LZ.x.leaves+4-nchar(x.name),n.LZ.stem+4,0))$result
+# n.line              sep=c(0,n.LZ.x.depths+n.LZ.x.leaves-nchar(as.character(length(x))),
+#                             4+n.LZ.stem,0))$result
+# upper.x.res <- line.to.textvec(sl.x$upper, n.LZ.x.depths + 4 + n.LZ.x.leaves)
+# upper.y.res <- line.to.textvec(sl.y$upper, n.LZ.y.depths + 4 + n.LZ.y.leaves)
+#lower.x.res <- line.to.textvec(sl.x$lower, n.LZ.x.depths + 4 + n.LZ.x.leaves)
+## split LO info of y in smaller parts
+#lower.y.res <- line.to.textvec(sl.y$lower, n.LZ.y.depths + 4 + n.LZ.y.leaves)
+
+@
+<<Zugabe>>=
+set.seed(13)
+x <- runif(100,-300,300)
+stem.leaf(x,reverse.negative.leaves=!TRUE)
+
+@
+\section{Erste back.to.back-Versuche}
+
+back to back stem-and-leaf plots
+<<Zugabe>>=
+library(aplpack,lib.loc="/home/wiwi/pwolf/R/aplpack/lib")
+# library(aplpack)
+x <- stem.leaf(co2[1:100],reverse.negative.leaves=FALSE)
+y <- sub(".*[|]","",x$stem)
+maxchar <- max(n.c <- nchar(y))
+y <- sapply(y, function(x) {
+  n <- nchar(x); x <- substring(x,n:1,n:1)
+  x <- c(rep(" ",maxchar-n),x)
+  x <- paste(x,collapse="")
+})
+c(paste(y,sub(" *[)(0-9]+ *"," ",x$stem),sep="|"))
+# c(paste(y,x$stem,sep="|"))
+# st.neg <- 1-seq(x$stem)  %in%  grep("-",x$stem) 
+cbind(a<-stem.leaf(co2[1:100],reverse.negative.leaves=FALSE)$stem)
+
+@
+
+<<Zugabe>>=
+a <-stem.leaf(co2[1:100]+5, unit=.1)$stem; print(a);# print(9999999)
+b <-stem.leaf(co2[1:100], unit=.1)$stem; print(b); print(9999999)
+x.leaves <- sub(".*[|] ","",a)
+x.stem <- sub(".* ([^ ]+) [|].*","\\1",a)
+y.leaves <- sub(".*[|] ","",b)
+y.stem <- sub(".* ([^ ]+) [|].*","\\1",b)
+x.digits <- grep("[0-9]",x.stem,value=TRUE)
+y.digits <- grep("[0-9]",y.stem,value=TRUE)
+h <- match(y.digits, x.digits); h <- h[!is.na(h)][1]
+x.pos <- which(x.stem==x.digits[h])
+y.pos <- which(y.stem==x.digits[h])
+LZ <- rep(" ",d <- abs(y.pos - x.pos))
+if(x.pos < y.pos) { # x vorn verlängern 
+  x.stem <- c(y.stem[1:d],x.stem)
+  x.leaves <- c(LZ,x.leaves)
+}
+if(y.pos < x.pos) { # y vorn verlängern 
+  y.stem <- c(x.stem[1:d],y.stem)
+  y.leaves <- c(LZ,y.leaves)
+}
+
+x.l <- length(x.stem)
+y.l <- length(y.stem)
+LZ <- rep(" ",d <- abs(y.l-x.l))
+if(x.l < y.l) { # x hinten verlängern 
+  x.stem <- c(x.stem,y.stem[-(1:x.l)])
+  x.leaves <- c(x.leaves,LZ)
+}
+if(y.l < x.l) { # y hinten verlängern 
+  y.stem <- c(y.stem,x.stem[-(1:y.l)])
+  y.leaves <- c(y.leaves,LZ)
+}
+append.blanks <- function(x,add.on.the.right.side=TRUE){
+  LZ <- paste(rep(" ",mh<-max(h<-nchar(x))),collapse="")
+  if(add.on.the.right.side){
+    x <- paste(x,substring(LZ,1,mh-h),sep="")
+  } else {
+    x <- paste(substring(LZ,1,mh-h),x,sep="")
+  }
+  x
+}
+rotate.string <- function(x){
+  x <- sapply(x,function(y) { h <- nchar(y); paste(substring(y,h:1,h:1),collapse="") })
+}
+#x.leaves <- paste(x.leaves,substring(LZ,1,mh-h))
+#x.leaves <- sapply(x.leaves,function(x) paste((substring(x,mh:1,mh:1)),collapse=""))
+x.leaves <- append.blanks(x.leaves)
+x.leaves <- rotate.string(x.leaves)
+names(x.leaves) <- NULL
+x.leaves
+cbind(x.leaves,x.stem,y.stem,y.leaves)
+#apropos("rev")
+#cbind(x.stem)
+# alte Version von vecpaste
+vecpaste <- function(...,sep=" "){  
+  # vecpaste pastet Vektoren zusammen
+  xyz <- list(...); n <- length(xyz)
+  if(length(sep)==1) sep <- rep(sep,n+1)
+  if(is.numeric(sep)){
+    LZ <- paste(rep(" ",max(sep)),collapse="")
+    sep <- substring(LZ,1,sep)
+  }
+  result <- ""; widths <- NULL
+  for(i in 1:n){
+    h <- as.character(xyz[[i]]); h <- expand.text(h)
+    result <- paste(result,h,sep=sep[i])
+    widths <- c(widths, nchar(sep[i]), nchar(h[1]))
+  }
+  widths <- c(widths,nchar(sep[n+1]))
+  result <- paste(result,"",sep=sep[n+1])
+  return(list(result=result,widths=widths))
+}
