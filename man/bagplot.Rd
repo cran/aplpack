@@ -4,9 +4,8 @@
 \alias{plot.bagplot}
 \title{ bagplot, a bivariate boxplot }
 \description{
-  \code{compute.bagplot()} computes an object
-  describing a bagplot of a bivariate data set. 
-  \code{plot.bagplot()} plots a bagplot object. 
+  \code{compute.bagplot()} computes an object describing a bagplot 
+   of a bivariate data set. \code{plot.bagplot()} plots a bagplot object. 
   \code{bagplot()} computes and plots a bagplot.
 }
 \usage{
@@ -37,7 +36,7 @@ compute.bagplot(x, y, factor = 3, na.rm = FALSE, approx.limit = 300,
      computed by \code{compute.bagplot} }
   \item{y}{ y values of the data set } 
   \item{factor}{ factor defining the loop }
-  \item{na.rm}{ if TRUE 'NA' values are removed otherwise exchanged by mean}
+  \item{na.rm}{ if TRUE 'NA' values are removed otherwise exchanged by median}
   \item{approx.limit}{ if the number of data points exceeds 
           \code{approx.limit} a sample is used to compute 
           some of the quantities; default: 300 }
@@ -52,10 +51,9 @@ compute.bagplot(x, y, factor = 3, na.rm = FALSE, approx.limit = 300,
   \item{pch}{ sets the plotting character }
   \item{cex}{ sets characters size}
   \item{dkmethod}{ 1 or 2, there are two method of  
-     approximating the bag, method 1 is very rough }
+     approximating the bag, method 1 is very rough (only based on observations }
   \item{precision}{ precision of approximation, default: 1 }
-  \item{verbose}{ automatic commenting of calculations 
- }
+  \item{verbose}{ automatic commenting of calculations }
   \item{debug.plots}{ if TRUE additional plots describing 
                       intermediate results are constructed }
   \item{col.loophull}{ color of loop hull }
@@ -98,14 +96,33 @@ to specify different colors has been proposed by Wouter Meuleman.
   \code{compute.bagplot} returns an object of class
   \code{bagplot} that could be plotted by 
   \code{plot.bagplot()}.
-}
+  An object of the bagplot class is a list with the following 
+  elements: \code{center} is a two dimensional vector with 
+  the coordinates of the center. \code{hull.center} is a 
+  two column matrix, the rows are the coordinates of the
+  corners of the center region. \code{hull.bag} and 
+  \code{hull.loop} contain the coordinates of the hull of the bag
+  and the hull of the loop. \code{pxy.bag} shows you the 
+  coordinates of the points of the bag. \code{pxy.outer} is 
+  the two column matrix of the points that are within the 
+  fence. \code{pxy.outlier} represent the outliers. The vector
+  \code{hdepths} shows the depths of data points. \code{is.one.dim}
+  is \code{TRUE} if the data set is (nearly) one dimensional. 
+  The dimensionality is decided by analysing the result of \code{prcomp}
+  which is stored in the element \code{prdata}. \code{xy} shows you 
+  the data that are used for the bagplot. In the case of very large
+  data sets subsets of the data are used for constructing the 
+  bagplot. A data set is very large if there are more data points
+  than \code{approx.limit}. \code{xydata} are the input data structured 
+  in a two column matrix.
+} 
 \references{ P. J. Rousseeuw, I. Ruts, J. W. Tukey (1999):
     The bagplot: a bivariate boxplot, The American
     Statistician, vol. 53, no. 4, 382--387 }
 \author{ Peter Wolf }
 \note{
-  Version of bagplot: 08/2007 }
-\seealso{ \code{\link[graphics]{boxplot}} }
+  Version of bagplot: 10/2012 }
+ \seealso{ \code{\link[graphics]{boxplot}} }
 \examples{
   # example: 100 random points and one outlier
   dat<-cbind(rnorm(100)+100,rnorm(100)+300)
@@ -138,3 +155,4 @@ to specify different colors has been proposed by Wouter Meuleman.
   bagplot(x=1:100,y=1:100)
 }
 \keyword{ misc }
+\keyword{ hplot }

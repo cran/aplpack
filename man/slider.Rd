@@ -15,7 +15,8 @@ slider(sl.functions, sl.names, sl.mins, sl.maxs, sl.deltas, sl.defaults, but.fun
 
 gslider(sl.functions, sl.names, sl.mins, sl.maxs, sl.deltas, sl.defaults, but.functions,
   but.names, no, set.no.value, obj.name, obj.value, reset.function, title, prompt=FALSE,
-  sliders.frame.vertical=TRUE, hscale=1, vscale=1)
+  sliders.frame.vertical=TRUE, hscale=1, vscale=1,
+  pos.of.panel = c("bottom","top","left","right")[1])
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -43,6 +44,8 @@ gslider(sl.functions, sl.names, sl.mins, sl.maxs, sl.deltas, sl.defaults, but.fu
                  otherwise they are positioned side by side }
   \item{hscale}{horizontal scale factor for image size; compare tkrplot in package tkrplot}
   \item{vscale}{vertical scale factor for image size; compare tkrplot in package tkrplot}  
+  \item{pos.of.panel}{position of the panel field for sliders and buttons. 
+                      Value of \code{pos.of.panel}: bottom, top, left or right.}
 }
 \details{
   \code{slider} constructs a separated panel for controlling the parameters whereas 

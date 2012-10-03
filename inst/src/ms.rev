@@ -1,6 +1,6 @@
 % New Report: Mon Feb 27 18:01:51 2012 
 % steps to create a new relax-version: 
-% a) Datum/Version anpassen: Version--2012-03-12 
+% a) Datum/Version anpassen: Version--2012-03-14 
 % b) "Nr" UND "DATUM" in Datei DESCRIPTION anpassen
 % d) $HOME/R/aplpack/doaplpackl   starten
 % e) upload to cran:
@@ -9,7 +9,7 @@
 %          ftp://CRAN.R-project.org/incoming/ 
 %    2b. upload by ftp
 %          ftp ftp://cran.R-project.org/incoming/
-%          ftp> put aplpack_1.2.6.tar.gz
+%          ftp> put aplpack_1.2.7.tar.gz
 %          ftp> bye   
 % ==========================================================
 % Paketverteilung fuer Rechner: 138/20/21/102: 

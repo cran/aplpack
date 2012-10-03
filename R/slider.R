@@ -90,8 +90,9 @@ gslider<-
 function (sl.functions, sl.names, sl.mins, sl.maxs, sl.deltas, 
     sl.defaults, but.functions, but.names, no, set.no.value, 
     obj.name, obj.value, reset.function, title, prompt=FALSE,
-    sliders.frame.vertical=TRUE, hscale=1, vscale=1) 
-{ # pwolf 100915
+    sliders.frame.vertical=TRUE, hscale=1, vscale=1,
+    pos.of.panel = c("bottom","top","left","right")[1]) 
+{ # pwolf 100915 / 121206
   require(tkrplot)
   slider.env<-"1"; rm("slider.env")
   if (!exists("slider.env")) slider<-slider.env<<-new.env(parent=.GlobalEnv)
@@ -121,13 +122,20 @@ function (sl.functions, sl.names, sl.mins, sl.maxs, sl.deltas,
   assign("tktop.slider",nt,envir=slider.env)
 
   "relax"  
-  # gslider start:
+  nt.bak <- nt
+  sl.frame <- tkframe(nt); gr.frame <- tkframe(nt)
+  if( !any(pos.of.panel == c("bottom","top","left","right"))) pos.of.panel <- "bottom"
+  tkpack(sl.frame,gr.frame,side=pos.of.panel)
+  # gslider start:  
   newpl<-function(...){ plot(0:2,0:2,type="n",xlab="",ylab=""); text(1,1,"dummy plot") }
-  img <- tkrplot(nt, newpl, vscale=vscale, hscale=hscale ); tkpack(img,side="top") 
+  img <- tkrplot::tkrplot(gr.frame, newpl, vscale=vscale, hscale=hscale ); tkpack(img,side="top") 
   assign("img",img,envir=slider.env)
+
+
+
   # :gslider end
   ## sliders.frame.vertical ##vertical
-  tkpack(f.slider<-tkframe(nt)) ##vertical
+  tkpack(f.slider<-tkframe(sl.frame)) ##vertical
   for (i in seq(along=sl.names)) {
      "relax"
      eval(parse(text=paste("assign('slider", i, 
@@ -138,12 +146,17 @@ function (sl.functions, sl.names, sl.mins, sl.maxs, sl.deltas,
   parent.env<-sys.frame(sys.nframe()-1)
   # :gslider end
   for (i in seq(along=sl.names)) {
-     tkpack(fr <- tkframe(f.slider), 
-            side = if (sliders.frame.vertical) "top" else "right") ##vertical
+     tkpack(fr <- tkframe(f.slider), # 
+            side = if( pos.of.panel %in% c("left","right")) "top" else {
+                     if (sliders.frame.vertical) "top" else "right" ##vertical
+                   })
      lab <- tklabel(fr, text = sl.names[i], width = "25")
      sc <- tkscale(fr, from = sl.mins[i], to = sl.maxs[i], 
                    showvalue = TRUE, resolution = sl.deltas[i], orient = "horiz")
-     tkpack(lab, sc, side=if(sliders.frame.vertical) "right" else "top") ##vertical
+     tkpack(lab, sc, 
+            side=  if( pos.of.panel %in% c("left","right")) "top" else {
+                     if(sliders.frame.vertical) "right" else "top" ##vertical
+                   })
      assign("sc", sc, envir = slider.env)
      eval(parse(text=paste("tkconfigure(sc,variable=slider", 
                            i, ")", sep = "")), envir = slider.env)
@@ -163,8 +176,11 @@ function (sl.functions, sl.names, sl.mins, sl.maxs, sl.deltas,
   if(exists("tkrrsl.fun1")) get("tkrrsl.fun1")() ## gslider only
   # :gslider end
 
+
+
+
   assign("slider.values.old", sl.defaults, envir = slider.env)
-  tkpack(f.but <- tkframe(nt), fill = "x")
+  tkpack(f.but <- tkframe(sl.frame), fill = "x")
   tkpack(tkbutton(f.but, text = "Exit", 
          command = function() tkdestroy(nt)), side = "right")
   if(!missing(reset.function)){
@@ -200,6 +216,7 @@ function (sl.functions, sl.names, sl.mins, sl.maxs, sl.deltas,
   }
   if(exists("tkrr.fun1")) get("tkrr.fun1")() ## gslider only
   # :gslider end
+
 
   invisible(img)
 }
