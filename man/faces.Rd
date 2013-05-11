@@ -73,8 +73,8 @@ Explanation of parameters:
 
 For painting elements of a face the colors of are found by 
 averaging of sets of variables: 
-(7,8)-eyes, (12,13)-iris, (1,2,3)-lips, 
-(14,15)-ears, (9)-nose, (10)-hair, (11)-face.
+(7,8)-eyes:iris, (1,2,3)-lips, 
+(14,15)-ears, (12,13)-nose, (9,10,11)-hair, (1,2)-face.
 
 Further details can be found in the literate program of \code{faces}.
 }
@@ -123,7 +123,4 @@ plot(a,x.pos=1:4,y.pos=1:4,1.5,0.7)
 faces(face.type=2)
 }
 \keyword{misc}
-
-
-
 

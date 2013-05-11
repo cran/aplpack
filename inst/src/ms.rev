@@ -1,3 +1,5 @@
+% New Report: Wed Oct 30 11:12:07 2013 
+
 % New Report: Mon Feb 27 18:01:51 2012 
 % steps to create a new relax-version: 
 % a) Datum/Version anpassen: Version--2012-03-14 
@@ -32,7 +34,7 @@
 %  --- title page ===================================================
    \title{Stem-and-Leaf-Displays --- selbstgemacht}                        
    \author{File: \jobname.rev\\in: /home/wiwi/pwolf/R/aplpack\\H. P. Wolf}                 
-   \date{Version: 2012-3-12, compiled: \today, file: ms.rev}
+   \date{Version: 2013-10-30, compiled: \today, file: ms.rev}
 %  --- sizes of non text elements ===================================
 \renewcommand{\textchunkcommands}{\normalsize}
 \renewcommand{\codechunkcommands}{\small}
@@ -60,6 +62,7 @@
 \renewcommand{\Routputcommands}{\footnotesize}
 \maketitle
 % 20111214: exchange of some lines so that argument "reverse.negative.leaves" works
+% 20131030: error mailed by John Fox corrected in stem.leaf.backback
 @
 \section{Einleitung}
 In diesem Papier wird eine eigene Umsetzung eines
@@ -69,21 +72,21 @@ Stem-and-Leaf-Displays gewagt.%
  Seite 15: It is easy to construct a Stem-and-Leaf-Display by hand...
  It is not nearly as easy to write a general computer program to
  produce Stem-and-Leaf-Displays.}}
-In der Tat enthielt der Weg der Programmierung einige Hürden,
-die inzwischen hoffentlich zum größten Teil übersprungen sind.
-Besondere Herausforderung sollte dabei in einem verständlichen Code
+In der Tat enthielt der Weg der Programmierung einige HÃ¼rden,
+die inzwischen hoffentlich zum grÃ¶ÃŸten Teil Ã¼bersprungen sind.
+Besondere Herausforderung sollte dabei in einem verstÃ¤ndlichen Code
 sowie einer Auf\-listung von Tests zur Sicherstellung der
-gewünschten Funktionalität liegen.
+gewÃ¼nschten FunktionalitÃ¤t liegen.
 
 @
 \section{Die Funktionsdefinition}
-\subsection{Überblick}
+\subsection{Ãœberblick}
 Der vorgestellte Vorschlag lehnt sich eng an
 {\em UREDA\/} (Hoaglin, Mosteller, Tukey, 1983:
 Understanding Robust and Exploratory Data Analysis) an.
 Haupteinsatzzweck wird in der Verwendung ohne weitere Parameter gesehen,
-jedoch sollten bei Unzufriedenheiten oder Sonderwünschen durch
-gezielte Setzungen Varianten erstellt werden können.
+jedoch sollten bei Unzufriedenheiten oder SonderwÃ¼nschen durch
+gezielte Setzungen Varianten erstellt werden kÃ¶nnen.
 Hierzu stehen folgende Argumente bereit:
 <<definiere Kurzkommentar>>=
 ##################################################################
@@ -118,9 +121,9 @@ Hierzu stehen folgende Argumente bereit:
 
 @
 Das schwierigste Problem ist die Erstellung einer geeeigneten Skala.
-Ist die Skala gefunden, können die Daten als Blätter bzw.\
+Ist die Skala gefunden, kÃ¶nnen die Daten als BlÃ¤tter bzw.\
 Extremwerte identifiziert und im Plot angebracht werden.
-Zum Schluß ist das Ergebnis geeignet auszugeben.
+Zum SchluÃŸ ist das Ergebnis geeignet auszugeben.
 Am 29.3.2006 wurde ein Rundungsproblem behoben.
 @
 <<start>>=
@@ -141,41 +144,41 @@ stem.leaf <- function(data, unit, m, Min, Max,
                     return("Warning: no data set found by stem.leaf")
   }                  
   <<checke Input>>
-  <<setze ggf.\ [[verb]] gemäß Debugging-Wunsch>>
+  <<setze ggf.\ [[verb]] gemÃ¤ÃŸ Debugging-Wunsch>>
   <<definiere Kurzkommentar>>
-  <<generiere die Skala für den Plot>>
+  <<generiere die Skala fÃ¼r den Plot>>
   <<erstelle Stem-and-Leaf-Display>>
   <<stelle Ergebnis zusammen>>
 }
 
 @
 \subsection{Skala}
-Für die Skala wird zunächst gemäß der festgelegten Regel
-eine grobe Zeilenzahl für den Plot bestimmt.
-Dann wird der Bereich, den die Skala abdecken muß,
+FÃ¼r die Skala wird zunÃ¤chst gemÃ¤ÃŸ der festgelegten Regel
+eine grobe Zeilenzahl fÃ¼r den Plot bestimmt.
+Dann wird der Bereich, den die Skala abdecken muÃŸ,
 grob mittels [[boxplot]] festgestellt, sofern keine Skalengrenzen
 beim Funktionsaufruf angegeben worden sind.
-Mit Hilfe des Skalenbereiches und der Zeilenzahl läßt sich
-die anzustrebende Größe des Bereiches ermitteln,
+Mit Hilfe des Skalenbereiches und der Zeilenzahl lÃ¤ÃŸt sich
+die anzustrebende GrÃ¶ÃŸe des Bereiches ermitteln,
 den es mit einer Zeile abzudecken gilt.
-Diese Größe gilt es mittels passendem Stamm und passender Maserung
+Diese GrÃ¶ÃŸe gilt es mittels passendem Stamm und passender Maserung
 umzusetzen. Da im Folgenden die Position des Dezimalpunktes
-für das Stem-and-Leaf-Display keine Rolle mehr spielen,
-können alle relevanten Variablen transformiert / normiert werden.
-Mit den groben Berechnungen und den verarbeiteten Sonderwünschen
-kann dann die endgültige Skala erstellt werden.
-<<generiere die Skala für den Plot>>=
-<<stelle gemäß [[rule.line]] maximale Zeilenanzahl fest>>
+fÃ¼r das Stem-and-Leaf-Display keine Rolle mehr spielen,
+kÃ¶nnen alle relevanten Variablen transformiert / normiert werden.
+Mit den groben Berechnungen und den verarbeiteten SonderwÃ¼nschen
+kann dann die endgÃ¼ltige Skala erstellt werden.
+<<generiere die Skala fÃ¼r den Plot>>=
+<<stelle gemÃ¤ÃŸ [[rule.line]] maximale Zeilenanzahl fest>>
 <<ermittle mittels [[boxplot]] groben Skalenbereich>>
-<<bestimme Intervall\-länge und ggf.\ Faktor [[factor]]>>
+<<bestimme Intervall\-lÃ¤nge und ggf.\ Faktor [[factor]]>>
 <<berechne aus [[zeilen.intervall.laenge]] und [[factor]] Tickabstand>>
 <<bestimme ggf.\ Maserung [[m]]>>
 <<transformiere Daten>>
 <<bestimme Skalenbereich>>
 
 @
-Zunächst gilt es den Input zu checken.
-080711: Zeile mit NA-Zählung [[n.na]] eingebaut.
+ZunÃ¤chst gilt es den Input zu checken.
+080711: Zeile mit NA-ZÃ¤hlung [[n.na]] eingebaut.
 <<checke Input>>=
 rule.line <- match.arg(rule.line)
 style <- match.arg(style)
@@ -193,18 +196,18 @@ if(0<n.na){
 
 @
 \paragraph{Zeilenanzahl}
-Nach UREDA sind drei Regeln für die Anzahl der Zeilen einsetzbar,
+Nach UREDA sind drei Regeln fÃ¼r die Anzahl der Zeilen einsetzbar,
 die auch zur Definition der Klassenanzahl von Histogrammen herangezogen werden.
-Die erste, die auf Dixon zurückgeht,
-gilt als bewährt, die
+Die erste, die auf Dixon zurÃ¼ckgeht,
+gilt als bewÃ¤hrt, die
 zweite (von Velleman)
-empfiehlt sich besonders bei kleineren Stichprobenumfängen,
-die dritte (Sturges) findet weniger Unterstützung.
+empfiehlt sich besonders bei kleineren StichprobenumfÃ¤ngen,
+die dritte (Sturges) findet weniger UnterstÃ¼tzung.
 
-Zunächst berechnen wir nach der gewählten Regel die Zeilenanzahl des Plots.
-Dazu wird der Stichprobenumfang auf [[n]] abgelegt und zusätzlich werden
+ZunÃ¤chst berechnen wir nach der gewÃ¤hlten Regel die Zeilenanzahl des Plots.
+Dazu wird der Stichprobenumfang auf [[n]] abgelegt und zusÃ¤tzlich werden
 die Daten sortiert.
-<<stelle gemäß [[rule.line]] maximale Zeilenanzahl fest>>=
+<<stelle gemÃ¤ÃŸ [[rule.line]] maximale Zeilenanzahl fest>>=
 n <- length(data <- sort(data))
 row.max <- floor(  c(Dixon   =10*log(n,10),
                      Velleman=2*sqrt(n),
@@ -213,12 +216,12 @@ row.max <- floor(  c(Dixon   =10*log(n,10),
 @
 \paragraph{Skalenbereich}
 In der Regel werden beim Aufruf
-keine Grenzen für den Bereich der Skala angegeben werden.
-Das Maximum und das Minimum können untauglich sein, da eventuelle
-Ausreißer zu üblen Effekten führen können. Deshalb wird,
+keine Grenzen fÃ¼r den Bereich der Skala angegeben werden.
+Das Maximum und das Minimum kÃ¶nnen untauglich sein, da eventuelle
+AusreiÃŸer zu Ã¼blen Effekten fÃ¼hren kÃ¶nnen. Deshalb wird,
 falls [[Min]] oder [[Max]] nicht festgelegt sind, diese mittels
 [[boxplot]] ermittelt.
-Die Spannweite der nicht-Ausreißer wird auf
+Die Spannweite der nicht-AusreiÃŸer wird auf
 [[spannweite.red]] abgelegt.
 <<ermittle mittels [[boxplot]] groben Skalenbereich>>=
 stats <- boxplot(data,plot=FALSE)
@@ -228,27 +231,27 @@ spannweite.red<-Max - Min
 
 @
 \paragraph{Normierungsfaktor}
-Zur Darstellung muß eine geeignete Normierung der Daten erfolgen.
+Zur Darstellung muÃŸ eine geeignete Normierung der Daten erfolgen.
 Hierzu wird intern ein Skalierungsfaktor [[factor]] ermittelt.
 Der Faktor zeigt an, mit welcher 10-er Potenz der Stamm multipliziert
-werden muß, damit er den Bereich der Input-Daten abdeckt.
+werden muÃŸ, damit er den Bereich der Input-Daten abdeckt.
 Das Maximum der Daten reicht nicht zu seiner Bestimmung aus,
-da Inputs aus [1,989] zu einem anderen Stamm als aus [980,989] führen.
+da Inputs aus [1,989] zu einem anderen Stamm als aus [980,989] fÃ¼hren.
 Besser ist die Spannweite als Ausgangspunkt.
 Diese erbringt im ersten Fall 998 und im zweiten 9.
-Im ersten Fall könnte sich
+Im ersten Fall kÃ¶nnte sich
 ein Faktor von 100 ergeben und die Zeilenstruktur [[0 | xyz]] bis [[10 | xyz]],
 im zweiten ein Faktor von 1 bei Zeilen der Form:
 [[980 | xyz]] bis [[990 | xyz]].
 Weiter betrachten wir Daten aus einem Intervall [980,982]: Wenn wenige Daten
-vorliegen, werden sich die Stämme [[980, 981, 982]] ergeben. Steigt die Anzahl
+vorliegen, werden sich die StÃ¤mme [[980, 981, 982]] ergeben. Steigt die Anzahl
 Daten an, steigt durch eine feinere Maserung die Zeilenanzahl.
-Bei 1000 Werten werden nach der ersten Regel ca.\ 30 Klassen benötigt,
-was zu einer Faktorveränderung führen muß: [[9800, 9801, ..., 9802]] mit
-Faktor 1/10. Nach Regel 2 benötigen wir dann 63 Klassen, nach der dritten 10.
+Bei 1000 Werten werden nach der ersten Regel ca.\ 30 Klassen benÃ¶tigt,
+was zu einer FaktorverÃ¤nderung fÃ¼hren muÃŸ: [[9800, 9801, ..., 9802]] mit
+Faktor 1/10. Nach Regel 2 benÃ¶tigen wir dann 63 Klassen, nach der dritten 10.
 Im Fall von 5 Werten liefern die Regeln 6, 4 und 3.
-Hier ist eine Übersicht:
-<<zeige Beziehung Werteanzahl Zeilenanzahl gemäß Regel>>=
+Hier ist eine Ãœbersicht:
+<<zeige Beziehung Werteanzahl Zeilenanzahl gemÃ¤ÃŸ Regel>>=
 anz <- rbind(dixon=floor(10*log(n,10)),
              velleman=floor(2*sqrt(n)),
              sturges=floor(1+log(n,2)))
@@ -262,25 +265,25 @@ dixon      3   6   9   12   15   18    21    24    27     30     33
 velleman   2   4   5    8   11   16    22    32    45     64     90
 sturges    2   3   4    5    6    7     8     9    10     11     12
 \end{verbatim}
-Wir erkennen, daß gemäß der ersten und der dritten
-Regel der Unterschied der Zeilenanzahlen eine Zehnerpotenz umfaßt,
+Wir erkennen, daÃŸ gemÃ¤ÃŸ der ersten und der dritten
+Regel der Unterschied der Zeilenanzahlen eine Zehnerpotenz umfaÃŸt,
 nach der zweiten differiert die Klassenanzahl um 2 Zehnerpotenzen.
 
 Wir wollen ausgehend von der Regel die
-Länge des Intervalls bestimmen, das zu einer Zeile gehört.
-Dann versuchen wir dieser Länge durch Kombination von Faktor und Maserung
-möglichst nahe zu kommen.
-Ausreißer dürfen dabei natürlich nicht berücksichtigt werden.
+LÃ¤nge des Intervalls bestimmen, das zu einer Zeile gehÃ¶rt.
+Dann versuchen wir dieser LÃ¤nge durch Kombination von Faktor und Maserung
+mÃ¶glichst nahe zu kommen.
+AusreiÃŸer dÃ¼rfen dabei natÃ¼rlich nicht berÃ¼cksichtigt werden.
 
 @
-Eine grobe Länge für das Zeilenintervall erhalten wir durch
-Division der gesammten Länge durch die anzustrebende Zeilenanzahl.
+Eine grobe LÃ¤nge fÃ¼r das Zeilenintervall erhalten wir durch
+Division der gesammten LÃ¤nge durch die anzustrebende Zeilenanzahl.
 Wenn eine Einheit angegeben worden ist, ergibt sich
 der Normierungsfaktor mittels [[unit*10]] sowie zur Erzielung einer
-10-er Potenz durch einen Rundungsprozeß.
+10-er Potenz durch einen RundungsprozeÃŸ.
 Ist keine Einheit angegeben, ergibt sich diese aus der zur
-Zeilenintervall\-länge nächst größeren Zehnerpotenz.
-<<bestimme Intervall\-länge und ggf.\ Faktor [[factor]]>>=
+Zeilenintervall\-lÃ¤nge nÃ¤chst grÃ¶ÃŸeren Zehnerpotenz.
+<<bestimme Intervall\-lÃ¤nge und ggf.\ Faktor [[factor]]>>=
 zeilen.intervall.laenge <- spannweite.red / row.max
 if(missing(unit)){
        factor <- 10^ceiling(log(zeilen.intervall.laenge,10))
@@ -288,15 +291,15 @@ if(missing(unit)){
 debug.show("factor")
 
 @
-\paragraph{Zeilenintervall\-länge}
-Nun werden aufgrund der ermittelten Intervall\-länge (im Zweifelsfall
+\paragraph{Zeilenintervall\-lÃ¤nge}
+Nun werden aufgrund der ermittelten Intervall\-lÃ¤nge (im Zweifelsfall
 eher etwas groessere) Intervalle (und dadurch weniger Klassen) definiert:
-[[delta.tick]]. [[z]] zeigt schon eine normierte Länge an, die mit
-Länge der Größe [[0,.1,.2,.5]] verglichen werden.
-Der Vergleich mit 0 dient nur der Absicherung gegenüber
-pathologische Fällen.
-Als Resultat wird eine normierte Zeilenintervall\-länge aus
-[[.2,.5,1]] ausgewählt.
+[[delta.tick]]. [[z]] zeigt schon eine normierte LÃ¤nge an, die mit
+LÃ¤nge der GrÃ¶ÃŸe [[0,.1,.2,.5]] verglichen werden.
+Der Vergleich mit 0 dient nur der Absicherung gegenÃ¼ber
+pathologische FÃ¤llen.
+Als Resultat wird eine normierte Zeilenintervall\-lÃ¤nge aus
+[[.2,.5,1]] ausgewÃ¤hlt.
 <<berechne aus [[zeilen.intervall.laenge]] und [[factor]] Tickabstand>>=
 z <- zeilen.intervall.laenge/factor  # z in (0.1 ,1]
 delta.tick <- c(.2,.2,.5,1)[sum(z>c(0,.1,.2,.5))]
@@ -305,12 +308,12 @@ delta.tick <- c(.2,.2,.5,1)[sum(z>c(0,.1,.2,.5))]
 \paragraph{Maserung}
 Nach der hier implementierten Auf\-fassung gibt es
 nur Maserungen aus der Menge: $\{1,2,5\}$.
-Die Maserung [[m]] ist der Kehrwert des normierten Tickabstands, so daß
-Tickabstand .2 zur Maserung 5 führt,
-in einer Zeile können dann 2 verschiedene Ziffern auftauchen.
-Wird jedoch die Maserung über das Input-Argument [[m]] festgelegt,
-muß [[delta.tick]] angepaßt werden. Hierdurch lassen sich
-übrigens auch Maserungen wie [[m=10]] erzwingen.
+Die Maserung [[m]] ist der Kehrwert des normierten Tickabstands, so daÃŸ
+Tickabstand .2 zur Maserung 5 fÃ¼hrt,
+in einer Zeile kÃ¶nnen dann 2 verschiedene Ziffern auftauchen.
+Wird jedoch die Maserung Ã¼ber das Input-Argument [[m]] festgelegt,
+muÃŸ [[delta.tick]] angepaÃŸt werden. Hierdurch lassen sich
+Ã¼brigens auch Maserungen wie [[m=10]] erzwingen.
 <<bestimme ggf.\ Maserung [[m]]>>=
 if(missing(m)) m <- round(1/delta.tick) else delta.tick <- 1/m
 debug.show("delta.tick"); debug.show("m")
@@ -339,22 +342,22 @@ Min-Eintrag & Max-Eintrag & Wertebereich    & Spannweite\\\\
 \end{tabular}
 \end{center}
 
-Zur Ermittlung des Skalenbereiches runden wir zunächst die
+Zur Ermittlung des Skalenbereiches runden wir zunÃ¤chst die
 transformierten Extremwerte ab bzw.\ auf: Der erste Skaleneintrag
 ist wie der letzte eine ganze Zahl. Die Produktion einer Skala
-ist mit [[seq]] kein Problem. Jedoch müssen wir für die gewünschte
+ist mit [[seq]] kein Problem. Jedoch mÃ¼ssen wir fÃ¼r die gewÃ¼nschte
 Interpretation eventuell noch zwei Modifikationen vornehmen. Denn
 im positiven bezeichnet ein Stamm-Skalenwert die Untergrenze
 der Werte, die in der Zeile eingetragen werden sollen.
 Im negativen wechselt die Skala die Bezeichnung:
 [[ -2, -1, 0, 1, 2, ...]] wird zu [[ -1, -0, 0, 1, 2, ...]].
-Um bei einem gewünschten [[Min==-2]] dieses noch unterzubringen,
-müssen wir eine entsprechende Zeile ergänzen, die später
+Um bei einem gewÃ¼nschten [[Min==-2]] dieses noch unterzubringen,
+mÃ¼ssen wir eine entsprechende Zeile ergÃ¤nzen, die spÃ¤ter
 bei [[m=1]] Werte von [[-2.9999]] bis [[-2.0]] aufnehmen kann.
-Entsprechend kann es vorkommen, daß als Maximum [[-2]] geplant ist.
+Entsprechend kann es vorkommen, daÃŸ als Maximum [[-2]] geplant ist.
 Dann wird ohne Korrektur, wie am kleinen Beispiel zu sehen ist,
 aus der Obergrenze [[sk.max]] von [[seq]] der Eintrag [[-1]] werden,
-der jedoch überflüssig ist.
+der jedoch Ã¼berflÃ¼ssig ist.
 <<bestimme Skalenbereich>>=
 spannweite.red <- Max.tr - Min.tr
 sk.min <- floor(Min.tr)
@@ -368,36 +371,36 @@ debug.show("skala")
 \subsection{Displayerstellung}
 Jetzt sind die Vorarbeiten abgeschlossen:
 [[unit]], [[m]] und [[skala]] sind definiert, es liegen
-transformierte Werte vor und der Erstellungsprozeß kann
+transformierte Werte vor und der ErstellungsprozeÃŸ kann
 beginnen.
 
 @
-Für die Erstellung werden zunächst Ausreißer erkannt und
+FÃ¼r die Erstellung werden zunÃ¤chst AusreiÃŸer erkannt und
 entfernt.
 Die verbleibenden Daten werden im zentralen Plot eingetragen und
-zum Schluß für die Legende einige Infos zusammengefaßt.
+zum SchluÃŸ fÃ¼r die Legende einige Infos zusammengefaÃŸt.
 <<erstelle Stem-and-Leaf-Display>>=
-<<merke Ausreißer>>
+<<merke AusreiÃŸer>>
 <<konstruiere zentralen Teil des Plots>>
 <<erstelle Interpretationshilfen>>
 
 @
-\paragraph{Ausreißer}
-Ein Wert, der außerhalb des Bereiches der Skala liegt, ist ein Ausreißer.
+\paragraph{AusreiÃŸer}
+Ein Wert, der auÃŸerhalb des Bereiches der Skala liegt, ist ein AusreiÃŸer.
 Ist der erste Skalenwert positiv, so sind das alle Werte, die
 kleiner als der Skalenwert sind. Ist [[skala[1]]] negativ,
-dann wird schon ein Wert genau von der Größe [[skala[1]]] nicht aufgenommen
+dann wird schon ein Wert genau von der GrÃ¶ÃŸe [[skala[1]]] nicht aufgenommen
 und gilt als [[LO]].
-Für positive Maxima sind Werte Ausreißer, die größer gleich
+FÃ¼r positive Maxima sind Werte AusreiÃŸer, die grÃ¶ÃŸer gleich
 [[skala[n.sk]+delta.tick]] sind. Falls das
 Maximum unter Null ist, wird ein Wert
-der Größe [[skala[n.sk]+delta.tick]] gerade noch eingetragen.
+der GrÃ¶ÃŸe [[skala[n.sk]+delta.tick]] gerade noch eingetragen.
 
-Für die Tiefenberechnung ist es günstig, die Anzahl der Ausreißer zu
-vermerken. Die Ausreißer selbst werden auf [[lower.line]] bzw.\
+FÃ¼r die Tiefenberechnung ist es gÃ¼nstig, die Anzahl der AusreiÃŸer zu
+vermerken. Die AusreiÃŸer selbst werden auf [[lower.line]] bzw.\
 [[upper.line]] abgelegt.
-Zum Schluß werden die Daten ohne Ausreißer auf [[data.tr.red]] abgelegt.
-<<merke Ausreißer>>=
+Zum SchluÃŸ werden die Daten ohne AusreiÃŸer auf [[data.tr.red]] abgelegt.
+<<merke AusreiÃŸer>>=
 lo.limit <- if (trim.outliers) skala[1] else -Inf
 lo.log   <- if(skala[1   ] <  0) data.tr <= lo.limit else data.tr <  lo.limit
 n.sk <- length(skala)
@@ -416,26 +419,26 @@ data.tr.red <-data.tr[(!lo.log)&(!hi.log)]
 
 @
 \subsubsection{Zentraler Stem-and-Leaf-Display}
-Für den zentralen Plot müssen zu den verbleibenden Daten
-Stämme und Blätter gefunden werden. Dann werden die Blätter
-auf die Zeilen verteilt. Die Blätter müssen zu Ästen zusammengefaßt
-und aus [[skala]] ein Baumstamm erstellt werden. Zum Schluß ist
+FÃ¼r den zentralen Plot mÃ¼ssen zu den verbleibenden Daten
+StÃ¤mme und BlÃ¤tter gefunden werden. Dann werden die BlÃ¤tter
+auf die Zeilen verteilt. Die BlÃ¤tter mÃ¼ssen zu Ã„sten zusammengefaÃŸt
+und aus [[skala]] ein Baumstamm erstellt werden. Zum SchluÃŸ ist
 die Tiefeninformation zu ermitteln und anzubringen.
 <<konstruiere zentralen Teil des Plots>>=
 <<zerlege Zahlen in Stamm und Blatt>>
-<<verteile Blätter auf passende Klassen>>
-<<ermittle Äste mit Blättern>>
-<<konstruiere Skala und füge sie an den zentralen Plot an>>
-<<ermittle Tiefen und füge sie an zentralen Plot an>>
+<<verteile BlÃ¤tter auf passende Klassen>>
+<<ermittle Ã„ste mit BlÃ¤ttern>>
+<<konstruiere Skala und fÃ¼ge sie an den zentralen Plot an>>
+<<ermittle Tiefen und fÃ¼ge sie an zentralen Plot an>>
 
 @
 \paragraph{Zerlegung der Werte}
-Stämme werden durch Abschneiden gebildet. Für negative Werte geschieht
-das durch Aufrunden, für positive durch Abrunden.
-Die Blätter ergeben sich über Differenzbildung von um eine Stelle
-nach links geshifteten Daten und Stämmen. Die Differenzen negativer Werte
+StÃ¤mme werden durch Abschneiden gebildet. FÃ¼r negative Werte geschieht
+das durch Aufrunden, fÃ¼r positive durch Abrunden.
+Die BlÃ¤tter ergeben sich Ã¼ber Differenzbildung von um eine Stelle
+nach links geshifteten Daten und StÃ¤mmen. Die Differenzen negativer Werte
 sind dann aufzurunden, die anderen abzurunden.
-Übrigens führte [[ceiling((data.tr.red-stem)*10)]] zu Fehlern.
+Ãœbrigens fÃ¼hrte [[ceiling((data.tr.red-stem)*10)]] zu Fehlern.
 <<zerlege Zahlen in Stamm und Blatt>>=
 stem  <- ifelse(data.tr.red<0, ceiling(data.tr.red), floor(data.tr.red) )
 # eps <- 1e-12; leaf <- floor(abs(data.tr.red*10-stem*10)+eps)
@@ -462,7 +465,7 @@ floor(.95/0.1-9.5) = "-1"
 \end{verbatim}
 @
 Die Differenz ist relativ klein, kann jedoch wirkungsvoll sein. 
-Deshalb können / sollten wir vor einem Abrundungsprozess
+Deshalb kÃ¶nnen / sollten wir vor einem Abrundungsprozess
 ein Sicherheits-Epsilon addieren, um dann auf der sicheren Seite zu sein.
 <<*>>=
 eps<-1e-12
@@ -479,30 +482,30 @@ print(rbind("      .95/0.1-9.0+eps  ="=as.character( .95/0.1-9.0+eps),
 floor(.95/0.1-9.5+eps) = "0"                 
 \end{verbatim}
 @
-Die Technik, etwas Schmutz zu addieren, erscheint nicht so richtig überzeugend zur
-Lö\-sung der Dis\-kreti\-sierungs\-unge\-nauig\-keit. Besser gefällt die Idee, die Differenz von 
+Die Technik, etwas Schmutz zu addieren, erscheint nicht so richtig Ã¼berzeugend zur
+LÃ¶\-sung der Dis\-kreti\-sierungs\-unge\-nauig\-keit. Besser gefÃ¤llt die Idee, die Differenz von 
 [[data.tr.red]] und [[stem]] nach 10 Stellen abzuschneiden und dann erst abzurunden.
-Falls sich weitere Probleme einstellen, kann ggf.\ auf die erste Lösung mit Addition
-eines [[eps]] zurückgegriffen werden, denn die entsprechende Zeile ist als 
+Falls sich weitere Probleme einstellen, kann ggf.\ auf die erste LÃ¶sung mit Addition
+eines [[eps]] zurÃ¼ckgegriffen werden, denn die entsprechende Zeile ist als 
 Kommentarzeile noch existent.
 
 @
-\paragraph{Blätterzuordnung}
-Die Blätter werden gemäß der Größe der Daten auf Klassen aufgeteilt.
-Die Klassen für nicht-negative Werte werden durch Zählen der Skalenwerte,
-die kleiner gleich sind, gefunden. Hier ist es für die Vorstellung
-praktisch, daß die Werte sortiert sind. Negative Werte werden nach
+\paragraph{BlÃ¤tterzuordnung}
+Die BlÃ¤tter werden gemÃ¤ÃŸ der GrÃ¶ÃŸe der Daten auf Klassen aufgeteilt.
+Die Klassen fÃ¼r nicht-negative Werte werden durch ZÃ¤hlen der Skalenwerte,
+die kleiner gleich sind, gefunden. Hier ist es fÃ¼r die Vorstellung
+praktisch, daÃŸ die Werte sortiert sind. Negative Werte werden nach
 der selben Logik zugeordnet, jedoch wird dazu vom Maximum aus operiert.
 
 Damit leere Klassen keine Probleme bereiten,
 wird in jede Klasse zwischenzeitlich ein Dummyelement plaziert.
-Anhand von [[class.of.data.tr]] werden die Blätter gesplittet
+Anhand von [[class.of.data.tr]] werden die BlÃ¤tter gesplittet
 und die Dummyelemente wieder entfernt.
 
 6.8 ist nicht gleich 6.8. Deshalb wurden am 29.3.2006 
 Rundungen mit [[signif]] in den Vergleichsprozess eingebaut --
 nach einem Fehlerhinweis von Dietrich Trenkler. 
-%Auf gleichen Fehler stieß Michael Hallquist [[mhallqu1@binghamton.edu]]
+%Auf gleichen Fehler stieÃŸ Michael Hallquist [[mhallqu1@binghamton.edu]]
 %am [[July-08-08 6:55 PM]] bei der Verwendung von [[stem.leaf]] 
 %aus dem Paket [[Rcmdr]] von John Fox ([[jfox@mcmaster.ca]]).
 \begin{raggedright}
@@ -514,14 +517,14 @@ Es wird eine Skala erzeugt mit Schrittweite: 0.2 durch
 Aus dem Wert 68 wird durch Transformation [[68/10]] also 6.8. Leider
 gilt nicht [[seq(4,7,by=0.2)[15]==(68/10)]], sondern: 
 [[(seq(4,7,by=0.2)[15]-(68/10))==8.881784197001252e-16]].
-Der Skalenwert ist also etwas größer und die 68 wir in die 
-Klasse vor der richtigen einsortiert. Dadurch führte mit der
+Der Skalenwert ist also etwas grÃ¶ÃŸer und die 68 wir in die 
+Klasse vor der richtigen einsortiert. Dadurch fÃ¼hrte mit der
 alten Version der Aufruf von 
 [[stem.leaf(2*(24:34),m=5,depths=FALSE)]]
 zu einem Fehler. Ein Runden auf 10 Stellen neutralisiert die 
 Ungenauigkeit.
 \end{raggedright}
-<<verteile Blätter auf passende Klassen>>=
+<<verteile BlÃ¤tter auf passende Klassen>>=
 class.of.data.tr<-unlist(c(
    sapply(signif(data.tr.red[data.tr.red< 0],10),
      function(x,sk)length(sk)-sum(-sk<=-x),signif(skala,10))
@@ -536,29 +539,29 @@ leaf.grouped      <- lapply(leaf.grouped, function(x){ sort(x[-1]) })
 
 @
 [[paste]] regelt die Astbildung problemlos.
-Jedoch ist zu berücksichtigen, wenn die negativen Blätter in absteigender Reihenfolge 
+Jedoch ist zu berÃ¼cksichtigen, wenn die negativen BlÃ¤tter in absteigender Reihenfolge 
 eingetragen werden sollen.
-<<ermittle Äste mit Blättern>>=
+<<ermittle Ã„ste mit BlÃ¤ttern>>=
 <<merke negative Klassen und Klasse, die bei $-1$ beginnt>>
-<<spiegele ggf.\ Blätter im negativen Bereich>>
+<<spiegele ggf.\ BlÃ¤tter im negativen Bereich>>
 leaf.grouped.ch <- paste("|",unlist(lapply(leaf.grouped,paste,collapse="")))
 # debug.show("leaf.grouped")
 
 @
 \paragraph{Display-Skala}
-Die Konstruktion der Bezeichnung für die Skalen verläuft in zwei Schritten.
-<<konstruiere Skala und füge sie an den zentralen Plot an>>=
-<<ermittle Zeilennamen für den Stamm>>
-<<modifiziere Zeilennamen gemäß Maserung>>
+Die Konstruktion der Bezeichnung fÃ¼r die Skalen verlÃ¤uft in zwei Schritten.
+<<konstruiere Skala und fÃ¼ge sie an den zentralen Plot an>>=
+<<ermittle Zeilennamen fÃ¼r den Stamm>>
+<<modifiziere Zeilennamen gemÃ¤ÃŸ Maserung>>
 
 @
-Für die Bezeichnung der Zeilen werden negative und [[-0]]-Klassen gemerkt.
+FÃ¼r die Bezeichnung der Zeilen werden negative und [[-0]]-Klassen gemerkt.
 <<merke negative Klassen und Klasse, die bei $-1$ beginnt>>=
 class.negative <- skala < 0
 class.neg.zero <- floor(skala) == -1
 
 @
-<<spiegele ggf.\ Blätter im negativen Bereich>>=
+<<spiegele ggf.\ BlÃ¤tter im negativen Bereich>>=
 if (reverse.negative.leaves){
         for (i in seq(class.negative))
             if (class.negative[i]) leaf.grouped[[i]] <- rev(leaf.grouped[[i]])
@@ -568,7 +571,7 @@ if (reverse.negative.leaves){
 Die Zeilennamen ergeben sich aus der Skala, indem negative Werte
 um 1 verschoben werden, die Klassen [[class.neg.zero]] bekommt den
 korrekten Namen [[-0]].
-<<ermittle Zeilennamen für den Stamm>>=
+<<ermittle Zeilennamen fÃ¼r den Stamm>>=
 line.names <- skala
 line.names[class.negative] <- line.names[class.negative]+1
 line.names <- as.character(floor(line.names))
@@ -577,9 +580,9 @@ line.names[class.neg.zero] <- "-0"
 
 @
 \paragraph{Tukey-Stil}
-Bei [[style="Tukey"]] werden spezielle Symbole zur Stammverschönerung
-angebracht. Wieder führen negative Werte zu Fallunterscheidungen.
-<<modifiziere Zeilennamen gemäß Maserung>>=
+Bei [[style="Tukey"]] werden spezielle Symbole zur StammverschÃ¶nerung
+angebracht. Wieder fÃ¼hren negative Werte zu Fallunterscheidungen.
+<<modifiziere Zeilennamen gemÃ¤ÃŸ Maserung>>=
 if(style=="Tukey"){
   switch(as.character(m),
   "1"={},
@@ -601,7 +604,7 @@ line.names <- ragged.left(line.names)
 
 @
 Damit hinterher die [[|]]-Trennstriche untereinander stehen, ist eine
-Auf\-füllung mit Leerzeichen erforderlich. Dieses leistet die Funktion
+Auf\-fÃ¼llung mit Leerzeichen erforderlich. Dieses leistet die Funktion
 [[ragged.left]].
 <<definiere Funktion [[ragged.left]]>>=
 ragged.left <- function(ch.lines){
@@ -613,21 +616,21 @@ ragged.left <- function(ch.lines){
 
 @
 \paragraph{Tiefenermittlung}
-Die Tiefenermittlung geschieht über zwei Zählprozesse.
-Dabei müssen ggf.\ die Anzahlen der Ausreißer
+Die Tiefenermittlung geschieht Ã¼ber zwei ZÃ¤hlprozesse.
+Dabei mÃ¼ssen ggf.\ die Anzahlen der AusreiÃŸer
 ([[n.lower.extr.values]] und [[n.upper.extr.values]]) beachtet werden.
 
 Die Stelle des Medians liegt dort, wo die
 Tiefenvektoren, entstanden durch Kumulation von [[n.class]],
 sich -- graphisch gesprochen -- schneiden.
 Dort kommen zwei Zeilen infrage. Die mit der kleineren Differenz
-zwischen den Zählvektoren ist die gesuchte.
+zwischen den ZÃ¤hlvektoren ist die gesuchte.
 
 Der jeweils kleinste Wert der Tiefenvektoren ist festzuhalten und
-das entstandene Objekt mit passend vielen Leerzeichen zu füllen.
-Weiter sind Tiefeneinträge in Zeilen ohne Blätter zu löschen.
+das entstandene Objekt mit passend vielen Leerzeichen zu fÃ¼llen.
+Weiter sind TiefeneintrÃ¤ge in Zeilen ohne BlÃ¤tter zu lÃ¶schen.
 Nebenbei werden die Positionen leerer Zeilen vermerkt [[select==FALSE]].
-<<ermittle Tiefen und füge sie an zentralen Plot an>>=
+<<ermittle Tiefen und fÃ¼ge sie an zentralen Plot an>>=
 n.class <- unlist(lapply(leaf.grouped,length))
 select <- (cumsum(n.class) > 0) & rev((cumsum(rev(n.class)) > 0))
 depth     <-     cumsum(n.class)          + n.lower.extr.values
@@ -648,7 +651,7 @@ depth <- if (depths) ragged.left(depth) else ""
 
 @
 Zur Information werden die wesentlichen Infos in der Variablen [[info]]
-zusammengefaßt.
+zusammengefaÃŸt.
 <<erstelle Interpretationshilfen>>=
 info <- c(  paste("1 | 2: represents",1.2*factor),
          #  paste("    m:",m     ),
@@ -657,9 +660,9 @@ info <- c(  paste("1 | 2: represents",1.2*factor),
 
 @
 \subsection{Ausgabe}
-Zum Schluß werden die Ergebnisse in einem Objekt zusammengebunden
+Zum SchluÃŸ werden die Ergebnisse in einem Objekt zusammengebunden
 bzw.\ ausgegeben.
-080711: Zeile mit NA-Zähler eingebaut.
+080711: Zeile mit NA-ZÃ¤hler eingebaut.
 <<stelle Ergebnis zusammen>>=
 stem <- paste(depth, line.names, leaf.grouped.ch)
 stem <- if((m!=5)||sum(select)>4) stem[select] else stem
@@ -674,7 +677,7 @@ invisible(result)
 
 @
 \section{Demos}
-Für Demonstrationen bietet sich Chambers, Cleveland, Kleiner, Tukey (1983):
+FÃ¼r Demonstrationen bietet sich Chambers, Cleveland, Kleiner, Tukey (1983):
 {\em Graphical Methods for Data Analysis}, S.27, an.
 Dort wird ein Teil eines im Buch abgedruckten Ozon-Datensatzes
 mit verschiedenen [[m]]-Werten dargestellt:
@@ -806,13 +809,13 @@ stem.leaf.backback(rivers[-(1:30)],rivers[1:30], back.to.back = FALSE, unit=10, 
 
 Testen ist eine schwierige Sache.
 Systematische Aufrufe werden sich hier besser als Zufallsaufrufe zu eignen.
-Zunächst empfiehlt es sich schon während des Entwicklungsprozesses,
-an bestimmten Punkten Öffnungen einzubauen, die bei Bedarf
-Auskunft über die Innereien während der Bearbeitung, also des Prozesses,
+ZunÃ¤chst empfiehlt es sich schon wÃ¤hrend des Entwicklungsprozesses,
+an bestimmten Punkten Ã–ffnungen einzubauen, die bei Bedarf
+Auskunft Ã¼ber die Innereien wÃ¤hrend der Bearbeitung, also des Prozesses,
 geben. Dieses ist im Code umgesetzt durch [[debug.show("xyz")]]-Konstruktionen.
 Jetzt gilt es die Funktion [[debug.show]] geeignet zu definieren. 
-% 090216: debug.cond explizit eingeführt.
-<<setze ggf.\ [[verb]] gemäß Debugging-Wunsch>>=
+% 090216: debug.cond explizit eingefÃ¼hrt.
+<<setze ggf.\ [[verb]] gemÃ¤ÃŸ Debugging-Wunsch>>=
 if(0<length(h<-find("debug.cond")) && ".GlobalEnv" %in% h){
   debug.cond<-get("debug.cond",envir=.GlobalEnv)
 } else debug.cond<-""
@@ -826,7 +829,7 @@ debug.show<-function(name){
 }
 
 @
-Mit Hilfe dieser Testunterstützungsfunktion werden im Folgenden
+Mit Hilfe dieser TestunterstÃ¼tzungsfunktion werden im Folgenden
 einige wichtige Tests absolviert.
 Zur Erinnerung hier noch einmal die Argumente.
 [[unit,m,Min,Max,rule.line="Dixon",style="Tukey"]]
@@ -842,15 +845,14 @@ tangleR("ms.rev",expand.roots = "", expand.root.start = TRUE)
 \subsubsection{Fehlersituation von DT}
 
 Dietrich Trenkler hat einen Fehler gefunden,
-der auf Rundungsprobleme zurückgeführt werden 
-konnte. In \emph{verteile Blätter auf passende Klassen}
-wurde 2.8 mit 2.8 verglichen mit dem Ergebnis, dass 2.8 größer als 2.8
+der auf Rundungsprobleme zurÃ¼ckgefÃ¼hrt werden 
+konnte. In \emph{verteile BlÃ¤tter auf passende Klassen}
+wurde 2.8 mit 2.8 verglichen mit dem Ergebnis, dass 2.8 grÃ¶ÃŸer als 2.8
 ist. Deshalb wurde am 29.3.2006 
 Rundungen mit [[signif]] in den Vergleichsprozess eingebaut.
 10 Stellen sollten reichen.
 <<*>>=
 debug.cond<<-""
-
 "a" <- structure(c(12, 29, 49, 280, 78, 41, 49, 308, 70, 57,
  41, 37, 275, 33, 267, 37, 33, 57, 37, 41, 25, 41, 53, 74, 
 57, 53, 37, 49, 66, 70, 134, 33, 57, 45, 62, 250, 37, 271,
@@ -860,12 +862,13 @@ debug.cond<<-""
  "Clementine", "Datteln, getrocknet", "Erdbeeren", "Feigen, getrockne",
  "Granatapfel", "Grapefruit", "Heidelbeeren", "Himbeeren",                   
  "Holunderbeeren", "Honigmelone", "Johannisbeeren, rot", 
- "Johannisbeeren, schwarz", "Kaki", "Kirsche, süß", "Kiwi",
+ "Johannisbeeren, schwarz", "Kaki", "Kirsche, sÃ¼ÃŸ", "Kiwi",
  "Mandarine", "Mango", "Mirabellen", "Nektarine", "Oliven, mariniert", 
  "Papaya","Passionsfrucht", "Pfirsich", "Pflaumen",
  "Pflaumen,getrocknet", "Preiselbeeren","Rosinen", "Satsuma",
  "Stachelbeeren", "Wassermelone", "Weintrauben","Zitrone"))
  names(a)<-NULL; aa<-c(rev(sort(a))[1:5],sort(a)[1:5])
+<<definiere [[test]]>>
 test('stem.leaf(a,Min=0,Max=300)')
 
 @
@@ -895,21 +898,21 @@ stem.leaf(a,Min=0,Max=300)
 
 @
 \subsubsection{Erfolgreiche Tests}
-Als Datensätze wollen wir [[oz]] wie auch [[co2]] verwenden.
-Für den Test bietet sich eine kleine Unterstützungsfunktion an:
+Als DatensÃ¤tze wollen wir [[oz]] wie auch [[co2]] verwenden.
+FÃ¼r den Test bietet sich eine kleine UnterstÃ¼tzungsfunktion an:
 <<definiere [[test]]>>=
 oz<-c( 60+c(0,1,1,4,4,4,4,6,6,8,8,8,9), 70+c(rep(1,7),2,2,3,5,5),
        80+c(rep(0,6),2,2,3,5,6,6,7,7,7,9) )
 if(exists("data")) data(co2)
-test<-function(what) {
-  cat(what,"\n"); eval(parse(text=what)); return()
+test<-function(what) {   
+  cat(what,"\n"); eval(parse(text=what)); return() 
 }
 
 @
 Mit [[test]] lassen sich bequem einige Tests erledigen.
-Von hinten beginnend testen wir, ob [[style]] für [[m=2]] und [[m=5]]
+Von hinten beginnend testen wir, ob [[style]] fÃ¼r [[m=2]] und [[m=5]]
 wirksam wird, sofern es auf [["Tukey"]] gesetzt ist.
-Damit ist auch gleich ein erster Test für [[m]] beschrieben.
+Damit ist auch gleich ein erster Test fÃ¼r [[m]] beschrieben.
 
 %\def\endmoddef{\RA\ifmmode\equiv\else\unhcopy\equivbox\fi
   %             \nobreak\hfill\nobreak\small         }
@@ -919,100 +922,87 @@ cat("style-Test-start\n")
 test('stem.leaf(oz,m=1,style="Tukey")')
 test('stem.leaf(oz,m=2,style="Tukey")')
 test('stem.leaf(oz,m=5,style="Tukey")')
-test('stem.leaf(oz,m=1)')
-test('stem.leaf(oz,m=2)')
-test('stem.leaf(oz,m=5)')
+test('stem.leaf(oz,m=1,style="bare")')
+test('stem.leaf(oz,m=2,style="bare")')
+test('stem.leaf(oz,m=5,style="bare")')
 cat("style-Test-end\n")
 
 @
 \begin{verbatim}
 style-Test-start
-stem.leaf(oz,m=1,style="Tukey")
+stem.leaf(oz,m=1,style="Tukey") 
 1 | 2: represents 12
-    m: 1
- unit: 1
-    n: 41
+ leaf unit: 1
+            n: 41
    13    6 | 0114444668889
   (12)   7 | 111111122355
    16    8 | 0000002235667779
-         9 |
-stem.leaf(oz,m=2,style="Tukey")
+stem.leaf(oz,m=2,style="Tukey") 
 1 | 2: represents 12
-    m: 2
- unit: 1
-    n: 41
+ leaf unit: 1
+            n: 41
     7    6* | 0114444
    13    6. | 668889
   (10)   7* | 1111111223
    18    7. | 55
    16    8* | 000000223
     7    8. | 5667779
-         9* |
-stem.leaf(oz,m=5,style="Tukey")
+stem.leaf(oz,m=5,style="Tukey") 
 1 | 2: represents 12
-    m: 5
- unit: 1
-    n: 41
+ leaf unit: 1
+            n: 41
    3    6* | 011
-         t |
+         t | 
    7     f | 4444
    9     s | 66
   13    6. | 8889
   20    7* | 1111111
   (3)    t | 223
   18     f | 55
-         s |
-        7. |
+         s | 
+        7. | 
   16    8* | 000000
   10     t | 223
    7     f | 5
    6     s | 66777
    1    8. | 9
-        9* |
-stem.leaf(oz,m=1,style="")
+stem.leaf(oz,m=1,style="bare") 
 1 | 2: represents 12
-    m: 1
- unit: 1
-    n: 41
+ leaf unit: 1
+            n: 41
    13    6 | 0114444668889
   (12)   7 | 111111122355
    16    8 | 0000002235667779
-         9 |
-stem.leaf(oz,m=2,style="")
+stem.leaf(oz,m=2,style="bare") 
 1 | 2: represents 12
-    m: 2
- unit: 1
-    n: 41
+ leaf unit: 1
+            n: 41
     7    6 | 0114444
    13    6 | 668889
   (10)   7 | 1111111223
    18    7 | 55
    16    8 | 000000223
     7    8 | 5667779
-         9 |
-stem.leaf(oz,m=5,style="")
+stem.leaf(oz,m=5,style="bare") 
 1 | 2: represents 12
-    m: 5
- unit: 1
-    n: 41
+ leaf unit: 1
+            n: 41
    3    6 | 011
-        6 |
+        6 | 
    7    6 | 4444
    9    6 | 66
   13    6 | 8889
   20    7 | 1111111
   (3)   7 | 223
   18    7 | 55
-        7 |
-        7 |
+        7 | 
+        7 | 
   16    8 | 000000
   10    8 | 223
    7    8 | 5
    6    8 | 66777
    1    8 | 9
-        9 |
 style-Test-end
-Thu May 22 13:47:44 2003
 \end{verbatim}
 @
 Test der verschiedenen Regeln. Wir probieren
@@ -1027,59 +1017,54 @@ test('stem.leaf(co2,rule.line="Velleman")')
 test('stem.leaf(co2,rule.line="Sturges")')
 cat("rule-Test-end\n")
 
+
+
 @
 \begin{verbatim}
 rule-Test-start
-stem.leaf(oz,rule.line="Dixon")
+stem.leaf(oz,rule.line="Dixon") 
 1 | 2: represents 12
-    m: 5
- unit: 1
-    n: 41
+ leaf unit: 1
+            n: 41
    3    6* | 011
-         t |
+         t | 
    7     f | 4444
    9     s | 66
   13    6. | 8889
   20    7* | 1111111
   (3)    t | 223
   18     f | 55
-         s |
-        7. |
+         s | 
+        7. | 
   16    8* | 000000
   10     t | 223
    7     f | 5
    6     s | 66777
    1    8. | 9
-        9* |
-stem.leaf(oz,rule.line="Velleman")
+stem.leaf(oz,rule.line="Velleman") 
 1 | 2: represents 12
-    m: 2
- unit: 1
-    n: 41
+ leaf unit: 1
+            n: 41
     7    6* | 0114444
    13    6. | 668889
   (10)   7* | 1111111223
    18    7. | 55
    16    8* | 000000223
     7    8. | 5667779
-         9* |
-stem.leaf(oz,rule.line="Sturges")
+stem.leaf(oz,rule.line="Sturges") 
 1 | 2: represents 12
-    m: 2
- unit: 1
-    n: 41
+ leaf unit: 1
+            n: 41
     7    6* | 0114444
    13    6. | 668889
   (10)   7* | 1111111223
    18    7. | 55
    16    8* | 000000223
     7    8. | 5667779
-         9* |
-stem.leaf(co2,rule.line="Dixon")
+stem.leaf(co2,rule.line="Dixon") 
 1 | 2: represents 12
-    m: 2
- unit: 1
-    n: 468
+ leaf unit: 1
+            n: 468
     8    31* | 33344444
    70    31. | 55555556666666666666667777777777788888888888888899999999999999
   135    32* | 00000000000000001111111111112222222222222222333333333333444444444
@@ -1092,13 +1077,10 @@ stem.leaf(co2,rule.line="Dixon")
    78    35. | 555555555666666667777777788888899999999999999
    33    36* | 0000001111112222333333444444
     5    36. | 55566
-         37* |
-stem.leaf(co2,rule.line="Velleman")
+stem.leaf(co2,rule.line="Velleman") 
 1 | 2: represents 12
-    m: 5
- unit: 1
-    n: 468
-         31* |
+ leaf unit: 1
+            n: 468
     3      t | 333
    15      f | 444445555555
    41      s | 66666666666666677777777777
@@ -1127,24 +1109,18 @@ stem.leaf(co2,rule.line="Velleman")
    21      t | 2222333333
    11      f | 444444555
     2      s | 66
-         36. |
-         37* |
-stem.leaf(co2,rule.line="Sturges")
+stem.leaf(co2,rule.line="Sturges") 
 1 | 2: represents 12
-    m: 1
- unit: 1
-    n: 468
+ leaf unit: 1
+            n: 468
    70    31 | 3334444455555556666666666666667777777777788888888888888899999999999999
   187    32 | 000000000000000011111111111122222222222222223333333333334444444445555555566666666677777777777777778888888889999999999
   (86)   33 | 00000000111111111122222222222333333333444444445555556666666666777777777888889999999999
   195    34 | 0000000111111122222222222333333344444445555555566666666777777788888889999999
   119    35 | 00000111111122222222223333333333444444444555555555666666667777777788888899999999999999
    33    36 | 000000111111222233333344444455566
-         37 |
 rule-Test-end
-Thu May 22 13:52:49 2003
 \end{verbatim}
-
 @
 Test von [[unit]]
 <<Test von [[unit]]>>=
@@ -1154,81 +1130,74 @@ test('stem.leaf(oz,unit=10)')
 test('stem.leaf(oz,unit=1)')
 test('stem.leaf(oz,unit=.1)')
 cat("unit-Test-end\n")
+
 @
-Achtung: in dem ersten Stem-And-Leaf ist die erste 6 in der falschen Zeile!
-Sie muss hinter [[s]] stehen, was die aktuelle [[stem.leaf]]-Version auch 
-so macht.
 \begin{verbatim}
 unit-Test-start
-stem.leaf(oz,unit=10)
+stem.leaf(oz,unit=10) 
 1 | 2: represents 120
-    m: 5
- unit: 10
-    n: 41
-         0* |
-          t |
-    1     f | 6
-  (24)    s | 666666666666777777777777
+ leaf unit: 10
+            n: 41
+         0* | 
+          t | 
+          f | 
+  (25)    s | 6666666666666777777777777
    16    0. | 8888888888888888
-         1* |
-stem.leaf(oz,unit=1)
+         1* | 
+stem.leaf(oz,unit=1) 
 1 | 2: represents 12
-    m: 5
- unit: 1
-    n: 41
+ leaf unit: 1
+            n: 41
    3    6* | 011
-         t |
+         t | 
    7     f | 4444
    9     s | 66
   13    6. | 8889
   20    7* | 1111111
   (3)    t | 223
   18     f | 55
-         s |
-        7. |
+         s | 
+        7. | 
   16    8* | 000000
   10     t | 223
    7     f | 5
    6     s | 66777
    1    8. | 9
-        9* |
-stem.leaf(oz,unit=.1)
+stem.leaf(oz,unit=.1) 
 1 | 2: represents 1.2
-    m: 1
- unit: 0.1
-    n: 41
+ leaf unit: 0.1
+            n: 41
    1    60 | 0
    3    61 | 00
-        62 |
-        63 |
+        62 | 
+        63 | 
    7    64 | 0000
-        65 |
+        65 | 
    9    66 | 00
-        67 |
+        67 | 
   12    68 | 000
   13    69 | 0
-        70 |
+        70 | 
   20    71 | 0000000
   (2)   72 | 00
   19    73 | 0
-        74 |
+        74 | 
   18    75 | 00
-        76 |
-        77 |
-        78 |
-        79 |
+        76 | 
+        77 | 
+        78 | 
+        79 | 
   16    80 | 000000
-        81 |
+        81 | 
   10    82 | 00
    8    83 | 0
-        84 |
+        84 | 
    7    85 | 0
    6    86 | 00
    4    87 | 000
-        88 |
+        88 | 
    1    89 | 0
 unit-Test-end
-Thu May 22 13:56:30 2003
 \end{verbatim}
 
 @
@@ -1242,95 +1211,87 @@ test('stem.leaf(-oz,Min=-83,Max=-65,unit=1,m=1)')
 test('stem.leaf(1:12,Min=5,Max=8,unit=.1,m=1)')
 test('stem.leaf(.5+(-7:6),Min=-3,Max=3,unit=.1,m=1)')
 cat("Max-Min-Test-end\n")
+
 @
 \begin{verbatim}
 Max-Min-Test-start
-stem.leaf(oz,Min=65,Max=83,unit=.1,m=1)
+stem.leaf(oz,Min=65,Max=83,unit=.1,m=1) 
 1 | 2: represents 1.2
-    m: 1
- unit: 0.1
-    n: 41
-        65 |
+ leaf unit: 0.1
+            n: 41
+LO: 60 61 61 64 64 64 64
    9    66 | 00
-        67 |
+        67 | 
   12    68 | 000
   13    69 | 0
-        70 |
+        70 | 
   20    71 | 0000000
   (2)   72 | 00
   19    73 | 0
-        74 |
+        74 | 
   18    75 | 00
-        76 |
-        77 |
-        78 |
-        79 |
+        76 | 
+        77 | 
+        78 | 
+        79 | 
   16    80 | 000000
-        81 |
+        81 | 
   10    82 | 00
    8    83 | 0
-LO: 60 61 61 64 64 64 64
 HI: 85 86 86 87 87 87 89
-stem.leaf(oz,Min=65,Max=83,unit=1,m=1)
+stem.leaf(oz,Min=65,Max=83,unit=1,m=1) 
 1 | 2: represents 12
-    m: 1
- unit: 1
-    n: 41
+ leaf unit: 1
+            n: 41
    13    6 | 0114444668889
   (12)   7 | 111111122355
    16    8 | 0000002235667779
-         9 |
-stem.leaf(-oz,Min=-83,Max=-65,unit=.1,m=1)
+stem.leaf(-oz,Min=-83,Max=-65,unit=.1,m=1) 
 1 | 2: represents 1.2
-    m: 1
- unit: 0.1
-    n: 41
+ leaf unit: 0.1
+            n: 41
+LO: -89 -87 -87 -87 -86 -86 -85
    8    -83 | 0
   10    -82 | 00
-        -81 |
+        -81 | 
   16    -80 | 000000
-        -79 |
-        -78 |
-        -77 |
-        -76 |
+        -79 | 
+        -78 | 
+        -77 | 
+        -76 | 
   18    -75 | 00
-        -74 |
+        -74 | 
   19    -73 | 0
   (2)   -72 | 00
   20    -71 | 0000000
-        -70 |
+        -70 | 
   13    -69 | 0
   12    -68 | 000
-        -67 |
+        -67 | 
    9    -66 | 00
-        -65 |
-LO: -89 -87 -87 -87 -86 -86 -85
 HI: -64 -64 -64 -64 -61 -61 -60
-stem.leaf(-oz,Min=-83,Max=-65,unit=1,m=1)
+stem.leaf(-oz,Min=-83,Max=-65,unit=1,m=1) 
 1 | 2: represents 12
-    m: 1
- unit: 1
-    n: 41
-         -9 |
-   16    -8 | 0000002235667779
-  (12)   -7 | 111111122355
-   13    -6 | 0114444668889
-stem.leaf(1:12,Min=5,Max=8,unit=.1,m=1)
+ leaf unit: 1
+            n: 41
+   16    -8 | 9777665322000000
+  (12)   -7 | 553221111111
+   13    -6 | 9888664444110
+stem.leaf(1:12,Min=5,Max=8,unit=.1,m=1) 
 1 | 2: represents 1.2
-    m: 1
- unit: 0.1
-    n: 12
+ leaf unit: 0.1
+            n: 12
+LO: 1 2 3 4
    5    5 | 0
   (1)   6 | 0
    6    7 | 0
    5    8 | 0
-LO: 1 2 3 4
 HI: 9 10 11 12
-stem.leaf(.5+(-7:6),Min=-3,Max=3,unit=.1,m=1)
+stem.leaf(.5+(-7:6),Min=-3,Max=3,unit=.1,m=1) 
 1 | 2: represents 1.2
-    m: 1
- unit: 0.1
-    n: 14
+ leaf unit: 0.1
+            n: 14
+LO: -6.5 -5.5 -4.5
    4    -3 | 5
    5    -2 | 5
    6    -1 | 5
@@ -1339,10 +1300,8 @@ stem.leaf(.5+(-7:6),Min=-3,Max=3,unit=.1,m=1)
    6     1 | 5
    5     2 | 5
    4     3 | 5
-LO: -6.5 -5.5 -4.5
 HI: 4.5 5.5 6.5
 Max-Min-Test-end
-Thu May 22 14:11:37 2003
 \end{verbatim}
 @
 Klassenzuordnungstest:
@@ -1356,40 +1315,39 @@ test('stem.leaf(-c(.7+(1:12),4.999,5.0,5.001,7,7.001,7.999,
 test('stem.leaf(c(.7+(-5:5),-4.001,-4,-3.999, -3, 0, 3, 3.999,
       4, 4.001),Min=-3,Max=3,unit=.1,m=1)')
 cat("Klassen-Test-end\n")
+
 @
 \begin{verbatim}
 Klassen-Test-start
 stem.leaf(c(.7+(1:12),4.999,5.0,5.001,7,7.001,7.999,
-          8,8.001,8.999,9,9.001,9.999),Min=5,Max=8,unit=.1,m=1)
+      8,8.001,8.999,9,9.001,9.999),Min=5,Max=8,unit=.1,m=1) 
 1 | 2: represents 1.2
-    m: 1
- unit: 0.1
-    n: 24
+ leaf unit: 0.1
+            n: 24
+LO: 1.7 2.7 3.7 4.7 4.999
    8    5 | 007
    9    6 | 7
   (4)   7 | 0079
   11    8 | 0079
-LO: 1.7 2.7 3.7 4.7 4.999
 HI: 9 9.001 9.7 9.999 10.7 11.7 12.7
 stem.leaf(-c(.7+(1:12),4.999,5.0,5.001,7,7.001,7.999,
-          8,8.001,8.999,9,9.001,9.999),Min=-8,Max=-5,unit=.1,m=1)
+      8,8.001,8.999,9,9.001,9.999),Min=-8,Max=-5,unit=.1,m=1) 
 1 | 2: represents 1.2
-    m: 1
- unit: 0.1
-    n: 24
-  11    -8 | 0079
-  (4)   -7 | 0079
-   9    -6 | 7
-   8    -5 | 007
+ leaf unit: 0.1
+            n: 24
 LO: -12.7 -11.7 -10.7 -9.999 -9.7 -9.001 -9
+  11    -8 | 9700
+  (4)   -7 | 9700
+   9    -6 | 7
+   8    -5 | 700
 HI: -4.999 -4.7 -3.7 -2.7 -1.7
-stem.leaf(c(.7+(-5:5),-4.001,-4,-3.999, -3, 0, 3, 3.999, 4, 4.001),
-          Min=-3,Max=3,unit=.1,m=1)
+stem.leaf(c(.7+(-5:5),-4.001,-4,-3.999, -3, 0, 3, 3.999,
+      4, 4.001),Min=-3,Max=3,unit=.1,m=1) 
 1 | 2: represents 1.2
-    m: 1
- unit: 0.1
-    n: 20
-   6    -3 | 039
+ leaf unit: 0.1
+            n: 20
+LO: -4.3 -4.001 -4
+   6    -3 | 930
    7    -2 | 3
    8    -1 | 3
    9    -0 | 3
@@ -1397,15 +1355,9 @@ stem.leaf(c(.7+(-5:5),-4.001,-4,-3.999, -3, 0, 3, 3.999, 4, 4.001),
    9     1 | 7
    8     2 | 7
    7     3 | 079
-LO: -4.3 -4.001 -4
 HI: 4 4.001 4.7 5.7
 Klassen-Test-end
-Thu May 22 14:19:01 2003
 \end{verbatim}
-
-
-
-
 @
 Jim Albert mailte am 12.4.09 folgende Fehlersituation:
 <<Example of Jim Albert>>=
@@ -1426,6 +1378,26 @@ test('stem.leaf(y,unit=.01,m=5)')
 y
 0.84 0.85 0.87 0.88 0.89  0.9 0.91 0.92 0.93 0.94 0.95 0.96 0.97 0.98 0.99 
    1    1    2    1    2    2    3    6    3    8    2   11    4    5    1 
+stem.leaf(y,unit=.01,m=5) 
+1 | 2: represents 0.12
+ leaf unit: 0.01
+            n: 52
+    2      f | 45
+    4      s | 77
+    7     8. | 899
+   12     9* | 00111
+   21      t | 222222333
+  (10)     f | 4444444455
+   21      s | 666666666667777
+    6     9. | 888889
+\end{verbatim}
+
+@
+alter fehlerhafter Output:
+\begin{verbatim}
+y
+0.84 0.85 0.87 0.88 0.89  0.9 0.91 0.92 0.93 0.94 0.95 0.96 0.97 0.98 0.99 
+   1    1    2    1    2    2    3    6    3    8    2   11    4    5    1 
 1 | 2: represents 0.12
  leaf unit: 0.01
             n: 52
@@ -1440,29 +1412,11 @@ y
 \end{verbatim}
 
 @
-In der Tat muss in der letzten Zeile des Displays [[9. |  888889]].
-Der Fehler geht auf die ungenaue Darstellung von Dezimalzahlen zurück,
+In der Tat muss in der letzten Zeile des Displays [[9. |  888889]] stehen.
+Der Fehler geht auf die ungenaue Darstellung von Dezimalzahlen zurÃ¼ck,
 welche durch Addition eines kleines Epsilons [[eps]] vor Rundungprozessen
 behoben werden kann, siehe Chunk: \emph{zerlege Zahlen in Stamm und Blatt}.
-Nach Integration dieser Verbesserung erhalten wir das richtige Ergebnis:
-
-@
-\begin{verbatim}
-y
-0.84 0.85 0.87 0.88 0.89  0.9 0.91 0.92 0.93 0.94 0.95 0.96 0.97 0.98 0.99 
-   1    1    2    1    2    2    3    6    3    8    2   11    4    5    1 
-1 | 2: represents 0.12
- leaf unit: 0.01
-            n: 52
-    2      f | 45
-    4      s | 77
-    7     8. | 899
-   12     9* | 00111
-   21      t | 222222333
-  (10)     f | 4444444455
-   21      s | 666666666667777
-    6     9. | 888889
-\end{verbatim}
+Nach Integration dieser Verbesserung erhalten wir das richtige Ergebnis, s.o.
 
 @
 Negative-Reverse-Test:
@@ -1483,8 +1437,70 @@ test('stem.leaf(c(.7+(-5:5),-4.001,-4,-3.999, -3, 0, 3, 3.999,
       reverse.negative.leaves=!TRUE)')
 cat("Reverse-Test-end\n")
 
+
 @
-Hier noch einmal die Testaufrufe zusammengefaßt:
+\begin{verbatim}
+Reverse-Test-start
+stem.leaf(-c(.7+(1:12),4.999,5.0,5.001,7,7.001,7.999,
+      8,8.001,8.999,9,9.001,9.999),Min=-8,Max=-5,unit=.1,m=1,
+      reverse.negative.leaves=TRUE) 
+1 | 2: represents 1.2
+ leaf unit: 0.1
+            n: 24
+LO: -12.7 -11.7 -10.7 -9.999 -9.7 -9.001 -9
+  11    -8 | 9700
+  (4)   -7 | 9700
+   9    -6 | 7
+   8    -5 | 700
+HI: -4.999 -4.7 -3.7 -2.7 -1.7
+stem.leaf(-c(.7+(1:12),4.999,5.0,5.001,7,7.001,7.999,
+      8,8.001,8.999,9,9.001,9.999),Min=-8,Max=-5,unit=.1,m=1,
+      reverse.negative.leaves=!TRUE) 
+1 | 2: represents 1.2
+ leaf unit: 0.1
+            n: 24
+LO: -12.7 -11.7 -10.7 -9.999 -9.7 -9.001 -9
+  11    -8 | 0079
+  (4)   -7 | 0079
+   9    -6 | 7
+   8    -5 | 007
+HI: -4.999 -4.7 -3.7 -2.7 -1.7
+stem.leaf(c(.7+(-5:5),-4.001,-4,-3.999, -3, 0, 3, 3.999,
+      4, 4.001),Min=-3,Max=3,unit=.1,m=1,
+      reverse.negative.leaves=TRUE) 
+1 | 2: represents 1.2
+ leaf unit: 0.1
+            n: 20
+LO: -4.3 -4.001 -4
+   6    -3 | 930
+   7    -2 | 3
+   8    -1 | 3
+   9    -0 | 3
+  (2)    0 | 07
+   9     1 | 7
+   8     2 | 7
+   7     3 | 079
+HI: 4 4.001 4.7 5.7
+stem.leaf(c(.7+(-5:5),-4.001,-4,-3.999, -3, 0, 3, 3.999,
+      4, 4.001),Min=-3,Max=3,unit=.1,m=1,
+      reverse.negative.leaves=!TRUE) 
+1 | 2: represents 1.2
+ leaf unit: 0.1
+            n: 20
+LO: -4.3 -4.001 -4
+   6    -3 | 039
+   7    -2 | 3
+   8    -1 | 3
+   9    -0 | 3
+  (2)    0 | 07
+   9     1 | 7
+   8     2 | 7
+   7     3 | 079
+HI: 4 4.001 4.7 5.7
+Reverse-Test-end
+\end{verbatim}
+@
+Hier noch einmal die Testaufrufe zusammengefaÃŸt:
 <<Testaufrufe>>=
 <<definiere ms>>
 <<definiere [[test]]>>
@@ -1501,25 +1517,25 @@ Hier noch einmal die Testaufrufe zusammengefaßt:
 
 @
 \section{Back-to-back-stem-and-leaf-Plots}
-Naheliegend ist die Konstruktion zweier Stem-and-leaf-displays, bei denen die Blätter zweier Stichproben zu den beiden Seiten eines 
-gemeinsamen Stammes eingetragen werden. Es entstehen dann Plots, die wie Bevölkerungspyramiden aussehen. Mit Hilfe der
-Funktion [[stem.leaf]] müsste sich schnell eine Umsetzung finden lassen. Um leicht auf einzelne Einheiten zugreifen zu können,
-ist zunächst die Ausgabe der [[stem.leaf()]]-Funktion gegenüber älteren Versionen erweitert worden.
+Naheliegend ist die Konstruktion zweier Stem-and-leaf-displays, bei denen die BlÃ¤tter zweier Stichproben zu den beiden Seiten eines 
+gemeinsamen Stammes eingetragen werden. Es entstehen dann Plots, die wie BevÃ¶lkerungspyramiden aussehen. Mit Hilfe der
+Funktion [[stem.leaf]] mÃ¼sste sich schnell eine Umsetzung finden lassen. Um leicht auf einzelne Einheiten zugreifen zu kÃ¶nnen,
+ist zunÃ¤chst die Ausgabe der [[stem.leaf()]]-Funktion gegenÃ¼ber Ã¤lteren Versionen erweitert worden.
 
 Wir gehen, wie folgt, vor:
 \begin{enumerate}
 \item Kombiniere beide Stichproben und ermittele mit den gemeinsamen Daten einen geeigneten Stamm, 
 der zu beiden Stichproben passt.
-\item Berechne für beide Stichproben getrennt die stem and leaf displays.
-\item Extrahiere aus beiden Displays die notwendigen Größen.
-\item Füge aus den Einzelteilen das neue Display zusammen.
+\item Berechne fÃ¼r beide Stichproben getrennt die stem and leaf displays.
+\item Extrahiere aus beiden Displays die notwendigen GrÃ¶ÃŸen.
+\item FÃ¼ge aus den Einzelteilen das neue Display zusammen.
 \end{enumerate}
 
 @
 \subsection{Der grobe Aufbau der Funktion [[stem.leaf.backback()]]}
 Auf der groben Beschreibungsebene ergibt sich aus dem Vorgehen folgender Funktionaufbau.
-Wir definieren hier die Funktion [[stem.leaf()]] als lokale Funktion, da sich möglicherweise jemand
-die Funktion [[stem.leaf.backbak()]] kopieren und ohne das Paket [[aplpack]] verwenden möchte.
+Wir definieren hier die Funktion [[stem.leaf()]] als lokale Funktion, da sich mÃ¶glicherweise jemand
+die Funktion [[stem.leaf.backbak()]] kopieren und ohne das Paket [[aplpack]] verwenden mÃ¶chte.
 <<definiere [[stem.leaf.backback]]>>=
 stem.leaf.backback <- function(x,y, unit, m, Min, Max, rule.line = c("Dixon", "Velleman", 
     "Sturges"), style = c("Tukey", "bare"), trim.outliers = TRUE, 
@@ -1529,8 +1545,8 @@ stem.leaf.backback <- function(x,y, unit, m, Min, Max, rule.line = c("Dixon", "V
   <<checke Input-Daten [[stem.leaf.backback()]]>>
   <<definiere [[stem.leaf]]>>
   <<suche gemeinsamen Stamm in [[stem.leaf.backback()]]>>
-  <<ermittle Blätter u.ä. der beiden Datensätze in [[stem.leaf.backback()]]>>
-  <<synchronisiere stems, leaves und depths der beiden Datensätze [[stem.leaf.backback()]]>>
+  <<ermittle BlÃ¤tter u.Ã¤. der beiden DatensÃ¤tze in [[stem.leaf.backback()]]>>
+  <<synchronisiere stems, leaves und depths der beiden DatensÃ¤tze [[stem.leaf.backback()]]>>
   <<komponiere Output von [[stem.leaf.backback()]]>>
 }
 
@@ -1545,12 +1561,12 @@ else y.name <- paste(deparse(substitute(y)),collapse="")
 n.na.x <- sum(is.na(x)); n.na.y <- sum(is.na(y))
 
 @
-\subsection{Kombination der beiden Datensätze}
+\subsection{Kombination der beiden DatensÃ¤tze}
 
-Es ist kein Problem die Datensätze zusammenzufassen. Jedoch gilt es ggf. geeignete Parameter-Werte 
-für [[m]], [[Min]] usw.\ zu ermitteln, damit diese dann explizit für die weiteren Berechnungen zur Verfügung
-stehen. Dann erstellen wir virtuell einen gemeinsamen stem and leaf display und können über
-[[sl.xy]] auf alle wesentlichen Informationen zugreifen. Insbesondere benötigen wir die Variable 
+Es ist kein Problem die DatensÃ¤tze zusammenzufassen. Jedoch gilt es ggf. geeignete Parameter-Werte 
+fÃ¼r [[m]], [[Min]] usw.\ zu ermitteln, damit diese dann explizit fÃ¼r die weiteren Berechnungen zur VerfÃ¼gung
+stehen. Dann erstellen wir virtuell einen gemeinsamen stem and leaf display und kÃ¶nnen Ã¼ber
+[[sl.xy]] auf alle wesentlichen Informationen zugreifen. Insbesondere benÃ¶tigen wir die Variable 
 [[unit]], die die Dezimalstelle festlegt.
 <<suche gemeinsamen Stamm in [[stem.leaf.backback()]]>>=
 <<ermittle geeignete Parameterwerte, sofern nicht festgelegt>>
@@ -1562,23 +1578,23 @@ h <- grep(" leaf unit: ",sl.xy$info,value=TRUE)
 unit <- as.numeric(sub(" leaf unit: ","",h))
 
 @
-Zur Parameterermittlung führen wir die ersten Schritte einer stem and leaf display-Konstruktion durch
-und können danach die notwendigen Größen zugreifen. Hiernach liegt eine Vorstellung über Stamm und 
+Zur Parameterermittlung fÃ¼hren wir die ersten Schritte einer stem and leaf display-Konstruktion durch
+und kÃ¶nnen danach die notwendigen GrÃ¶ÃŸen zugreifen. Hiernach liegt eine Vorstellung Ã¼ber Stamm und 
 Maserung vor.
 <<ermittle geeignete Parameterwerte, sofern nicht festgelegt>>=
 data <- c(x,y)
 <<checke Input>>
-<<setze ggf.\ [[verb]] gemäß Debugging-Wunsch>>
-<<stelle gemäß [[rule.line]] maximale Zeilenanzahl fest>>
+<<setze ggf.\ [[verb]] gemÃ¤ÃŸ Debugging-Wunsch>>
+<<stelle gemÃ¤ÃŸ [[rule.line]] maximale Zeilenanzahl fest>>
 <<ermittle mittels [[boxplot]] groben Skalenbereich>>
-<<bestimme Intervall\-länge und ggf.\ Faktor [[factor]]>>
+<<bestimme Intervall\-lÃ¤nge und ggf.\ Faktor [[factor]]>>
 <<berechne aus [[zeilen.intervall.laenge]] und [[factor]] Tickabstand>>
 <<bestimme ggf.\ Maserung [[m]]>>
 
 @
-\subsection{Berechnung der Display-Elemente und Synchronisation der Stämme}
-Die Blätter der einzelnen Stichproben finden wir durch getrennte Aufrufe von [[stem.leaf()]].
-<<ermittle Blätter u.ä. der beiden Datensätze in [[stem.leaf.backback()]]>>=
+\subsection{Berechnung der Display-Elemente und Synchronisation der StÃ¤mme}
+Die BlÃ¤tter der einzelnen Stichproben finden wir durch getrennte Aufrufe von [[stem.leaf()]].
+<<ermittle BlÃ¤tter u.Ã¤. der beiden DatensÃ¤tze in [[stem.leaf.backback()]]>>=
   sl.x  <- stem.leaf(x,     unit=unit,m=m,Min=Min, Max=Max, rule.line=rule.line,
                      style=style,trim.outliers=trim.outliers,depths=depths,
                      reverse.negative.leaves = reverse.negative.leaves, na.rm = na.rm,
@@ -1589,55 +1605,61 @@ Die Blätter der einzelnen Stichproben finden wir durch getrennte Aufrufe von [[s
                      printresult=FALSE)
 
 @
-Das Zusammenfügen ist mehr Textverarbeitung als Berechnung, also Fließarbeit. 
-Zunächst extrahieren wir die relevanten Infos aus den Displays [[sl.x]] und [[sl.y]].
-In den Stämmen suchen wir dann einen Eintrag mit Ziffern, der in beiden vorkommt. 
-Anhand dieses Eintrags müssen die Stämme ggf. geeignet verlängert werden. Entsprechend
-zu den Anfügungen müssen auch die Vektoren mit den Blättern expandiert werden.
-Es kann notwendig sein, den ersten Datensatz vorn und oder oder hinten zu verlängern. 
-Gleiches gilt für den zweiten Datensatz. Hierdurch erklären sich die vier
-If-Konstruktionen. Nach diesem Chunk müssen [[x.stem]] und [[y.stem]] identisch sein.
-<<synchronisiere stems, leaves und depths der beiden Datensätze [[stem.leaf.backback()]]>>=
+Das ZusammenfÃ¼gen ist mehr Textverarbeitung als Berechnung, also FlieÃŸarbeit. 
+ZunÃ¤chst extrahieren wir die relevanten Infos aus den Displays [[sl.x]] und [[sl.y]].
+In den StÃ¤mmen suchen wir dann einen Eintrag mit Ziffern, der in beiden vorkommt. 
+Anhand dieses Eintrags mÃ¼ssen die StÃ¤mme ggf. geeignet verlÃ¤ngert werden. Entsprechend
+zu den AnfÃ¼gungen mÃ¼ssen auch die Vektoren mit den BlÃ¤ttern expandiert werden.
+Es kann notwendig sein, den ersten Datensatz vorn und oder oder hinten zu verlÃ¤ngern. 
+Gleiches gilt fÃ¼r den zweiten Datensatz. Hierdurch erklÃ¤ren sich die vier
+If-Konstruktionen. Nach diesem Chunk mÃ¼ssen [[x.stem]] und [[y.stem]] identisch sein.
+<<synchronisiere stems, leaves und depths der beiden DatensÃ¤tze [[stem.leaf.backback()]]>>=
 x.stem   <- gsub(" ","",sl.x$stem);          y.stem   <- gsub(" ","",sl.y$stem)
 x.leaves <- substring(sl.x$leaves,3);        y.leaves <- substring(sl.y$leaves,3)
 x.depths <- substring(sl.x$depths,3);        y.depths <- substring(sl.y$depths,3)
 x.digits <- grep("[0-9]",x.stem,value=TRUE); y.digits <- grep("[0-9]",y.stem,value=TRUE)
 h <- match(y.digits, x.digits); h <- h[!is.na(h)][1]
-x.pos <- which(x.stem==x.digits[h]); y.pos <- which(y.stem==x.digits[h])
+# take the first ->[1] only otherwise an error occurs, see mail from John Fox 10/2013:
+x.pos <- which(x.stem==x.digits[h])[1]; y.pos <- which(y.stem==x.digits[h])[1]
 LZ <- rep(" ",d <- abs(y.pos - x.pos))
-if(x.pos < y.pos) { # x vorn verlängern 
+if(x.pos < y.pos) { # x vorn verlÃ¤ngern 
   x.stem <- c(y.stem[1:d],x.stem); x.leaves <- c(LZ,x.leaves); x.depths <- c(LZ,x.depths)
 }
-if(y.pos < x.pos) { # y vorn verlängern 
+if(y.pos < x.pos) { # y vorn verlÃ¤ngern 
   y.stem <- c(x.stem[1:d],y.stem); y.leaves <- c(LZ,y.leaves); y.depths <- c(LZ,y.depths)
 }
 x.l <- length(x.stem); y.l <- length(y.stem)
 LZ <- rep(" ",d <- abs(y.l-x.l))
-if(x.l < y.l) { # x hinten verlängern 
+if(x.l < y.l) { # x hinten verlÃ¤ngern 
   x.stem <- c(x.stem,y.stem[-(1:x.l)]); x.leaves <- c(x.leaves,LZ)
   x.depths <- c(LZ,x.depths,LZ)
 }
-if(y.l < x.l) { # y hinten verlängern 
+if(y.l < x.l) { # y hinten verlÃ¤ngern 
   y.stem <- c(y.stem,x.stem[-(1:y.l)]); y.leaves <- c(y.leaves,LZ)
   y.depths <- c(LZ,y.depths,LZ)
 }
 
 @
+% test statements for integration
+% cat("x.stem",x.stem,"x.digits",x.digits); cat("y.stem",y.stem,"y.digits",y.digits)
+% cat("y.pos, x.pos",y.pos,",", x.pos)
+% style <- "Tukey"; style <- "bare"; <jferror>
+@
 \subsection{Output-Generierung}
 Der Output ergibt sich aus den gesammelten Zwischenergebnissen, die alle textlicher Natur sind.
-Es gilt also Textvektoren vertikal und horizontal zusammenzufügen. Hierzu werden eine Reihe
-von Hilfsfunktionen definiert, die auch an anderer Stelle hilfreich sein können.
-Zuerst passen wir die Variablen, die Stämme und Blätter der beiden Datensätze merken, 
-in ihrer Größe an. Dabei werden auch die Blätter des ersten Datensatz gedreht.
-Dann fügen wir Tiefen, Stamm und Blätter zusammen. 
+Es gilt also Textvektoren vertikal und horizontal zusammenzufÃ¼gen. Hierzu werden eine Reihe
+von Hilfsfunktionen definiert, die auch an anderer Stelle hilfreich sein kÃ¶nnen.
+Zuerst passen wir die Variablen, die StÃ¤mme und BlÃ¤tter der beiden DatensÃ¤tze merken, 
+in ihrer GrÃ¶ÃŸe an. Dabei werden auch die BlÃ¤tter des ersten Datensatz gedreht.
+Dann fÃ¼gen wir Tiefen, Stamm und BlÃ¤tter zusammen. 
 Im dritten Schritt komponieren wir die Informationszeilen, die uns Anzahlen, fehlende Werte,
 Extremwerte und Datensatznamen zeigen.
 Zum Schluss wird das entstandene Gebilde per [[cat()]] und als explizites Ergebnis ausgegeben.
 <<komponiere Output von [[stem.leaf.backback()]]>>=
 <<definiere einige Funktionen zur Anordnung von Textobjekten>>
-<<ergänze Leerzeichen zur Vereinheitlichung der Blatt-Variablen>>
+<<ergÃ¤nze Leerzeichen zur Vereinheitlichung der Blatt-Variablen>>
 <<kombiniere depths, stem and leaves>>
-<<komponiere Zeilen mit Infos, Namen, Längen und NA-Anzahlen>>
+<<komponiere Zeilen mit Infos, Namen, LÃ¤ngen und NA-Anzahlen>>
 <<compose info of HI values>>    
 <<compose info of LO values>>
 # komponiere Ergebnisvektor
@@ -1652,13 +1674,13 @@ invisible(list(info=sl.x$info, display=result,lower.x=sl.x$lower,upper.x=sl.x$up
                x.depths=x.depths,y.depths=y.depths,stem=x.stem,x.leaves,y.leaves))
 
 @
-Die Blätteranzahl an jeder Stammstelle werden unterschiedlich sein. Gleiches gilt 
-evtl. für den Stamm ebenfalls. Deshalb werden zur Erzielung einer rechteckigen Struktur
-Leerzeichen angefügt. Danach enthalten alle Elemente eines so vereinheitlichten 
-Vektors gleich viele Zeichen. Zusätzlich werden gemäß Anwenderwunsch weitere
-[[add.more.blanks]] den Ästen mit den Blättern hinzugefügt. Zum Schluss wird sichergestellt,
-dass die beiden Objekte mit den Blättern wirklich gleich groß sind.
-<<ergänze Leerzeichen zur Vereinheitlichung der Blatt-Variablen>>=
+Die BlÃ¤tteranzahl an jeder Stammstelle werden unterschiedlich sein. Gleiches gilt 
+evtl. fÃ¼r den Stamm ebenfalls. Deshalb werden zur Erzielung einer rechteckigen Struktur
+Leerzeichen angefÃ¼gt. Danach enthalten alle Elemente eines so vereinheitlichten 
+Vektors gleich viele Zeichen. ZusÃ¤tzlich werden gemÃ¤ÃŸ Anwenderwunsch weitere
+[[add.more.blanks]] den Ã„sten mit den BlÃ¤ttern hinzugefÃ¼gt. Zum Schluss wird sichergestellt,
+dass die beiden Objekte mit den BlÃ¤ttern wirklich gleich groÃŸ sind.
+<<ergÃ¤nze Leerzeichen zur Vereinheitlichung der Blatt-Variablen>>=
 x.leaves <- expand.text(x.leaves,fill.right=TRUE,O=add.more.blanks)
 x.leaves <- rotate.string(x.leaves)
 x.stem   <- expand.text(x.stem,fill.right=FALSE)
@@ -1668,13 +1690,13 @@ x.leaves <- expand.a.to.b(x.leaves,y.leaves,fill.right=FALSE)
 y.leaves <- expand.a.to.b(y.leaves,x.leaves)
 
 @
-Für die Umsetzung der Angleichung finden Hilfsfunktionen Verwendung:
+FÃ¼r die Umsetzung der Angleichung finden Hilfsfunktionen Verwendung:
 [[rotate.string()]], [[expand.text()]] und [[expand.a.to.b()]]. Die erste rotiert einen String, die zweite 
-macht die Elemente gleichgroß
-bzgl. der Zeichenzahl, die dritte expandiert einen Vektor auf die Größe eines zweiten
-Vektors. In [[expand.text()]] werden erst die Verlängerungswünsche umgesetzt
-und dann eine Angleichung vorgenommen. Das Auffüllen mit Leerzeichen 
-kann prinzipiell rechts wie auch links erwünscht sein.
+macht die Elemente gleichgroÃŸ
+bzgl. der Zeichenzahl, die dritte expandiert einen Vektor auf die GrÃ¶ÃŸe eines zweiten
+Vektors. In [[expand.text()]] werden erst die VerlÃ¤ngerungswÃ¼nsche umgesetzt
+und dann eine Angleichung vorgenommen. Das AuffÃ¼llen mit Leerzeichen 
+kann prinzipiell rechts wie auch links erwÃ¼nscht sein.
 <<definiere einige Funktionen zur Anordnung von Textobjekten>>=
 expand.text <- function(x,N=0,O=0,S=0,W=0,fill.right=TRUE,sep=" "){
   # bringt Elemente auf gleiche Laenge und ergaenzt Leerzeichen in den Himmelsrichtungen
@@ -1689,12 +1711,12 @@ expand.text <- function(x,N=0,O=0,S=0,W=0,fill.right=TRUE,sep=" "){
 
 @
 [[expand.a.to.b]] geht von dem Ansatz aus, dass das erste Objekt anhand der
-Verhältnisse des zweiten Objekts angepasst und dabei aber nur vergrößert werden soll. 
-Unterscheiden sich die Längen, kann eine Verlängerung hinten ([[fill.tail=TRUE]]) 
-aber auch vorn erwünscht sein. Der Fall einer Zentrierung wird noch nicht berücksichtigt.
-Hat Objekt [[a]] nun mindestens die Länge von [[b]], wird in einem zweiten Schritt
+VerhÃ¤ltnisse des zweiten Objekts angepasst und dabei aber nur vergrÃ¶ÃŸert werden soll. 
+Unterscheiden sich die LÃ¤ngen, kann eine VerlÃ¤ngerung hinten ([[fill.tail=TRUE]]) 
+aber auch vorn erwÃ¼nscht sein. Der Fall einer Zentrierung wird noch nicht berÃ¼cksichtigt.
+Hat Objekt [[a]] nun mindestens die LÃ¤nge von [[b]], wird in einem zweiten Schritt
 die maximale Zeichenzahl der Elemente beider Vektoren festgestellt und dann 
-werden entweder rechts ([[fill.right=TRUE]]) oder links so viele Leerzeichen ergänzt,
+werden entweder rechts ([[fill.right=TRUE]]) oder links so viele Leerzeichen ergÃ¤nzt,
 dass alle Elemente von [[a]] die maximale Zeichenzahl besitzen.
 <<definiere einige Funktionen zur Anordnung von Textobjekten>>=
 expand.a.to.b <- function(a,b,fill.right=TRUE,fill.tail=TRUE){
@@ -1717,15 +1739,15 @@ rotate.string <- function(x){
 }
 
 @
-Jetzt können wir die Kombination der Tiefen, Blätter und des Stammes ins Auge fassen.
-Falls ein richtiger Back-To-Back-Display entstehen soll, ist das Zusammenfügen etwas anders,
-als wenn der Anwender lieber zwei parallele Halbbäume mit einem Stamm ganz links
-bekommen möchte. Weiterhin ergibt sich ein Unterschied dadurch, wenn auf die Tiefeninformation
+Jetzt kÃ¶nnen wir die Kombination der Tiefen, BlÃ¤tter und des Stammes ins Auge fassen.
+Falls ein richtiger Back-To-Back-Display entstehen soll, ist das ZusammenfÃ¼gen etwas anders,
+als wenn der Anwender lieber zwei parallele HalbbÃ¤ume mit einem Stamm ganz links
+bekommen mÃ¶chte. Weiterhin ergibt sich ein Unterschied dadurch, wenn auf die Tiefeninformation
 verzichtet werden soll.
-Je nach den verschiedenen Fällen merken wir uns ein paar markante Stellen, 
-um für die Platzierung weiterer Informationen eine Orientierung zu haben.
-Außerdem legen wir einen String aus Leerzeichen auf [[LZ]] ab, 
-dessen Zeichenzahl mit denen der Elemente von [[result]] übereinstimmt.
+Je nach den verschiedenen FÃ¤llen merken wir uns ein paar markante Stellen, 
+um fÃ¼r die Platzierung weiterer Informationen eine Orientierung zu haben.
+AuÃŸerdem legen wir einen String aus Leerzeichen auf [[LZ]] ab, 
+dessen Zeichenzahl mit denen der Elemente von [[result]] Ã¼bereinstimmt.
 <<kombiniere depths, stem and leaves>>=
 if(back.to.back){ 
   if(show.no.depths){
@@ -1762,25 +1784,25 @@ result <- result$result
 LZ <- paste(rep(" ",max(nchar(result))),collapse="")
 
 @
-Für die Operation "Zusammenfügen" wurde die Funktion [[vecpaste()]] verwendet.
-Dieser Funktion kann eine Liste von zu verschmelzenden Objekten übergeben werden. 
-Diese Liste ist zunächst zu identifizieren. 
-An den Verschmelzungsstellen lässt sich eine Fuge einbringen, die über das Argument [[sep]] beschrieben wird. 
+FÃ¼r die Operation "ZusammenfÃ¼gen" wurde die Funktion [[vecpaste()]] verwendet.
+Dieser Funktion kann eine Liste von zu verschmelzenden Objekten Ã¼bergeben werden. 
+Diese Liste ist zunÃ¤chst zu identifizieren. 
+An den Verschmelzungsstellen lÃ¤sst sich eine Fuge einbringen, die Ã¼ber das Argument [[sep]] beschrieben wird. 
 Sollen alle Fugen oder Verbindungsstellen gleich aussehen, reicht die Angabe eines skalaren Wertes aus. 
 Sonst muss [[sep]] ein Vektor sein, der einen Wert mehr als die Objektzahl umfasst. 
-Denn die Fugen werden nicht nur zwischen den Objekten eingefügt, sondern auch am Rand. 
-Ist [[sep]] nummerisch, wird die Angabe als gewünschte Anzahl von Leerzeichen interpretiert.  
+Denn die Fugen werden nicht nur zwischen den Objekten eingefÃ¼gt, sondern auch am Rand. 
+Ist [[sep]] nummerisch, wird die Angabe als gewÃ¼nschte Anzahl von Leerzeichen interpretiert.  
 Zur Verschmelzung werden sicherheitshalber 
-die Elemente eines Objekts vereinheitlicht und dann mit der zugehörigen Fuge auf dem
-Ergebnisvektor abgelegt. Damit später die Information über die Größen der Teilblöcke 
-verfügt werden kann, werden auf [[widths]] diese Breiten (in Zeichenanzahlen) gesammelt und
+die Elemente eines Objekts vereinheitlicht und dann mit der zugehÃ¶rigen Fuge auf dem
+Ergebnisvektor abgelegt. Damit spÃ¤ter die Information Ã¼ber die GrÃ¶ÃŸen der TeilblÃ¶cke 
+verfÃ¼gt werden kann, werden auf [[widths]] diese Breiten (in Zeichenanzahlen) gesammelt und
 mit ausgegeben. 
 
-Um eine zweite Situation abzubilden, können für die einzelnen
-Blöcke, die verschmolzen werden sollen auch Breiten vorgegeben werden. 
-Für diesen Fall müssen an das Argument [[widths]] die Bereiten übergeben werden. 
-Dann erhalten Zwischenräume eine Ausdehnung von 0, 
-die Blöcke werden um Leerzeichen erweitert und dann aneinandergefügt.
+Um eine zweite Situation abzubilden, kÃ¶nnen fÃ¼r die einzelnen
+BlÃ¶cke, die verschmolzen werden sollen auch Breiten vorgegeben werden. 
+FÃ¼r diesen Fall mÃ¼ssen an das Argument [[widths]] die Bereiten Ã¼bergeben werden. 
+Dann erhalten ZwischenrÃ¤ume eine Ausdehnung von 0, 
+die BlÃ¶cke werden um Leerzeichen erweitert und dann aneinandergefÃ¼gt.
 <<definiere einige Funktionen zur Anordnung von Textobjekten>>=
 vecpaste <- function(..., sep=" ", widths=NULL, fill.right = TRUE){  ## ???
   # vecpaste pastet Vektoren zusammen
@@ -1809,11 +1831,11 @@ vecpaste <- function(..., sep=" ", widths=NULL, fill.right = TRUE){  ## ???
 
 @
 Mit Hilfe von [[vecpaste()]] und den Blockbreiten ist die Erstellung der
-Informationszeilen nicht weiter problematisch. Es muss immer aufgezählt werden,
-was zu kombinieren ist, und es müssen die Breiten in einem Vektor 
+Informationszeilen nicht weiter problematisch. Es muss immer aufgezÃ¤hlt werden,
+was zu kombinieren ist, und es mÃ¼ssen die Breiten in einem Vektor 
 zusammengefasst angegeben werden. Falls der erste Datensatzname zu lang ist,
 soll der zweite in einer gesonderten Zeile eingetragen werden.
-<<komponiere Zeilen mit Infos, Namen, Längen und NA-Anzahlen>>=
+<<komponiere Zeilen mit Infos, Namen, LÃ¤ngen und NA-Anzahlen>>=
 # compose info line
 info.line <- vecpaste(sl.x$info[1],sl.x$info[2],sep=c("  ",","," "))$result
 end.of.attr <- max(end.of.left.stem,4)
@@ -1837,11 +1859,11 @@ na.line <- vecpaste("NAs:",n.na.x," ",n.na.y,
 if(0==length(grep("[1-9]",na.line))) na.line <- "    "
 
 @
-Jetzt müssen nur noch die Extremwerte abgehandelt werden. Da sich eine ganze Reihe
-einstellen können, sollte man diese ggf. auf mehrere Zeilen aufteilen. Die Textvektoren 
+Jetzt mÃ¼ssen nur noch die Extremwerte abgehandelt werden. Da sich eine ganze Reihe
+einstellen kÃ¶nnen, sollte man diese ggf. auf mehrere Zeilen aufteilen. Die Textvektoren 
 der jeweiligen Extremwerte sind dann an passenden Stellen aufzusplitten.
-Diesen Job übernimmt die Funktion [[line.to.textvec()]].
-Sowohl für die Lower- wie auch für die Upper-Werte müssen die sich ergebenden 
+Diesen Job Ã¼bernimmt die Funktion [[line.to.textvec()]].
+Sowohl fÃ¼r die Lower- wie auch fÃ¼r die Upper-Werte mÃ¼ssen die sich ergebenden 
 Textvariablen zum Schluss wieder mit [[expand.a.to.b()]] geeignet expandiert werden.
 <<compose info of HI values>>=
 # compose info of HI values
@@ -1861,7 +1883,7 @@ if(back.to.back){
      fill.right=c(TRUE,TRUE,TRUE,TRUE))$result
 }
 @
-Für die extrem kleinen Werte sind die selben Überlegungen wie zu den extrem großen Werten
+FÃ¼r die extrem kleinen Werte sind die selben Ãœberlegungen wie zu den extrem groÃŸen Werten
 anzustellen.
 <<compose info of LO values>>=
 # compose info of LO values
@@ -1883,12 +1905,12 @@ if(back.to.back){
 }
 
 @
-Für die Aufspaltung eines Textvektors in Zeilen, wird der Input zunächst zu einem Element
-verschmolzen. Falls es keine Beschränkung der Zeilenbreite gibt, ist nichts zu tun.
-Wenn der Input in eine Zeile passt, wird er auf die angegebene Zeilenlänge mit Leerzeichen 
-aufgefüllt. Das Vorgehen ist, wie folgt: Der Input wird an Stellen des Separators 
-[[sep]] in Einzelstücke zerlegt. Dann werden immer so viele Einzelstücke genommen,
-wie in eine Zeile passen. Passt ein sehr langes Stück nicht in eine Zeile, wird dieses gesplittet
+FÃ¼r die Aufspaltung eines Textvektors in Zeilen, wird der Input zunÃ¤chst zu einem Element
+verschmolzen. Falls es keine BeschrÃ¤nkung der Zeilenbreite gibt, ist nichts zu tun.
+Wenn der Input in eine Zeile passt, wird er auf die angegebene ZeilenlÃ¤nge mit Leerzeichen 
+aufgefÃ¼llt. Das Vorgehen ist, wie folgt: Der Input wird an Stellen des Separators 
+[[sep]] in EinzelstÃ¼cke zerlegt. Dann werden immer so viele EinzelstÃ¼cke genommen,
+wie in eine Zeile passen. Passt ein sehr langes StÃ¼ck nicht in eine Zeile, wird dieses gesplittet
 und eine Warnung ausgegeben. 
 <<definiere einige Funktionen zur Anordnung von Textobjekten>>=
 line.to.textvec <- function(vec,width,sep=" "){
@@ -1917,7 +1939,7 @@ line.to.textvec <- function(vec,width,sep=" "){
 \subsection{Some Tests}
 @
 Wir definieren eine Reihe von Tests ganz einfach dadurch, dass wir die Test-Aufrufe von 
-[[stem.leaf()]] abändern. Hierzu definieren wir zunächst die Funktion [[test()]] so, 
+[[stem.leaf()]] abÃ¤ndern. Hierzu definieren wir zunÃ¤chst die Funktion [[test()]] so, 
 dass sie statt [[stem.leaf()]] die Funktion [[stem.leaf.backback()]] mit doppelter 
 Verwendung der Daten aufruft.
 <<*>>=
@@ -1934,8 +1956,8 @@ test <- function(what) {
 <<reverse-Test>> 
 
 @
-Als nächstes schauen wir, ob die Veränderung weiterer Parameter klappt.
-Paralleles Blätterwerk erhalten wir mit Hilfe von [[back.to.back=FALSE]].
+Als nÃ¤chstes schauen wir, ob die VerÃ¤nderung weiterer Parameter klappt.
+Paralleles BlÃ¤tterwerk erhalten wir mit Hilfe von [[back.to.back=FALSE]].
 <<*>>=
 test <- function(what) {
   what <- sub("stem.leaf.","stem.leaf.backback(back.to.back=FALSE,",what)
@@ -1965,7 +1987,7 @@ test <- function(what) {
 <<Example of Jim Albert>>
 <<reverse-Test>> 
 @
-Für singuläre Tests kann folgender Chunk verwendet werden:
+FÃ¼r singulÃ¤re Tests kann folgender Chunk verwendet werden:
 <<doit>>=
 <<definiere [[stem.leaf.backback]]>>
 "a" <- structure(c(12, 29, 49, 280, 78, 41, 49, 308, 70, 57,
@@ -2027,7 +2049,59 @@ stem.leaf.backback(rivers[-(1:30)],rivers[1:30], back.to.back = FALSE, unit=10, 
                    Min=200, Max=900, add.more.blanks = 20, show.no.depths = TRUE)
 
 NULL
+@
+Error mailed by John Fox, 30.Okt.2013 in [[stem.leaf.backback]]:
+<<jferror>>=
+# style <- "Tukey"
+style <- "bare"
+<<definiere [[stem.leaf.backback]]>>
+library(car,lib.loc="/home/pwolf/lib")
+data(Moore, package="car")
+with(Moore, stem.leaf.backback(conformity[partner.status == "low"],
+     conformity[partner.status == "high"],style=style))            # ok
+"ok"
 
+@
+Here is the correct output:
+\begin{verbatim}
+_______________________________
+  1 | 2: represents 12, leaf unit: 1 
+conformity[partner.status == "low"]
+                  conformity[partner.status == "high"]
+_______________________________
+             | 0 |             
+             | 0 |             
+   3      444| 0 |             
+   8    77766| 0 |77       2   
+  (5)   99888| 0 |89       4   
+   9        0| 1 |01       6   
+   8   333222| 1 |223      9   
+             | 1 |44455   (5)  
+             | 1 |66777    9   
+             | 1 |9        4   
+             | 2 |01       3   
+   2        3| 2 |3        1   
+   1        4| 2 |             
+             | 2 |             
+             | 2 |             
+             | 3 |             
+_______________________________
+n:         22     23       
+_______________________________
+\end{verbatim}
+@
+Up to October 2013 an error occurs because x.pos and y.pos are vectors.
+\begin{verbatim}
+Error in rep(" ", d <- abs(y.pos - x.pos)) : ungÃ¼ltiges 'times' Argument
+sorry, evaluation not successful!!!
+\end{verbatim}
+@
+<<*>>=
+x <- Moore[Moore$partner.status == "low", "conformity"]
+y <- Moore[Moore$partner.status == "high", "conformity"]
+y <- y[y<9]
+stem.leaf.backback(x,x,style=style,unit=1) # ok
+""
 @
 \section{Anhang}
 
@@ -2235,11 +2309,11 @@ h <- match(y.digits, x.digits); h <- h[!is.na(h)][1]
 x.pos <- which(x.stem==x.digits[h])
 y.pos <- which(y.stem==x.digits[h])
 LZ <- rep(" ",d <- abs(y.pos - x.pos))
-if(x.pos < y.pos) { # x vorn verlängern 
+if(x.pos < y.pos) { # x vorn verlÃ¤ngern 
   x.stem <- c(y.stem[1:d],x.stem)
   x.leaves <- c(LZ,x.leaves)
 }
-if(y.pos < x.pos) { # y vorn verlängern 
+if(y.pos < x.pos) { # y vorn verlÃ¤ngern 
   y.stem <- c(x.stem[1:d],y.stem)
   y.leaves <- c(LZ,y.leaves)
 }
@@ -2247,11 +2321,11 @@ if(y.pos < x.pos) { # y vorn verlängern
 x.l <- length(x.stem)
 y.l <- length(y.stem)
 LZ <- rep(" ",d <- abs(y.l-x.l))
-if(x.l < y.l) { # x hinten verlängern 
+if(x.l < y.l) { # x hinten verlÃ¤ngern 
   x.stem <- c(x.stem,y.stem[-(1:x.l)])
   x.leaves <- c(x.leaves,LZ)
 }
-if(y.l < x.l) { # y hinten verlängern 
+if(y.l < x.l) { # y hinten verlÃ¤ngern 
   y.stem <- c(y.stem,x.stem[-(1:y.l)])
   y.leaves <- c(y.leaves,LZ)
 }

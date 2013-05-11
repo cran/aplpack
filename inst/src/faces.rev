@@ -1,3 +1,5 @@
+% New Report: Wed Oct 30 17:17:46 2013 
+
 % New Report: Fri Nov  4 17:22:24 2011 
 
 % New Report: Thu Nov  3 14:07:55 2011 
@@ -415,8 +417,8 @@ if(obj.ind==11){
   <<paint christmas like if [[2==face.type]]>>
 }
 xx<-xtrans(xx); yy<-ytrans(yy)
-if(obj.ind %in% 1:2) polygon(xx,yy,col="#eeeeee") # eyes
-if(obj.ind %in% 3:4) polygon(xx,yy,col=col.eyes[ceiling(mean(f[7:8 ]))],xpd=NA) # eyes
+if(obj.ind %in% 1:2) polygon(xx,yy,col="#eeeeee") # eyes without iris
+if(obj.ind %in% 3:4) polygon(xx,yy,col=col.eyes[ceiling(mean(f[7:8 ]))],xpd=NA) # eyes:iris
 if(obj.ind %in% 9)   polygon(xx,yy,col=col.nose[ceiling(mean(f[12:13]))],xpd=NA)# nose
 if(obj.ind %in% 5:6) polygon(xx,yy,col=col.lips[ceiling(mean(f[1:3]))],xpd=NA)  # lips
 if(obj.ind %in% 7:8) polygon(xx,yy,col=col.ears[ceiling(mean(f[14:15]))],xpd=NA)# ears
@@ -697,8 +699,8 @@ Explanation of parameters:
 
 For painting elements of a face the colors of are found by 
 averaging of sets of variables: 
-(7,8)-eyes, (12,13)-iris, (1,2,3)-lips, 
-(14,15)-ears, (9)-nose, (10)-hair, (11)-face.
+(7,8)-eyes:iris, (1,2,3)-lips, 
+(14,15)-ears, (12,13)-nose, (9,10,11)-hair, (1,2)-face.
 
 Further details can be found in the literate program of \code{faces}.
 }
@@ -748,7 +750,14 @@ faces(face.type=2)
 }
 \keyword{misc}
 
-
+@
+Wrong description of aplpack version 1.2.7 :
+\begin{verbatim}
+For painting elements of a face the colors of are found by 
+averaging of sets of variables: 
+(7,8)-eyes, (12,13)-iris, (1,2,3)-lips, 
+(14,15)-ears, (9)-nose, (10)-hair, (11)-face.
+\end{verbatim}
 
 
 @

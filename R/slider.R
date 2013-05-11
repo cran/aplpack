@@ -25,7 +25,7 @@ function (sl.functions, sl.names, sl.mins, sl.maxs, sl.deltas,
   if (missing(sl.functions)) sl.functions <- function(...) {  }
    
 
-  require(tcltk)
+  #require(tcltk)
   nt <- tktoplevel()
   tkwm.title(nt, title)
   tkwm.geometry(nt, "+0+15")
@@ -115,7 +115,7 @@ function (sl.functions, sl.names, sl.mins, sl.maxs, sl.deltas,
   if (missing(sl.functions)) sl.functions <- function(...) {  }
    
 
-  require(tcltk)
+  #require(tcltk)
   nt <- tktoplevel()
   tkwm.title(nt, title)
   tkwm.geometry(nt, "+0+15")

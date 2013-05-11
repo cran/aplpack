@@ -1,4 +1,4 @@
 exportPattern("^slider.[a-z]+")
 export(bagplot,boxplot2D,compute.bagplot,faces,plot.bagplot,
-       plotsummary,bagplot.pairs,skyline.hist,
+       plotsummary,plothulls,bagplot.pairs,skyline.hist,
        hdepth,plot.faces,spin3R,stem.leaf,stem.leaf.backback,slider,gslider)

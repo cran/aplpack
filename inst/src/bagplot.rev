@@ -1,3 +1,9 @@
+% New Report: Tue Nov  5 10:04:00 2013 
+
+% New Report: Mon Nov  4 11:24:22 2013 
+% some pictures removed to reduce bytes
+% New Report: Wed Oct 30 14:52:58 2013 
+
 % New Report: Mon Dec 10 19:35:52 2012 
 
 % New Report: Mon Dec 10 11:38:35 2012 
@@ -84,7 +90,8 @@
 \usepackage[scaled=.95]{helvet}
 \usepackage[T1]{fontenc}
 \parindent0mm
-\title{A rough R Impementation of the Bagplot}
+\title{A rough R Impementation of the Bagplot,\\
+Data Peeling, Skyline Plots, and Graphical Summaries}
 \author{File: \jobname.rev\\in: /home/wiwi/pwolf/R/work/bagplot}
 \date{Version: Dec 10 19:15:01 2012}
 \begin{document}
@@ -2630,9 +2637,7 @@ tangleR("bagplot.rev",expand.roots="some functions for generating bagplots",
 \newpage
 
 @
-\section{Inspection tools}
-
-\subsection{Pairs plot with bagplots}
+\section{Pairs plot with bagplots}
 
 A simple application of bagplot is to used it within [[pairs()]] for the inspection of data matrices.
 In this section we present the high level routine [[pairs.bagplot()]] that allows some trimming of the data, too.
@@ -2805,7 +2810,7 @@ if(FALSE){
 ## idx<-!is.na(DM0[,2]);DM1<-DM0[idx,];bagplot.pairs(DM1[,2:1],trim=0)
 
 @
-\subsection{Function for summarizing variables of a matrix}
+\section{[[plotsummary]]: A Graphical Summary of a Data Matrix}
 
 The function [[plotsummary()]] computes  graphical summary of the variables of a data set. 
 Each variable will be represented by some small types of graphics which are stacked in a summary figure.
@@ -3130,7 +3135,7 @@ plotsummary(list(rivers,co2),y.sizes=c(10,3,3,1),mycols=3)
  }
 
 @
-\section{Skyline-Plots}
+\section{Skyline Plots}
 
 Histograms are often used for visualization of the empirical distribution of data sets.
 However, you get different results depending on the choice of the number of cells and 
@@ -3140,7 +3145,7 @@ Skyline plots are similar to shaded histograms, proposed in
 [Young et al., 2006]\footnote{F.W. Young, R.M. Valero-Mora, M. Friendly (2006): 
 Visual Statistics. Wiley, p207--208.} 
 
-\section{Version 1}
+\paragraph{Version 1}
 
 A simple version of a skyline plot results by plotting several histograms with different 
 starting point for first cell into the same graphics device without cleaning. 
@@ -3451,7 +3456,191 @@ skyline.hist(x=rivers, n.class=6, n.hist=4, n.shading=5, col.shading = "blue",
 @
 <<start>>=
 <<define [[skyline.hist]]>>
+@
+@
+\renewcommand{\codechunkcommands}{\footnotesize}
+@
+\section{Data Peeling -- Plot Hulls}
 
+Sometimes data peeling is a nice way to get some insides into the structure of
+a bivariate data set. The idea is simple and you find some articles concerning 
+data peeling by googling "peeling bivariate data":
+\begin{quote}
+\hspace*{-1em}Green, P.J. (1981): Peeling bivariate data. \\
+In: Interpreting Multivariate Data, V. Barnett (ed.), pp 3-19, Wiley.\\
+\hspace*{-1em}Porzio, Giovanni C., Ragozini, Giancarlo (2000): 
+Peeling multvariate data sets: a new approach. 
+Quanderni di Statistica, Vol. 2.
+\end{quote}
+
+Here is a simple version to construct a peeling plot of a bivariate data set:
+<<define [[plothulls]]>>=
+plothulls <- function(x, y, fraction, n.hull = 1, main, add=FALSE,
+                      col.hull, lty.hull, lwd.hull, density=0, ...){
+  # function for data peeling:
+  # x,y : data
+  # fraction.in.inner.hull : max percentage of points within the hull to be drawn
+  # n.hull : number of hulls to be plotted (if there is no fractiion argument)
+  # col.hull, lty.hull, lwd.hull : style of hull line
+  # add : if TRUE old plot is used
+  # pw 130524
+  if(ncol(x) == 2){ y <- x[,2]; x <- x[,1] }
+  if(add) points(x,y,...) else plot(x,y,...)
+  n <- length(x)
+  if(!missing(fraction)) { # find special hull
+     n.hull <- 1
+     if(missing(col.hull)) col.hull <- 1
+     if(missing(lty.hull)) lty.hull <- 1
+     if(missing(lwd.hull)) lwd.hull <- 1
+     x.old <- x; y.old <- y
+     idx <- chull(x,y); x.hull <- x[idx]; y.hull <- y[idx]
+     for( i in 1:(length(x)/3)){
+       x <- x[-idx]; y <- y[-idx]
+       if( (length(x)/n) < fraction ){
+         if(missing(main))
+           title(paste("fraction in polygon:\n",
+                       round((length(x)+length(x.hull))/n,4)))
+         polygon(x.hull, y.hull, col=col.hull,
+                 lty=lty.hull, lwd=lwd.hull, density=density) 
+         return(cbind(x.hull,y.hull))
+       }
+       idx <- chull(x,y); x.hull <- x[idx]; y.hull <- y[idx];
+     }
+  }
+  if(missing(col.hull)) col.hull <- 1:n.hull
+  if(length(col.hull)) col.hull <- rep(col.hull,n.hull)
+  if(missing(lty.hull)) lty.hull <- 1:n.hull
+  if(length(lty.hull)) lty.hull <- rep(lty.hull,n.hull)
+  if(missing(lwd.hull)) lwd.hull <- 1
+  if(length(lwd.hull)) lwd.hull <- rep(lwd.hull,n.hull)
+  result <- NULL
+  for( i in 1:n.hull){
+    idx <- chull(x,y); x.hull <- x[idx]; y.hull <- y[idx]
+    result <- c(result, list( cbind(x.hull,y.hull) ))
+    polygon(x[idx], y[idx], col=col.hull[i],
+            lty=lty.hull[i], lwd=lwd.hull[i], density=density) 
+    x <- x[-idx]; y <- y[-idx]
+    if(0 == length(x)) return(result)
+  }
+  if(missing(main))
+    title(paste("fraction in smallest polygon:\n",
+                round((length(x)+length(x.hull))/n,4)))
+  result
+} # end of definition of plothulls
+
+@
+<<examples of [[plothulls()]]>>=
+xy <- faithful; #xy <- cars
+#library(aplpack)
+par(mfrow=c(2,3))
+# 1. plot
+plothulls(faithful,n.hull=10,lty.hull=1)
+# 2. plot
+plot(xy)
+plothulls(faithful,fraction=.90,add=TRUE,col.hull="red",lwd.hull=3)
+# 3. plot
+plothulls(faithful,fraction=.10,col.hull="red",lwd.hull=3)
+# 4. plot
+n <- 3
+plothulls(cars,n.hull=n,col.hull=1:n,lty.hull=1:n)
+# 5. plot
+n <- 5
+cols <- heat.colors(9)[3:(3+n-1)]
+plothulls(cars,n.hull=n,col.hull=cols,lty.hull=1:n, density=NA,col=0)
+points(cars, pch=17, cex=1)
+# 6. plot
+n <- 6
+cols <- rainbow(n)
+plothulls(cars,n.hull=n,col.hull=cols,lty.hull=1:n, density=NA,col=0)
+x<-plothulls(cars,n.hull=n,add=TRUE,col.hull=1,lwd.hull=2,lty=1,col=0)
+par(mfrow=c(1,1))
+
+@
+ \begin{center}\includegraphics[height=10cm]{p2013-Nov5-101303}\end{center}
+
+% <p><img src="p2013-Nov5-101303.jpg">
+
+@
+<<define help of [[plothulls]]>>=
+\name{plothulls}
+\alias{plothulls}
+\title{plothulls for data peeling }
+\description{
+  \code{plothulls plots convex hulls of a bivariate data set.}
+}
+
+\usage{
+plothulls(x, y, fraction, n.hull = 1, main, add = FALSE, col.hull, 
+    lty.hull, lwd.hull, density = 0, ...) 
+}
+
+\arguments{
+  \item{x}{ two column matrix of the coordinates of points of x-values of a data set} 
+  \item{y}{ if x is one dimensional then y contains the y-values of the data set} 
+  \item{fraction}{ ... of points that lies inside the hull to be plotted} 
+  \item{n.hull}{ number of directions sequential hulls to be plotted}
+  \item{main}{ title for the graphics}
+  \item{add}{ if TRUE no new plot is initialized}
+  \item{col.hull}{ color(s) of the hull(s)}
+  \item{lty.hull}{ line type(s) of the hull(s)}
+  \item{lwd.hull}{ line width(s) of the hull(s)}
+  \item{density}{ density argument of polygon() that draws the hulls}
+  \item{...}{ further arguments used in the call of plot() or points()}
+}
+
+\details{
+The function \code{plothulls} computes hulls of a bivariate data set using the 
+function \code{chull}. After finding a hull the hull maybe plotted. 
+Then the data points of the hull will be removed and 
+the hull of the remaining points is computed. 
+The style of plotting a hull depends on the setting of 
+\code{col.hull}, \code{lty.hull}, \code{lwd.hull} and \code{density}.
+\code{density=NA} has the effect that the regions of the hulls are filled by a color.
+Using \code{fraction} you can plot a single hull. 
+\code{n.hull} defines the number of hull that should be drawn one after the other.
+}
+
+\value{
+The points of the hull(s) are stored in matrices with two columns and 
+the matrices are gathered in the output object.
+}
+\references{ 
+  Green, P.J. (1981): Peeling bivariate data. 
+  In: Interpreting Multivariate Data, V. Barnett (ed.), pp 3-19, Wiley.
+
+  Porzio, Giovanni C., Ragozini, Giancarlo (2000): 
+  Peeling multvariate data sets: a new approach. Quanderni di Statistica, Vol. 2.
+}
+\author{ Peter Wolf }
+\note{
+  Version of plothulls: 10/2013 }
+ \seealso{ \code{\link[aplpack]{bagplot}} }
+\examples{
+  # 10 hulls computed from the faithful data and plotted
+  plothulls(faithful, n.hull=10, lty.hull=1)
+  # plotting additionally a hull with 90 percent of points within the hull
+  plot(faithful)
+  plothulls(faithful, fraction=.90, add=TRUE, col.hull="red", lwd.hull=3)
+  # hull with 10 percent of points within the hull 
+  plothulls(faithful, fraction=.10, col.hull="red", lwd.hull=3)
+  # first 3 hulls of the cars data set
+  n <- 3
+  plothulls(cars, n.hull=n, col.hull=1:n, lty.hull=1:n)
+  # 5 hulls represented by colored regions
+  n <- 5
+  cols <- heat.colors(9)[3:(3+n-1)]
+  plothulls(cars, n.hull=n, col.hull=cols, lty.hull=1:n, density=NA, col=0)
+  points(cars, pch=17, cex=1)
+  # 6 hulls: regions colored and boundaries shown
+  n <- 6
+  cols <- rainbow(n)
+  plothulls(cars, n.hull=n, col.hull=cols, lty.hull=1:n, density=NA, col=0)
+  plothulls(cars, .hull=n, add=TRUE, col.hull=1, lwd.hull=2, lty=1, col=0)
+}
+
+@
+<<start>>=
+<<define [[plothulls]]>>
 
 @ 
 \section{Appendix}
@@ -3558,7 +3747,8 @@ for(nr in c(1,3,6,7,8,11,15,16,17:26)){
 }
 
 @
- \begin{center}\includegraphics[height=10cm]{p2012-Nov5-185200}\end{center}
+%rm in course of reducing bytes
+% \begin{center}\includegraphics[height=10cm]{p2012-Nov5-185200}\end{center}
 
 % <p><img src="p2012-Nov5-185200.jpg">
 @
@@ -3575,7 +3765,8 @@ for(nr in c(2,4,5,9,10,12,13,14)){
 }
 
 @
- \begin{center}\includegraphics[height=10cm]{p2012-Nov5-185302}\end{center}
+%rm in course of reducing bytes
+% \begin{center}\includegraphics[height=10cm]{p2012-Nov5-185302}\end{center}
 
 % <p><img src="p2012-Nov5-185302.jpg">
 @
@@ -3588,7 +3779,8 @@ nr <- 26; dat.name <- paste("dat.AJS.NA.",nr,sep="")
 dat <- eval(parse(text=dat.name))
 try({bagplot(dat,debug.plots="all",verbose=!TRUE, main=dat.name)})
 @
- \begin{center}\includegraphics[height=10cm]{p2012-Nov5-185606}\end{center}
+%rm in course of reducing bytes
+%\begin{center}\includegraphics[height=10cm]{p2012-Nov5-185606}\end{center}
 
 % <p><img src="p2012-Nov5-185606.jpg">
 @
@@ -3667,7 +3859,8 @@ bagplot(dat.AJS.cen.52,main="dat.AJS.cen.52")
 bagplot(dat.AJS.cen.53,main="dat.AJS.cen.53")
 
 @
- \begin{center}\includegraphics[height=10cm]{p2012-Nov5-185850}\end{center}
+%rm in course of reducing bytes
+% \begin{center}\includegraphics[height=10cm]{p2012-Nov5-185850}\end{center}
 
 % <p><img src="p2012-Nov5-185850.jpg">
 @
@@ -3814,7 +4007,8 @@ bagplot(dat.AJS.chull.2,main="dat.AJS.chull.2")
 points(dat.AJS.chull.1,col="green")
 summary(dat.AJS.chull.1-dat.AJS.chull.2)
 @
- \begin{center}\includegraphics[height=10cm]{p2012-Nov5-191529}\end{center}
+%rm in course of reducing bytes
+% \begin{center}\includegraphics[height=10cm]{p2012-Nov5-191529}\end{center}
 
 % <p><img src="p2012-Nov5-191529.jpg">
 @
@@ -3958,8 +4152,9 @@ dump( c("bagplot", "check.sen", "compute.bagplot", "dat.AJS.chull.1",
 To start the experiment you have to source the file [[check.sen]] into R and afterwards 
 you have to call function [[check.sen()]]. Maybe you have to open / to close a graphics device.
 
-Here is an result on an 64 Bit linux machine working with R-2.10.1:
-\begin{center}\includegraphics[height=10cm]{pbagplot-R64-test-20121019}\end{center}
+%Here is an result on an 64 Bit linux machine working with R-2.10.1:
+%rm in course of reducing bytes
+%\begin{center}\includegraphics[height=10cm]{pbagplot-R64-test-20121019}\end{center}
 
 % <p><img src="pbagplot-R64-test-20121019.jpg">
 
@@ -4254,10 +4449,11 @@ dump( c("bagplot", "check.fence", "compute.bagplot",
 
 
 @
-Here is the desired output of the chunk.
+%Here is the desired output of the chunk.
 
 @
- \begin{center}\includegraphics[height=10cm]{p2012-Nov5-192533}\end{center}
+%rm in course of reducing bytes
+% \begin{center}\includegraphics[height=10cm]{p2012-Nov5-192533}\end{center}
 
 % <p><img src="p2012-Nov5-192533.jpg">
 @
@@ -4401,9 +4597,10 @@ par(mfrow=c(3,3))
 <<Amanda's data set of 29Oct2012: Na/NaN-error F>>
 <<Amanda's data set of 29Oct2012: Na/NaN-error G>>
 @
-Here are the result of a 32 bit machine:
+%Here are the result of a 32 bit machine:
 @
- \begin{center}\includegraphics[height=10cm]{p2012-Nov5-194121}\end{center}
+ %rm in course of reducing bytes
+%\begin{center}\includegraphics[height=10cm]{p2012-Nov5-194121}\end{center}
 
 % <p><img src="p2012-Nov5-194121.jpg">
 @
@@ -4422,7 +4619,8 @@ aa<-bagplot(c2,debug.plots="all",verbose=TRUE);
 points(c2,cex=2)
 
 @
- \begin{center}\includegraphics[height=6cm]{p2012-Oct30-194804}\end{center}
+%rm in course of reducing bytes
+%\begin{center}\includegraphics[height=6cm]{p2012-Oct30-194804}\end{center}
 
 % <p><img src="p2012-Oct30-194804.jpg">
 @
@@ -4481,7 +4679,8 @@ bagplot(XY,verbose=TRUE)
 @
 
 @
- \begin{center}\includegraphics[height=10cm]{p2012-Nov26-204033}\end{center}
+%rm in course of reducing bytes
+% \begin{center}\includegraphics[height=10cm]{p2012-Nov26-204033}\end{center}
 
 % <p><img src="p2012-Nov26-204033.jpg">
 @
@@ -4503,7 +4702,8 @@ xy <- frabo12[1:20,10:9]
 @
 Setting precision to 1.0 will result in a center field in plot four that is a little bit too big. 
 To get rid of this effect the precision has been set to 1.1.
- \begin{center}\includegraphics[height=10cm]{p2012-Dec4-155010}\end{center}
+%rm in course of reducing bytes
+% \begin{center}\includegraphics[height=10cm]{p2012-Dec4-155010}\end{center}
 
 % <p><img src="p2012-Dec4-155010.jpg">
 @
@@ -4534,9 +4734,11 @@ xy <- frabo12[,c("EurHandy","EurHandyKosten")]; xy <- trim.xy(xy,0.01)
 bagplot(xy,precision=1,cex=1)
 
 @
- \begin{center}\includegraphics[height=10cm]{p2012-Dec4-155404}\end{center}
+%rm in course of reducing bytes
+% \begin{center}\includegraphics[height=10cm]{p2012-Dec4-155404}\end{center}
 
 % <p><img src="p2012-Dec4-155404.jpg">
+
 
 @
 \subsection{Indices}

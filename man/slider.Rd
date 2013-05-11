@@ -212,4 +212,3 @@ R.veil.in.the.wind()
 \keyword{dynamic}% at least one, from doc/KEYWORDS
 \keyword{iplot}% __ONLY ONE__ keyword per line
 
-

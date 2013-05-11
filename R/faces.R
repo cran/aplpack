@@ -217,8 +217,8 @@ faces<-function(xy,which.row,fill=FALSE,face.type=1,
 
             }
             xx<-xtrans(xx); yy<-ytrans(yy)
-            if(obj.ind %in% 1:2) polygon(xx,yy,col="#eeeeee") # eyes
-            if(obj.ind %in% 3:4) polygon(xx,yy,col=col.eyes[ceiling(mean(f[7:8 ]))],xpd=NA) # eyes
+            if(obj.ind %in% 1:2) polygon(xx,yy,col="#eeeeee") # eyes without iris
+            if(obj.ind %in% 3:4) polygon(xx,yy,col=col.eyes[ceiling(mean(f[7:8 ]))],xpd=NA) # eyes:iris
             if(obj.ind %in% 9)   polygon(xx,yy,col=col.nose[ceiling(mean(f[12:13]))],xpd=NA)# nose
             if(obj.ind %in% 5:6) polygon(xx,yy,col=col.lips[ceiling(mean(f[1:3]))],xpd=NA)  # lips
             if(obj.ind %in% 7:8) polygon(xx,yy,col=col.ears[ceiling(mean(f[14:15]))],xpd=NA)# ears

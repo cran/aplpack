@@ -1,3 +1,5 @@
+% New Report: Mon Nov  4 13:39:04 2013 
+% require -> # 
 
 
 \documentclass{article}
@@ -17,7 +19,7 @@
 \maketitle
 @
 
-Die in diesen Abschnitt definierte Funktion ermöglicht
+Die in diesen Abschnitt definierte Funktion ermÃ¶glicht
 dem Anwender eine Punktwolke interaktiv zu drehen und
 zu betrachten.
 
@@ -78,7 +80,7 @@ spin3R <- function(x, alpha=1, delay=.015, na.rm=FALSE){
  #                                                               #
  #################################################################
 if(ncol(x)!=3) { print("Error: data matrix must have 3 columns"); return() }
- require(tcltk)
+ # require(tcltk) # 131104
  <<generiere Steuerungsfenster>>
  <<definiere Rotationen>>
  <<definiere Bindungen>>
@@ -121,15 +123,15 @@ tkconfigure(b51,command=function() tclvalue(Rot) <- "reset" )
 tkconfigure(b53,command=function() tclvalue(Rot) <- "exit" )
 
 @
-Für die Rotation bezüglich zwei Achsen wird nur eine 2$\times$2-Rotationsmatrix
-benötigt.
+FÃ¼r die Rotation bezÃ¼glich zwei Achsen wird nur eine 2$\times$2-Rotationsmatrix
+benÃ¶tigt.
 <<definiere Rotationen>>=
 alpha<-alpha/360*2*pi; ca<-cos(alpha); sa<-sin(alpha)
 rot<-matrix(c(ca,-sa,sa,ca),2,2)
 
 @
-[[x]] hält die Daten, [[x.o]] die Originaldaten, [[xa]] die 2-dim Projektionen.
-Für die Anschaulichkeit wird ein Andeutung der Achsen mitgeliefert:
+[[x]] hÃ¤lt die Daten, [[x.o]] die Originaldaten, [[xa]] die 2-dim Projektionen.
+FÃ¼r die Anschaulichkeit wird ein Andeutung der Achsen mitgeliefert:
 [[A]] beschreibt die Achsen, [[A.o]] die Originalachsen, [[Aa]] den
 darzustellenden Teil.
 <<initialisiere Plot>>=

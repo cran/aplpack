@@ -513,21 +513,22 @@ stem.leaf.backback <- function(x,y, unit, m, Min, Max, rule.line = c("Dixon", "V
   x.depths <- substring(sl.x$depths,3);        y.depths <- substring(sl.y$depths,3)
   x.digits <- grep("[0-9]",x.stem,value=TRUE); y.digits <- grep("[0-9]",y.stem,value=TRUE)
   h <- match(y.digits, x.digits); h <- h[!is.na(h)][1]
-  x.pos <- which(x.stem==x.digits[h]); y.pos <- which(y.stem==x.digits[h])
+  # take the first ->[1] only otherwise an error occurs, see mail from John Fox 10/2013:
+  x.pos <- which(x.stem==x.digits[h])[1]; y.pos <- which(y.stem==x.digits[h])[1]
   LZ <- rep(" ",d <- abs(y.pos - x.pos))
-  if(x.pos < y.pos) { # x vorn verlängern 
+  if(x.pos < y.pos) { # x vorn verlÃ¤ngern 
     x.stem <- c(y.stem[1:d],x.stem); x.leaves <- c(LZ,x.leaves); x.depths <- c(LZ,x.depths)
   }
-  if(y.pos < x.pos) { # y vorn verlängern 
+  if(y.pos < x.pos) { # y vorn verlÃ¤ngern 
     y.stem <- c(x.stem[1:d],y.stem); y.leaves <- c(LZ,y.leaves); y.depths <- c(LZ,y.depths)
   }
   x.l <- length(x.stem); y.l <- length(y.stem)
   LZ <- rep(" ",d <- abs(y.l-x.l))
-  if(x.l < y.l) { # x hinten verlängern 
+  if(x.l < y.l) { # x hinten verlÃ¤ngern 
     x.stem <- c(x.stem,y.stem[-(1:x.l)]); x.leaves <- c(x.leaves,LZ)
     x.depths <- c(LZ,x.depths,LZ)
   }
-  if(y.l < x.l) { # y hinten verlängern 
+  if(y.l < x.l) { # y hinten verlÃ¤ngern 
     y.stem <- c(y.stem,x.stem[-(1:y.l)]); y.leaves <- c(y.leaves,LZ)
     y.depths <- c(LZ,y.depths,LZ)
   }

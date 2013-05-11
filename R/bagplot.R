@@ -1630,5 +1630,57 @@ skyline.hist <- function(
   # return info of hist
   invisible(hist.res)
 }
+plothulls <- function(x, y, fraction, n.hull = 1, main, add=FALSE,
+                      col.hull, lty.hull, lwd.hull, density=0, ...){
+  # function for data peeling:
+  # x,y : data
+  # fraction.in.inner.hull : max percentage of points within the hull to be drawn
+  # n.hull : number of hulls to be plotted (if there is no fractiion argument)
+  # col.hull, lty.hull, lwd.hull : style of hull line
+  # add : if TRUE old plot is used
+  # pw 130524
+  if(ncol(x) == 2){ y <- x[,2]; x <- x[,1] }
+  if(add) points(x,y,...) else plot(x,y,...)
+  n <- length(x)
+  if(!missing(fraction)) { # find special hull
+     n.hull <- 1
+     if(missing(col.hull)) col.hull <- 1
+     if(missing(lty.hull)) lty.hull <- 1
+     if(missing(lwd.hull)) lwd.hull <- 1
+     x.old <- x; y.old <- y
+     idx <- chull(x,y); x.hull <- x[idx]; y.hull <- y[idx]
+     for( i in 1:(length(x)/3)){
+       x <- x[-idx]; y <- y[-idx]
+       if( (length(x)/n) < fraction ){
+         if(missing(main))
+           title(paste("fraction in polygon:\n",
+                       round((length(x)+length(x.hull))/n,4)))
+         polygon(x.hull, y.hull, col=col.hull,
+                 lty=lty.hull, lwd=lwd.hull, density=density) 
+         return(cbind(x.hull,y.hull))
+       }
+       idx <- chull(x,y); x.hull <- x[idx]; y.hull <- y[idx];
+     }
+  }
+  if(missing(col.hull)) col.hull <- 1:n.hull
+  if(length(col.hull)) col.hull <- rep(col.hull,n.hull)
+  if(missing(lty.hull)) lty.hull <- 1:n.hull
+  if(length(lty.hull)) lty.hull <- rep(lty.hull,n.hull)
+  if(missing(lwd.hull)) lwd.hull <- 1
+  if(length(lwd.hull)) lwd.hull <- rep(lwd.hull,n.hull)
+  result <- NULL
+  for( i in 1:n.hull){
+    idx <- chull(x,y); x.hull <- x[idx]; y.hull <- y[idx]
+    result <- c(result, list( cbind(x.hull,y.hull) ))
+    polygon(x[idx], y[idx], col=col.hull[i],
+            lty=lty.hull[i], lwd=lwd.hull[i], density=density) 
+    x <- x[-idx]; y <- y[-idx]
+    if(0 == length(x)) return(result)
+  }
+  if(missing(main))
+    title(paste("fraction in smallest polygon:\n",
+                round((length(x)+length(x.hull))/n,4)))
+  result
+} # end of definition of plothulls
 ##:start##
 #:0

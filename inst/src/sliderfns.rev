@@ -1,3 +1,8 @@
+% New Report: Mon Nov  4 13:41:06 2013 
+
+% New Report: Mon Nov  4 13:28:20 2013 
+% 131104:  # require(tcltk) # now in the depends section of the package
+%      slider() is copied from R/work/relax/install.dir/relax/R/slider.R
 % New Report: Fri Jun 12 11:48:32 2009 
 
 % New Report: Wed Mar 25 10:10:57 2009 
@@ -1863,7 +1868,7 @@ slider<-function (sl.functions, sl.names, sl.mins, sl.maxs, sl.deltas,
     if (missing(sl.functions)) 
         sl.functions <- function(...) {
         }
-    require(tcltk)
+    # require(tcltk) # now in the depends section of the package
     nt <- tktoplevel()
     tkwm.title(nt, title)
     tkwm.geometry(nt, "+0+15")
@@ -1980,9 +1985,9 @@ cat('exportPattern("^slider.[a-z]+")',
 \subsection{Umwandlung von PS-Bildern in JPEGs}
 Der R-Erstellungsprozess des PDF-Files verwendet pdflatex,
 sodass JPEP-Dateien statt PS-Dateien eingebunden werden.
-Deshalb ist es ratsam, jpg-Datei gleicher Qualität zu generieren.
+Deshalb ist es ratsam, jpg-Datei gleicher Qualit<e4>t zu generieren.
 Mit diesem Chunk lassen sich die Bilder von ps nach jpg
-konvertieren. Im Erstellungsskript werden übrigens die jpg-Dateien
+konvertieren. Im Erstellungsskript werden <fc>brigens die jpg-Dateien
 an die geeignete Stelle kopiert:
 [[cp sliderfns/*.jpg aplpack/inst/doc/]]
 <<*>>=
