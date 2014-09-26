@@ -1678,7 +1678,7 @@ plothulls <- function(x, y, fraction, n.hull = 1, main, add=FALSE,
     if(0 == length(x)) return(result)
   }
   if(missing(main))
-    title(paste("fraction in smallest polygon:\n",
+    title(paste("fraction of points within the smallest polygon:\n",
                 round((length(x)+length(x.hull))/n,4)))
   result
 } # end of definition of plothulls

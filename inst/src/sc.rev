@@ -1,3 +1,5 @@
+% New Report: Tue Sep 23 11:52:30 2014 
+
 
 \documentclass{article}
 \usepackage{noweb}
@@ -17,7 +19,7 @@
 @
 \section{Gegenstand}
 In diesem Papier wird die Funktion [[boxplot2D]] definiert. Mit dieser
-l‰ﬂt sich in einen Scatterplot eines zweidimensionalen Datensatzes
+l√§√üt sich in einen Scatterplot eines zweidimensionalen Datensatzes
 zu einer beliebigen Projektion der Daten ein Boxplots erstellen
 und geeignet im Scatterplot der Daten anbringen.
 
@@ -58,8 +60,8 @@ if(any(is.na(xy))){
 <<zeichne ggf.\ Scatterplot>>
 <<konstruiere Rotationsmatrix [[TM]] mittels [[angle]] und [[angle.type]]>>
 <<ermittle Quantile der gedrehten Daten und retransformiere: [[xy.q]]>>
-<<berechne f¸r Box Vektor f¸r Boxhˆhe: [[real.step]]>>
-<<realisiere gew¸nschte Verschiebung>>
+<<berechne f√ºr Box Vektor f√ºr Boxh√∂he: [[real.step]]>>
+<<realisiere gew√ºnschte Verschiebung>>
 <<erstelle Boxplot>>
 } # end of boxplot2D
 
@@ -117,20 +119,23 @@ if(any(is.na(xy))){
 \seealso{ \code{\link[graphics]{boxplot}}}
 \examples{
  xy<-cbind(1:100, (1:100)+rnorm(100,,5))
+ par(pty="s")
  plot(xy,xlim=c(-50,150),ylim=c(-50,150))
  boxplot2D(xy,box.shift=-30,angle=3,angle.typ=1)
  boxplot2D(xy,box.shift=20,angle=1,angle.typ=1)
  boxplot2D(xy,box.shift=50,angle=5,angle.typ=1)
+ par(pty="m")
 }
 \keyword{misc}
 
 @
+% pty="s" // "m" # 140923 vorgeschlagen von DT.
 Ohne Kommentar.
 <<zeichne ggf.\ Scatterplot>>=
 if(!add.to.plot) plot(xy,...)
 
 @
-Benˆtigt wird eine (2,2)-Rotationsmatrix -- [[TM]].
+Ben√∂tigt wird eine (2,2)-Rotationsmatrix -- [[TM]].
 <<konstruiere Rotationsmatrix [[TM]] mittels [[angle]] und [[angle.type]]>>=
 if(is.numeric(angle.type)){
   angle.type<-as.character(angle.type)
@@ -144,11 +149,11 @@ TM <- matrix(c(cos(w),sin(w),-sin(w),cos(w)),2,2)
 Als Standardposition wird der Rerotierte Median der
 rotierten $y$-Werte verwendet.
 Nach Tukey:
-Die Rolle der Quartile ¸bernehmen die Angeln (hinges),
-ihr Abstand heiﬂt Angelabstand (H-Spread).\\
+Die Rolle der Quartile √ºbernehmen die Angeln (hinges),
+ihr Abstand hei√üt Angelabstand (H-Spread).\\
 Ein Schritt (step) ist das Produkt H-Spread $*$ factor z.B.\ mit factor=[[coef.default==1.5]]\\
 inner fence: [lower hinge $-$ step, upper hinge +step]\\
-Ausreiﬂer: (upper hinge + step, upper hinge + 2step]=
+Ausrei√üer: (upper hinge + step, upper hinge + 2step]=
  (upper hinge + 1.5$*$H-Spread, upper hinge + 3$*$H-Spread] 
  =(fence, fence + 1.5$*$H-Spread] sowie entsprechend links.\\
 heavy outliers: (fence+1.5H-Spread , unendlich) sowie entsprechend links.
@@ -176,55 +181,55 @@ if(tukey.style){
 }
 
 @
-Die Ermittlung eines Hˆhenvektors f¸r die Box
-ist gar nicht so einfach. Auﬂerdem werden zwei Designs verfolgt. Soll sich
+Die Ermittlung eines H√∂henvektors f√ºr die Box
+ist gar nicht so einfach. Au√üerdem werden zwei Designs verfolgt. Soll sich
 das Erscheinungsbild der Box, wie auch immer die Weltkoordinaten sind
-und welche Grˆﬂenverh‰ltnisse der graphische Device aufweist,
+und welche Gr√∂√üenverh√§ltnisse der graphische Device aufweist,
 durch ein Rechteck auszeichnen?
-Dieses wird erreicht durch [[design!="sl"]]. Angemessener f¸r
-viele Probleme werden jedoch parallelogrammfˆrmige {\em Boxen} sind,
-die auch bei einer Ver‰nderung des Device sich entsprechend mit‰ndern und
+Dieses wird erreicht durch [[design!="sl"]]. Angemessener f√ºr
+viele Probleme werden jedoch parallelogrammf√∂rmige {\em Boxen} sind,
+die auch bei einer Ver√§nderung des Device sich entsprechend mit√§ndern und
 im Weltkoordinatensystem immer Rechtecke sind.
-Das Parallelgramm soll dann mit jenem ¸bereinstimmen, daﬂ sich einstellt,
-wenn bei einem quadratischen Device und gleichen Bereichen f¸r
+Das Parallelgramm soll dann mit jenem √ºbereinstimmen, da√ü sich einstellt,
+wenn bei einem quadratischen Device und gleichen Bereichen f√ºr
 $x$ und $y$ der Device gestreckt wird.
-F¸r die Berechnung des Boxhˆhenvektors sind auf jeden Fall
+F√ºr die Berechnung des Boxh√∂henvektors sind auf jeden Fall
 erforderlich: Spannweiten der Wertebereiche der Weltkoordinaten [[d.xy]],
 Spannweiten des Viewports in Weltkoordinaten [[d.usr]] und
-Maﬂe der Viewports in mm [[d.pmm]]. [[d.]] f¸r [[delta]]
+Ma√üe der Viewports in mm [[d.pmm]]. [[d.]] f√ºr [[delta]]
 deutet auf Differenzen zwischen maximalen und minimalen Werten hin.
 
-<<berechne f¸r Box Vektor f¸r Boxhˆhe: [[real.step]]>>=
+<<berechne f√ºr Box Vektor f√ºr Boxh√∂he: [[real.step]]>>=
 # d. steht fuer delta.:
 d.xy <-apply(xy.q[c(1,7),],           2,diff)
 d.usr<-apply(matrix(par()$usr,2,2),2,diff)
 d.pmm<-par()$pin*25.4
 if(design=="sl"){
-    <<ermittle Boxhˆhenvektor [[real.step]] f¸r schr‰ges Design>>
+    <<ermittle Boxh√∂henvektor [[real.step]] f√ºr schr√§ges Design>>
 }else{
-    <<ermittle Boxhˆhenvektor [[real.step]] f¸r Box-Design>>
+    <<ermittle Boxh√∂henvektor [[real.step]] f√ºr Box-Design>>
 }
 
 @
-In der schr‰gen Form wird im Weltkoordinatensystem ein Boxplot erstellt und
+In der schr√§gen Form wird im Weltkoordinatensystem ein Boxplot erstellt und
 in die geeignete Position gebracht, was in der Regel zu
-schr‰gen Erscheinungsbildern f¸hren wird. Im Weltkoordinatensystem
-liegt jedoch ein Rechteck vor. Zu beachten ist, daﬂ die gew¸nschte Boxhˆhe in
+schr√§gen Erscheinungsbildern f√ºhren wird. Im Weltkoordinatensystem
+liegt jedoch ein Rechteck vor. Zu beachten ist, da√ü die gew√ºnschte Boxh√∂he in
 mm angegeben wird.
 Was ist zu tun?
 
-Zun‰chst wird zu einem Vektor, der entlang des Boxplots zeigt, ein in
+Zun√§chst wird zu einem Vektor, der entlang des Boxplots zeigt, ein in
 Weltkoordinaten senkrechter Vektor [[d.xy.s.mm]]
-konstruiert und im mm-Koordinaten ¸berf¸hrt.
+konstruiert und im mm-Koordinaten √ºberf√ºhrt.
 Dann wird ein Einheitsvektor senkrecht zu Verlauf des Boxplots in
 mm-Koordinaten [[d.xy.0.s]] erstellt.
-[[d.xy.s.mm]] zeigt in die gew¸nschte Richtung und muﬂ proportional
-zu dem Wunsch [[box.size]] verl‰ngert werden. Vorher ist jedoch
-[[d.xy.s.mm]] so zu strecken, daﬂ seine Projektion auf
+[[d.xy.s.mm]] zeigt in die gew√ºnschte Richtung und mu√ü proportional
+zu dem Wunsch [[box.size]] verl√§ngert werden. Vorher ist jedoch
+[[d.xy.s.mm]] so zu strecken, da√ü seine Projektion auf
 [[d.xy.0.s]] einen Einheitsvektor ergibt, und deshalb durch
-die L‰nge der Projektion zu teilen: [[d.xy.s.mm.proj1]].
-Zum Schluﬂ ist eine Retransformation in Weltkoordinaten notwendig.
-<<ermittle Boxhˆhenvektor [[real.step]] f¸r schr‰ges Design>>=
+die L√§nge der Projektion zu teilen: [[d.xy.s.mm.proj1]].
+Zum Schlu√ü ist eine Retransformation in Weltkoordinaten notwendig.
+<<ermittle Boxh√∂henvektor [[real.step]] f√ºr schr√§ges Design>>=
 # d.xy.s.mm: bzgl. Welt-coor senkrechten Vektor in mm-coor
 d.xy.s.mm <- (c(-1,1)*rev(d.xy))/d.usr*d.pmm
 # d.xy.0.s: bzgl. mm-coor senkrechten Einheits-Vektor
@@ -238,12 +243,12 @@ real.step.mm <- box.size * d.xy.s.mm.proj1
 real.step <- real.step.mm/d.pmm*d.usr
 
 @
-Die Idee f¸r das Box-Design ist etwas einfacher.
-Nehme den Vektor, der l‰ngs des Boxplots zeigt ([[d.xy]]), transformiere
-diesen in mm-Koordinaten und ermittle den zugehˆrigen senkrechten Vektor.
-Verl‰ngere diesen Boxhˆhenvektor gem‰ﬂ der gew¸nschten [[box.size]].
-Retransformiere Hˆhenvektor in Weltkoordinaten.
-<<ermittle Boxhˆhenvektor [[real.step]] f¸r Box-Design>>=
+Die Idee f√ºr das Box-Design ist etwas einfacher.
+Nehme den Vektor, der l√§ngs des Boxplots zeigt ([[d.xy]]), transformiere
+diesen in mm-Koordinaten und ermittle den zugeh√∂rigen senkrechten Vektor.
+Verl√§ngere diesen Boxh√∂henvektor gem√§√ü der gew√ºnschten [[box.size]].
+Retransformiere H√∂henvektor in Weltkoordinaten.
+<<ermittle Boxh√∂henvektor [[real.step]] f√ºr Box-Design>>=
 # Einheitsvektor zu d.xy in mm-coor
 d.xy.mm   <- d.xy/d.usr*d.pmm
 d.xy.mm.ev<- d.xy.mm/(d.xy.mm%*%d.xy.mm)^0.5
@@ -253,12 +258,12 @@ mm.step   <- box.size*c(-1,1)*rev(d.xy.mm.ev)
 real.step <- mm.step/d.pmm*d.usr # real.step fuer Boxdickenvektor
 
 @
-Der gew¸nschte Shift verh‰lt sich zur gew¸nschten Boxdicke wie
+Der gew√ºnschte Shift verh√§lt sich zur gew√ºnschten Boxdicke wie
 der realisierte Shift zur realisierten Boxdicke.
 Folglich ergibt sich der zu realisierende Shift durch Multiplikation
-der gew¸nschten Shiftes mit dem Quotienten aus realisiertem [[real.step]]
-und gew¸nschter Dicke.
-<<realisiere gew¸nschte Verschiebung>>=
+der gew√ºnschten Shiftes mit dem Quotienten aus realisiertem [[real.step]]
+und gew√ºnschter Dicke.
+<<realisiere gew√ºnschte Verschiebung>>=
 # Boxshift: in mm
 real.shift<-box.shift*real.step/box.size
 xy.q.orig <- xy.q
@@ -272,12 +277,12 @@ if(tukey.style){
 
 @
 Mit Hilfe der transformierten Quantile [[xy.q]]
-und des halben vertikalen Boxhˆhen-Vektors [[hs]]
+und des halben vertikalen Boxh√∂hen-Vektors [[hs]]
 -- ermittelt aus [[real.step]] -- ist die
-Erstellung der Boxplot kein groﬂes Problem mehr.
+Erstellung der Boxplot kein gro√ües Problem mehr.
 Die Extrema werden durch Punkte und nicht durch Striche dargestellt,
 da sie andernfalls aufgrund perspektivischer Verzerrungen eher zu
-Fehlinterpretationen verleiten w¸rden. Der Code f¸r Abschluﬂstriche
+Fehlinterpretationen verleiten w√ºrden. Der Code f√ºr Abschlu√üstriche
 ist jedoch in Kommentarzeilen vermerkt worden.
 <<erstelle Boxplot>>=
 # Boxplotkonstruktion

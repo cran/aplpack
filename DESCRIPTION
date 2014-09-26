@@ -2,10 +2,10 @@ Package: aplpack
 Type: Package
 Title: Another Plot PACKage: stem.leaf, bagplot, faces, spin3R,
         plotsummary, plothulls, and some slider functions
-Version: 1.2.9
-Date: 2013-05-11
-Author: Peter Wolf, Uni Bielefeld
-Maintainer: Peter Wolf <pwolf@wiwi.uni-bielefeld.de>
+Version: 1.3.0
+Date: 2014-09-26
+Author: Hans Peter Wolf, Uni Bielefeld
+Maintainer: Hans Peter Wolf <pwolf@wiwi.uni-bielefeld.de>
 Depends: R (>= 2.8.0), tcltk
 Suggests: tkrplot
 Description: set of functions for drawing some special plots:
@@ -20,7 +20,7 @@ Description: set of functions for drawing some special plots:
    slider functions for interactive graphics.
 License: GPL (>= 2)
 URL: http://www.wiwi.uni-bielefeld.de/com/wolf/software/aplpack.html
-Packaged: 2013-11-05 09:40:58 UTC; pwolf
+Packaged: 2014-09-26 16:00:32 UTC; pwolf
 NeedsCompilation: no
 Repository: CRAN
-Date/Publication: 2013-11-05 11:34:54
+Date/Publication: 2014-09-26 18:50:21

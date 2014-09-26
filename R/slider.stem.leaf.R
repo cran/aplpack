@@ -4,15 +4,16 @@ slider.stem.leaf<-function(x,main=main){
          obj.value=paste("stem and leaf of",main))
   slider(obj.name="rule.line",obj.value="Dixon")
   repl<-function(...){
-    main<-slider(obj.name="main")
     rule.line<-slider(obj.name="rule.line")
+    main<-c(slider(obj.name="main"), paste("rule:", rule.line))
     cex<-slider(no=1); m<-slider(no=2)
 
     res<-if(m>0) stem.leaf(x,m=m,rule.line=rule.line) else 
                  stem.leaf(x,rule.line=rule.line)
-    stem<-rev(res$stem)
+    stem<-rev(res$stem); stem <- paste(rev(res$depth), stem, rev(res$leaves))
 
-    x.max<-max(nchar(res$stem));  y.max<-length(res$stem)
+    # x.max<-max(nchar(res$stem));  y.max<-length(res$stem)
+    x.max<-max(nchar(stem));  y.max<-length(stem) #140922
 
     opar<-par(mai=c(0.5,0.2,0.5,0),oma=c(0,0,0,0), omi=c(0,0,0,0))
     plot(0,type="n",xlim=c(1,x.max),
@@ -45,7 +46,6 @@ slider.stem.leaf<-function(x,main=main){
   }
   sp<-function(...){
     din<-par()$din
-    print("hallo")
     filename<-tkgetSaveFile(filetypes="{{Paper Files} {.ps|.jpg}}",
                           title="name of ps-/jpg-file?", initialdir=getwd(),
                           defaultextension=".ps", initialfile="stem-and-leaf")
@@ -57,13 +57,14 @@ slider.stem.leaf<-function(x,main=main){
     dev.copy(jpeg,filename,units="in",res=95,width=din[1],height=din[2])
     dev.off()
   }
-  slider(repl,
+  nt <- slider(repl, # 140925
          c("character size","rows per unit, 0=by rule"),
          c(0.5,0),c(5,10),c(.1,1),c(1,0),
          c(b1,b2,b3,sp),c("Dixon rule","Velleman rule","Sturges rule",
           "save plot")     
   )
+  tkwm.minsize(nt, "450", "110") # set width, height to prevent to small sizes
   repl()
   "choose layout by control widget"
-}
+} # slider.stem.leaf(c(co2,100,1000))
 

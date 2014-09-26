@@ -1,3 +1,7 @@
+% New Report: Fri Sep 26 17:51:36 2014 
+
+% New Report: Mon Sep 22 19:34:26 2014 
+
 % New Report: Tue Nov  5 10:04:00 2013 
 
 % New Report: Mon Nov  4 11:24:22 2013 
@@ -93,7 +97,7 @@
 \title{A rough R Impementation of the Bagplot,\\
 Data Peeling, Skyline Plots, and Graphical Summaries}
 \author{File: \jobname.rev\\in: /home/wiwi/pwolf/R/work/bagplot}
-\date{Version: Dec 10 19:15:01 2012}
+\date{Version: Sep 26 2014}
 \begin{document}
 \maketitle
 
@@ -3523,7 +3527,7 @@ plothulls <- function(x, y, fraction, n.hull = 1, main, add=FALSE,
     if(0 == length(x)) return(result)
   }
   if(missing(main))
-    title(paste("fraction in smallest polygon:\n",
+    title(paste("fraction of points within the smallest polygon:\n",
                 round((length(x)+length(x.hull))/n,4)))
   result
 } # end of definition of plothulls
@@ -3601,8 +3605,8 @@ Using \code{fraction} you can plot a single hull.
 }
 
 \value{
-The points of the hull(s) are stored in matrices with two columns and 
-the matrices are gathered in the output object.
+The  hull(s) are stored as a list of matrices with two columns, 
+the innermost first and so on. 
 }
 \references{ 
   Green, P.J. (1981): Peeling bivariate data. 
@@ -3635,8 +3639,12 @@ the matrices are gathered in the output object.
   n <- 6
   cols <- rainbow(n)
   plothulls(cars, n.hull=n, col.hull=cols, lty.hull=1:n, density=NA, col=0)
-  plothulls(cars, .hull=n, add=TRUE, col.hull=1, lwd.hull=2, lty=1, col=0)
+  plothulls(cars, n.hull=n, add=TRUE, col.hull=1, lwd.hull=2, lty=1, col=0)
 }
+@
+Here is the old text of item Value before the improved text of Dietrich Trenkler has been inserted: 
+The points of the hull(s) are stored in matrices with two columns and 
+the matrices are gathered in the output object.
 
 @
 <<start>>=

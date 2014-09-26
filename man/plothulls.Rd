@@ -33,8 +33,8 @@ Using \code{fraction} you can plot a single hull.
 \code{n.hull} defines the number of hull that should be drawn one after the other.
 }
 \value{
-The points of the hull(s) are stored in matrices with two columns and 
-the matrices are gathered in the output object.
+The  hull(s) are stored as a list of matrices with two columns, 
+the innermost first and so on. 
 }
 \references{ 
   Green, P.J. (1981): Peeling bivariate data. 
@@ -66,5 +66,5 @@ the matrices are gathered in the output object.
   n <- 6
   cols <- rainbow(n)
   plothulls(cars, n.hull=n, col.hull=cols, lty.hull=1:n, density=NA, col=0)
-  plothulls(cars, .hull=n, add=TRUE, col.hull=1, lwd.hull=2, lty=1, col=0)
+  plothulls(cars, n.hull=n, add=TRUE, col.hull=1, lwd.hull=2, lty=1, col=0)
 }

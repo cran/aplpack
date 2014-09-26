@@ -2,7 +2,7 @@
 \alias{slider}
 \alias{gslider}
 %- Also NEED an '\alias' for EACH other topic documented here.
-%-  cp slider2.Rd /home/wiwi/pwolf/work/relax/install.dir/relax/man/slider.Rd
+%-  cp slider2.Rd /home/pwolf/work/relax/install.dir/relax/man/slider.Rd
 \title{slider / button control widgets}
 \description{
   \code{slider} and \code{gslider} construct a Tcl/Tk-widget with sliders and buttons to

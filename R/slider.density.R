@@ -22,10 +22,11 @@ slider.density<-function(x,panel=rug,...)
     refresh()
   }
   bw.default<-diff(range(x))/density(x)$bw
-  slider(c(refresh,set.kernel),
+  nt <- slider(c(refresh,set.kernel),
          c("width (% of range)","kernel"),
          c(.1,1),c(100,7),c(.1,1),c(bw.default,1)
   )
+  # tkwm.minsize(nt, "300", "110") # set width, height to prevent to small sizes
   refresh()
   cat("use slider to select width of window and to select kernel:\n")
   print(cbind("no"=1:7,"kernel"=kernel))

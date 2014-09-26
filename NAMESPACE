@@ -1,3 +1,4 @@
+import(tcltk)
 exportPattern("^slider.[a-z]+")
 export(bagplot,boxplot2D,compute.bagplot,faces,plot.bagplot,
        plotsummary,plothulls,bagplot.pairs,skyline.hist,

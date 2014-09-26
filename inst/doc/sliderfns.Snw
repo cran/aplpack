@@ -1,4 +1,10 @@
-\newcounter{Rchunkno}\newcounter{IsInCodeChunk}\setcounter{IsInCodeChunk}{1}\newcommand{\codechunkcommands}{\relax}\newcommand{\textchunkcommands}{\relax}\newcommand{\Routputcommands}{\relax}\newcommand{\makemarginno}{\par\vspace{-0.5\parskip}\codechunkcommands\stepcounter{Rchunkno}\setcounter{IsInCodeChunk}{1}\noindent\hspace*{-3em}\makebox[0mm]{\arabic{Rchunkno}}\hspace*{3em}}% New Report: Mon Nov  4 13:41:06 2013 
+\newcounter{Rchunkno}\newcounter{IsInCodeChunk}\setcounter{IsInCodeChunk}{1}\newcommand{\codechunkcommands}{\relax}\newcommand{\textchunkcommands}{\relax}\newcommand{\Routputcommands}{\relax}\newcommand{\makemarginno}{\par\vspace{-0.5\parskip}\codechunkcommands\stepcounter{Rchunkno}\setcounter{IsInCodeChunk}{1}\noindent\hspace*{-3em}\makebox[0mm]{\arabic{Rchunkno}}\hspace*{3em}}% New Report: Fri Sep 26 17:30:28 2014 
+
+% New Report: Fri Sep 26 16:59:20 2014 
+
+% New Report: Thu Sep 25 16:58:08 2014 
+
+% New Report: Mon Nov  4 13:41:06 2013 
 
 % New Report: Mon Nov  4 13:28:20 2013 
 % 131104:  # require(tcltk) # now in the depends section of the package
@@ -1021,10 +1027,11 @@ one {\tt set.kernel()} calls the first slider function ({\tt refresh()}).
 \rule{0mm}{0mm}\newline\verb?     refresh() ?%
 \rule{0mm}{0mm}\newline\verb?   } ?%
 \rule{0mm}{0mm}\newline\verb?   bw.default<-diff(range(x))/density(x)$bw ?%
-\rule{0mm}{0mm}\newline\verb?   slider(c(refresh,set.kernel), ?%
+\rule{0mm}{0mm}\newline\verb?   nt <- slider(c(refresh,set.kernel), ?%
 \rule{0mm}{0mm}\newline\verb?          c("width (% of range)","kernel"), ?%
 \rule{0mm}{0mm}\newline\verb?          c(.1,1),c(100,7),c(.1,1),c(bw.default,1) ?%
 \rule{0mm}{0mm}\newline\verb?   ) ?%
+\rule{0mm}{0mm}\newline\verb?   # tkwm.minsize(nt, "300", "110") # set width, height to prevent to small sizes ?%
 \rule{0mm}{0mm}\newline\verb?   refresh() ?%
 \rule{0mm}{0mm}\newline\verb?   cat("use slider to select width of window and to select kernel:\n") ?%
 \rule{0mm}{0mm}\newline\verb?   print(cbind("no"=1:7,"kernel"=kernel)) ?%
@@ -1154,15 +1161,15 @@ is mostly caused by constructing the plot.
 \rule{0mm}{0mm}\newline\verb?   mins<-apply(x,2,min); maxs<-apply(x,2,max) ?%
 \rule{0mm}{0mm}\newline\verb?   delta<-(maxs-mins)/100 ?%
 \rule{0mm}{0mm}\newline\verb?   # initial plot ?%
-\rule{0mm}{0mm}\newline\verb?   varnames<-paste("var no",1:m,":",colnames(x)) ?%
+\rule{0mm}{0mm}\newline\verb?   varnames<-paste("var ",1:m,": ",colnames(x),sep="") ?%
 \rule{0mm}{0mm}\newline\verb?   dev.new(); par(mfrow=c(m,m),oma=c(0,0,0,0),mai=c(0,0,0,0),...) ?%
 \rule{0mm}{0mm}\newline\verb?   usr.array<-array(0,c(m,m,4)); axes<-FALSE ?%
 \rule{0mm}{0mm}\newline\verb?   for(i in 1:m){ ?%
 \rule{0mm}{0mm}\newline\verb?     for(j in 1:m){ ?%
 \rule{0mm}{0mm}\newline\verb?       # plot(x[,j],x[,i],axes=axes,type="p") ?%
-\rule{0mm}{0mm}\newline\verb?       do.call("plot",c(alist(x=x[,j],y=x[,i],type="p"),args)) ?%
+\rule{0mm}{0mm}\newline\verb?       do.call("plot",c(alist(x=x[,j],y=x[,i],type="p",axes=axes,xlab="",ylab=""),args)) ?%
 \rule{0mm}{0mm}\newline\verb?       usr.array[i,j,] <- usr<-par()$usr ?%
-\rule{0mm}{0mm}\newline\verb?       if(i==j) text(usr[1],usr[4],varnames[i],adj=c(0,1)) ?%
+\rule{0mm}{0mm}\newline\verb?       if(i==j) text(usr[1],usr[4],varnames[i],adj=c(0,1),cex=5) ?%
 \rule{0mm}{0mm}\newline\verb?       rect(usr[1],usr[3],usr[2],usr[4]) ?%
 \rule{0mm}{0mm}\newline\verb?     } ?%
 \rule{0mm}{0mm}\newline\verb?   } ?%
@@ -1183,11 +1190,13 @@ is mostly caused by constructing the plot.
 \rule{0mm}{0mm}\newline\verb?     } ?%
 \rule{0mm}{0mm}\newline\verb?   } ?%
 \rule{0mm}{0mm}\newline\verb?   # slider definition ?%
-\rule{0mm}{0mm}\newline\verb?   slider(refresh, ?%
+\rule{0mm}{0mm}\newline\verb?   nt <- slider(refresh, ?%
 \rule{0mm}{0mm}\newline\verb?          c("lower limit (% of range)","width (% of range)",  ?%
 \rule{0mm}{0mm}\newline\verb?            paste("variable no: 1 ..",m)), ?%
 \rule{0mm}{0mm}\newline\verb?          c(0,0,1), c(100,100, m), c(1,1,1), c(0,30,1) ?%
 \rule{0mm}{0mm}\newline\verb?   ) ?%
+\rule{0mm}{0mm}\newline\verb?   # tkwm.minsize(nt, "450", "150") # set width, height to prevent to small sizes ?%
+\rule{0mm}{0mm}\newline\verb?   refresh() ?%
 \rule{0mm}{0mm}\newline\verb?   cat("use sliders to select variable and interval width\n") ?%
 \rule{0mm}{0mm}\newline\verb? } ?%
 \rule{0mm}{0mm}\newline\verb?  ?%
@@ -1925,6 +1934,7 @@ The definition is copied from package relax.
 \rule{0mm}{0mm}\newline\verb?  ?%
 \ifodd\value{IsInCodeChunk}\setcounter{IsInCodeChunk}{0}\vspace{-\parskip}\par\hspace*{-\parindent}\textchunkcommands\fi
 \end{document}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \ifodd\value{IsInCodeChunk}\setcounter{IsInCodeChunk}{0}\vspace{-\parskip}\par\hspace*{-\parindent}\textchunkcommands\fi
 \subsection{Generation of {\tt .R} and {\tt .Rd} files}
