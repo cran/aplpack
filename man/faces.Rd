@@ -13,13 +13,13 @@ faces(xy, which.row, fill = FALSE, face.type = 1, nrow.plot, ncol.plot,
     col.eyes = rainbow(ncolors, start = 0.6, end = 0.85), 
     col.hair = terrain.colors(ncolors), col.face = heat.colors(ncolors), 
     col.lips = rainbow(ncolors, start = 0, end = 0.2), 
-    col.ears = rainbow(ncolors, start = 0, end = 0.2), plot.faces = TRUE) 
+    col.ears = rainbow(ncolors, start = 0, end = 0.2), plot.faces = TRUE, cex = 2) 
 \method{plot}{faces}(x, x.pos, y.pos, face.type = 1, width = 1, height = 1, labels, 
         ncolors = 20, col.nose = rainbow(ncolors), col.eyes = rainbow(ncolors, 
         start = 0.6, end = 0.85), col.hair = terrain.colors(ncolors), 
         col.face = heat.colors(ncolors), col.lips = rainbow(ncolors, 
         start = 0, end = 0.2), col.ears = rainbow(ncolors, start = 0, 
-        end = 0.2), \ldots)
+        end = 0.2), cex = 2, \ldots)
 }
 \arguments{
   \item{xy}{   \code{xy} data matrix, rows represent individuals and columns variables  }
@@ -39,6 +39,7 @@ faces(xy, which.row, fill = FALSE, face.type = 1, nrow.plot, ncol.plot,
   \item{print.info}{   if TRUE information about usage of variables for face elements are printed }
   \item{na.rm}{ if TRUE 'NA' values are removed otherwise exchanged by mean of data}
   \item{plot.faces}{   if \code{FALSE} no face is plotted  }
+  \item{cex}{   size of labels of faces }
   \item{x}{ an object of class \code{faces} computed by \code{faces}   }
   \item{x.pos}{ x coordinates of positions of faces  }
   \item{y.pos}{ y coordinates of positions of faces  }
@@ -91,8 +92,7 @@ JASA, 68, pp 361--368.
 The smooth curves are computed by an algorithm found in
 Ralston, A. and Rabinowitz, P. (1985):
 A first course in numerical analysis, McGraw-Hill, pp 76ff.
-\url{http://www.wiwi.uni-bielefeld.de/mitarbeiter/wolf/} : 
-S/R - functions : faces
+\url{http://www.wiwi.uni-bielefeld.de/lehrbereiche/statoekoinf/comet/wolf/wolf_aplpack}
    }
 \author{   H. P. Wolf    }
 \note{ version 01/2009   }

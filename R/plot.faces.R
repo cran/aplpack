@@ -8,7 +8,7 @@ plot.faces<-function(x,x.pos,y.pos,face.type = 1,
                      col.lips=rainbow(ncolors,start=0.0,end=0.2), # lips
                      col.ears=rainbow(ncolors,start=0.0,end=0.2), # ears
 
-                     ...){
+                     cex = 2, ...){ #180308
   if(missing(x)) return("no face.list object in call")
   face.list<-x$faces; face.data<-x$xy
   if(class(face.list)!="faces") {
@@ -100,7 +100,7 @@ plot.faces<-function(x,x.pos,y.pos,face.type = 1,
  }
     }
     lab<-names(face.list)[j]
-    text(x.pos[j],y.pos[j]-0.5*height,lab,xpd=NA)
+    text(x.pos[j],y.pos[j]-0.5*height,lab,xpd=NA, cex = cex)
   }
 }
 

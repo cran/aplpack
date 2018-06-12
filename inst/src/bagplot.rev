@@ -1,4 +1,15 @@
+% New Report: Mon May 28 12:46:16 2018 
+
+% New Report: Thu Mar  8 15:19:42 2018 
+
 % New Report: Fri Sep 26 17:51:36 2014 
+
+% ToDO von DT: Noch etwas:  Als multivariates Mass der Streuung koennte man auch den Flaecheninhalt der Huellen ausgeben. Die kann man nach der Gaussschen Trapezregel ausrechnen:
+
+%charea <- function(ch) {
+%    x <- ch[, 1]; y <- ch[, 2]; A <- x - c(x[-1], x[1]); A <- A * (y + c(y[-1], y[1]))
+%    A <- 0.5 * abs(sum(A));     A
+%}
 
 % New Report: Mon Sep 22 19:34:26 2014 
 
@@ -1106,6 +1117,8 @@ bagplot<-function(x,y,
    transparency=FALSE, ... # to define further parameters of plot
 ){
   if(missing(x)) return(<<version of bagplot>>)
+  if((is.data.frame(x) || is.matrix(x)) && ncol(x) == 2){ y <- x[,2]; x <- x[,1] } #180308
+  if(missing(y)){ y <- x; x <- seq(along = y) }   #180308
   bo<-compute.bagplot(x=x,y=y,factor=factor,na.rm=na.rm,
         approx.limit=approx.limit,dkmethod=dkmethod,
         precision=precision,verbose=verbose,debug.plots=debug.plots)
@@ -3280,14 +3293,17 @@ for(n.c in c(2,4,8)){  # some values for n.class
 ##---- Should be DIRECTLY executable !! ----
 ##-- ==>  Define data, use random,
 ##--    or do  help(data=index)  for the standard data sets.
-  par(mfrow=c(3,3))
+  # dev.off()
+print(par())
+  par(mfrow=c(1,1))
   for(n.c in c(2,4,8)){  # some values for n.class
-    for(n.h in c(2,4,3)){  # some values for number of n.hist
+    for(n.h in c(2,4,3)){# some values for number of n.hist
         n.s <- 9         # value for number of vertical lines
-        skyline.hist(co2, n.shading=n.s, n.hist=n.h ,n.class=n.c, 
-                     night=n.h==3, col.border=n.h!=4)
+        skyline.hist(co2, n.shading = n.s, n.hist = n.h ,n.class = n.c, 
+                     night = n.h==3, col.border = n.h!=4)
     }
   }
+  par(mfrow = c(1,1))
   skyline.hist(x=rivers, n.class=4, n.hist=2, n.shading=0, main="rivers",
              cex.data=.5, lwd.data = .2, col.data = "green", pcol.data = "red",
              col.border=NA, night=FALSE, ylab="density")
@@ -3487,8 +3503,9 @@ plothulls <- function(x, y, fraction, n.hull = 1, main, add=FALSE,
   # n.hull : number of hulls to be plotted (if there is no fractiion argument)
   # col.hull, lty.hull, lwd.hull : style of hull line
   # add : if TRUE old plot is used
-  # pw 130524
-  if(ncol(x) == 2){ y <- x[,2]; x <- x[,1] }
+  # pw 130524 180308
+  if((is.data.frame(x) || is.matrix(x)) && ncol(x) == 2){ y <- x[,2]; x <- x[,1] } #180308
+  if(missing(y)){ y <- x; x <- seq(along = y) }   #180308
   if(add) points(x,y,...) else plot(x,y,...)
   n <- length(x)
   if(!missing(fraction)) { # find special hull
@@ -3531,7 +3548,7 @@ plothulls <- function(x, y, fraction, n.hull = 1, main, add=FALSE,
                 round((length(x)+length(x.hull))/n,4)))
   result
 } # end of definition of plothulls
-
+ 
 @
 <<examples of [[plothulls()]]>>=
 xy <- faithful; #xy <- cars
@@ -5383,4 +5400,4 @@ rank(xy%*% round(RM1[,10],digits=5),ties.method="min")
 
 <<*>>=
 dump(c("bagplot","bagplot.pairs","compute.bagplot","plot.bagplot","plotsummary"),file="aplpack.R")
-ls()
+ls()s

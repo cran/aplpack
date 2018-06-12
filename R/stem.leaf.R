@@ -178,18 +178,22 @@ stem.leaf <- function(data, unit, m, Min, Max,
 
 
   n.class <- unlist(lapply(leaf.grouped,length))
+  debug.show("n.class")
   select <- (cumsum(n.class) > 0) & rev((cumsum(rev(n.class)) > 0))
   depth     <-     cumsum(n.class)          + n.lower.extr.values
   depth.rev <- rev(cumsum(rev(n.class))     + n.upper.extr.values)
   debug.show("depth")
 
   uplow <- depth>=depth.rev
-  pos.median <- which(uplow)[1] + (-1:0)
-  h <- abs(depth[pos.median]-depth.rev[pos.median])
-  pos.median <- pos.median[1]+(h[1]>h[2])
-  debug.show("pos.median")
+  # DT-median-error  #150429
+  # pos.median <- which(uplow)[1] + (-1:0)
+  # h <- abs(depth[pos.median]-depth.rev[pos.median])
+  # pos.median <- pos.median[1]+(h[1]>h[2])
+  # debug.show("pos.median")
 
   depth[uplow] <- depth.rev[uplow]
+  pos.median <- which(depth == max(depth)) # 150429
+  debug.show("pos.median")                 # 150429
   depth <- paste(depth,"")
   depth[pos.median] <- paste("(",n.class[pos.median],")",sep="")
   depth[n.class==0] <- " "
@@ -405,18 +409,22 @@ stem.leaf.backback <- function(x,y, unit, m, Min, Max, rule.line = c("Dixon", "V
 
 
     n.class <- unlist(lapply(leaf.grouped,length))
+    debug.show("n.class")
     select <- (cumsum(n.class) > 0) & rev((cumsum(rev(n.class)) > 0))
     depth     <-     cumsum(n.class)          + n.lower.extr.values
     depth.rev <- rev(cumsum(rev(n.class))     + n.upper.extr.values)
     debug.show("depth")
 
     uplow <- depth>=depth.rev
-    pos.median <- which(uplow)[1] + (-1:0)
-    h <- abs(depth[pos.median]-depth.rev[pos.median])
-    pos.median <- pos.median[1]+(h[1]>h[2])
-    debug.show("pos.median")
+    # DT-median-error  #150429
+    # pos.median <- which(uplow)[1] + (-1:0)
+    # h <- abs(depth[pos.median]-depth.rev[pos.median])
+    # pos.median <- pos.median[1]+(h[1]>h[2])
+    # debug.show("pos.median")
 
     depth[uplow] <- depth.rev[uplow]
+    pos.median <- which(depth == max(depth)) # 150429
+    debug.show("pos.median")                 # 150429
     depth <- paste(depth,"")
     depth[pos.median] <- paste("(",n.class[pos.median],")",sep="")
     depth[n.class==0] <- " "
@@ -516,19 +524,19 @@ stem.leaf.backback <- function(x,y, unit, m, Min, Max, rule.line = c("Dixon", "V
   # take the first ->[1] only otherwise an error occurs, see mail from John Fox 10/2013:
   x.pos <- which(x.stem==x.digits[h])[1]; y.pos <- which(y.stem==x.digits[h])[1]
   LZ <- rep(" ",d <- abs(y.pos - x.pos))
-  if(x.pos < y.pos) { # x vorn verlängern 
+  if(x.pos < y.pos) { # x vorn verlaengern 
     x.stem <- c(y.stem[1:d],x.stem); x.leaves <- c(LZ,x.leaves); x.depths <- c(LZ,x.depths)
   }
-  if(y.pos < x.pos) { # y vorn verlängern 
+  if(y.pos < x.pos) { # y vorn verlaengern 
     y.stem <- c(x.stem[1:d],y.stem); y.leaves <- c(LZ,y.leaves); y.depths <- c(LZ,y.depths)
   }
   x.l <- length(x.stem); y.l <- length(y.stem)
   LZ <- rep(" ",d <- abs(y.l-x.l))
-  if(x.l < y.l) { # x hinten verlängern 
+  if(x.l < y.l) { # x hinten verlaengern 
     x.stem <- c(x.stem,y.stem[-(1:x.l)]); x.leaves <- c(x.leaves,LZ)
     x.depths <- c(LZ,x.depths,LZ)
   }
-  if(y.l < x.l) { # y hinten verlängern 
+  if(y.l < x.l) { # y hinten verlaengern 
     y.stem <- c(y.stem,x.stem[-(1:y.l)]); y.leaves <- c(y.leaves,LZ)
     y.depths <- c(LZ,y.depths,LZ)
   }

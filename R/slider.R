@@ -26,11 +26,11 @@ function (sl.functions, sl.names, sl.mins, sl.maxs, sl.deltas,
    
 
   # #require(tcltk) # 140306
-  nt <- tktoplevel()
-  tkwm.title(nt, title)
-  tkwm.geometry(nt, "+0+15")
-  assign("tktop.slider",nt,envir=slider.env)
-
+  nt.top <-tktoplevel()                              # 160115
+  tkwm.title(nt.top, title)                          # 160115
+  tkwm.geometry(nt.top, "+0+15")                     # 160115
+  assign("tktop.slider", nt.top, envir = slider.env) # 160115
+  nt <- tkframe(nt.top)                              # 160115
   "relax"  
   tkpack(f.slider<-tkframe(nt)) ##vertical
   for (i in seq(sl.names)) {
@@ -58,7 +58,7 @@ function (sl.functions, sl.names, sl.mins, sl.maxs, sl.deltas,
   assign("slider.values.old", sl.defaults, envir = slider.env)
   tkpack(f.but <- tkframe(nt), fill = "x")
   tkpack(tkbutton(f.but, text = "Exit", 
-         command = function() tkdestroy(nt)), side = "right")
+         command = function() tkdestroy(nt.top)), side = "right") # 160115
   if(!missing(reset.function)){
     # reset.function <- function(...) print("relax")
     if(!is.function(reset.function)) 
@@ -83,6 +83,9 @@ function (sl.functions, sl.names, sl.mins, sl.maxs, sl.deltas,
                     side = "left")
   }
 
+  Sys.sleep(.2)
+  tkpack(nt)
+
   invisible(nt)
 }
 
@@ -93,7 +96,7 @@ function (sl.functions, sl.names, sl.mins, sl.maxs, sl.deltas,
     sliders.frame.vertical=TRUE, hscale=1, vscale=1,
     pos.of.panel = c("bottom","top","left","right")[1]) 
 { # pwolf 100915 / 121206
-  require(tkrplot) 
+  ## require(tkrplot) ## replaced by tkrplot::tkrplot
   slider.env<-"1"; rm("slider.env")
   if (!exists("slider.env")) slider<-slider.env<<-new.env(parent=.GlobalEnv)
   if (!missing(no)) 
@@ -116,18 +119,18 @@ function (sl.functions, sl.names, sl.mins, sl.maxs, sl.deltas,
    
 
   # #require(tcltk) # 140306
-  nt <- tktoplevel()
-  tkwm.title(nt, title)
-  tkwm.geometry(nt, "+0+15")
-  assign("tktop.slider",nt,envir=slider.env)
-
+  nt.top <-tktoplevel()                              # 160115
+  tkwm.title(nt.top, title)                          # 160115
+  tkwm.geometry(nt.top, "+0+15")                     # 160115
+  assign("tktop.slider", nt.top, envir = slider.env) # 160115
+  nt <- tkframe(nt.top)                              # 160115
   "relax"  
   nt.bak <- nt
   sl.frame <- tkframe(nt); gr.frame <- tkframe(nt)
   if( !any(pos.of.panel == c("bottom","top","left","right"))) pos.of.panel <- "bottom"
   tkpack(sl.frame,gr.frame,side=pos.of.panel)
   # gslider start:  
-  newpl<-function(...){ plot(0:2,0:2,type="n",xlab="",ylab=""); text(1,1,"dummy plot") }
+  newpl<-function(...){ graphics::plot(0:2,0:2,type="n",xlab="",ylab=""); graphics::text(1,1,"dummy plot") }
   img <- tkrplot::tkrplot(gr.frame, newpl, vscale=vscale, hscale=hscale ); tkpack(img,side="top") 
   assign("img",img,envir=slider.env)
 
@@ -182,7 +185,7 @@ function (sl.functions, sl.names, sl.mins, sl.maxs, sl.deltas,
   assign("slider.values.old", sl.defaults, envir = slider.env)
   tkpack(f.but <- tkframe(sl.frame), fill = "x")
   tkpack(tkbutton(f.but, text = "Exit", 
-         command = function() tkdestroy(nt)), side = "right")
+         command = function() tkdestroy(nt.top)), side = "right")
   if(!missing(reset.function)){
     # reset.function <- function(...) print("relax")
     if(!is.function(reset.function)) 
@@ -217,6 +220,9 @@ function (sl.functions, sl.names, sl.mins, sl.maxs, sl.deltas,
   if(exists("tkrr.fun1")) get("tkrr.fun1")() ## gslider only
   # :gslider end
 
+
+  Sys.sleep(.2)
+  tkpack(nt)
 
   invisible(img)
 }

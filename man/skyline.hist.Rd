@@ -93,14 +93,17 @@
    \code{\link{hist}}, \code{\link{density}}
 }
 \examples{
-  par(mfrow=c(3,3))
+  # dev.off()
+print(par())
+  par(mfrow=c(1,1))
   for(n.c in c(2,4,8)){  # some values for n.class
-    for(n.h in c(2,4,3)){  # some values for number of n.hist
+    for(n.h in c(2,4,3)){# some values for number of n.hist
         n.s <- 9         # value for number of vertical lines
-        skyline.hist(co2, n.shading=n.s, n.hist=n.h ,n.class=n.c, 
-                     night=n.h==3, col.border=n.h!=4)
+        skyline.hist(co2, n.shading = n.s, n.hist = n.h ,n.class = n.c, 
+                     night = n.h==3, col.border = n.h!=4)
     }
   }
+  par(mfrow = c(1,1))
   skyline.hist(x=rivers, n.class=4, n.hist=2, n.shading=0, main="rivers",
              cex.data=.5, lwd.data = .2, col.data = "green", pcol.data = "red",
              col.border=NA, night=FALSE, ylab="density")

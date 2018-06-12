@@ -1376,6 +1376,8 @@ bagplot<-function(x,y,
   if(missing(x)) return(
 "bagplot, version 2012/12/05, peter wolf"
 )
+  if((is.data.frame(x) || is.matrix(x)) && ncol(x) == 2){ y <- x[,2]; x <- x[,1] } #180308
+  if(missing(y)){ y <- x; x <- seq(along = y) }   #180308
   bo<-compute.bagplot(x=x,y=y,factor=factor,na.rm=na.rm,
         approx.limit=approx.limit,dkmethod=dkmethod,
         precision=precision,verbose=verbose,debug.plots=debug.plots)
@@ -1638,8 +1640,9 @@ plothulls <- function(x, y, fraction, n.hull = 1, main, add=FALSE,
   # n.hull : number of hulls to be plotted (if there is no fractiion argument)
   # col.hull, lty.hull, lwd.hull : style of hull line
   # add : if TRUE old plot is used
-  # pw 130524
-  if(ncol(x) == 2){ y <- x[,2]; x <- x[,1] }
+  # pw 130524 180308
+  if((is.data.frame(x) || is.matrix(x)) && ncol(x) == 2){ y <- x[,2]; x <- x[,1] } #180308
+  if(missing(y)){ y <- x; x <- seq(along = y) }   #180308
   if(add) points(x,y,...) else plot(x,y,...)
   n <- length(x)
   if(!missing(fraction)) { # find special hull
@@ -1682,5 +1685,6 @@ plothulls <- function(x, y, fraction, n.hull = 1, main, add=FALSE,
                 round((length(x)+length(x.hull))/n,4)))
   result
 } # end of definition of plothulls
+ 
 ##:start##
 #:0

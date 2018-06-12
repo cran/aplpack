@@ -17,7 +17,7 @@
 \details{
   \code{spin3R} computes two-dimensional projections 
   of \code{(nx3)}-matrix \code{x} and plots them
-  on the graphics devise. The cloud of points is rotated
+  on the graphics device. The cloud of points is rotated
   step by step. The rotation is defined by a tcl/tk control 
   widget. \code{spin3R} requires tcl/tk package of R.
 }
@@ -26,7 +26,7 @@
    for Statistics. Wadsworth & Brooks/Cole, Belmont, California.
 }
 \author{ Peter Wolf }
-\note{  version 01/2003 }
+\note{  version 05/2008 }
 \seealso{ \code{spin} of S-Plus }
 \examples{
   xyz<-matrix(rnorm(300),100,3)

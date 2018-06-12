@@ -1,3 +1,5 @@
+% New Report: Wed Apr 29 13:11:33 2015 
+
 % New Report: Wed Oct 30 11:12:07 2013 
 
 % New Report: Mon Feb 27 18:01:51 2012 
@@ -61,6 +63,7 @@
 \renewcommand{\codechunkcommands}{\small}
 \renewcommand{\Routputcommands}{\footnotesize}
 \maketitle
+% 20150429: change of computation of the location of the median
 % 20111214: exchange of some lines so that argument "reverse.negative.leaves" works
 % 20131030: error mailed by John Fox corrected in stem.leaf.backback
 @
@@ -632,18 +635,22 @@ Weiter sind Tiefeneinträge in Zeilen ohne Blätter zu löschen.
 Nebenbei werden die Positionen leerer Zeilen vermerkt [[select==FALSE]].
 <<ermittle Tiefen und füge sie an zentralen Plot an>>=
 n.class <- unlist(lapply(leaf.grouped,length))
+debug.show("n.class")
 select <- (cumsum(n.class) > 0) & rev((cumsum(rev(n.class)) > 0))
 depth     <-     cumsum(n.class)          + n.lower.extr.values
 depth.rev <- rev(cumsum(rev(n.class))     + n.upper.extr.values)
 debug.show("depth")
 
 uplow <- depth>=depth.rev
-pos.median <- which(uplow)[1] + (-1:0)
-h <- abs(depth[pos.median]-depth.rev[pos.median])
-pos.median <- pos.median[1]+(h[1]>h[2])
-debug.show("pos.median")
+# DT-median-error  #150429
+# pos.median <- which(uplow)[1] + (-1:0)
+# h <- abs(depth[pos.median]-depth.rev[pos.median])
+# pos.median <- pos.median[1]+(h[1]>h[2])
+# debug.show("pos.median")
 
 depth[uplow] <- depth.rev[uplow]
+pos.median <- which(depth == max(depth)) # 150429
+debug.show("pos.median")                 # 150429
 depth <- paste(depth,"")
 depth[pos.median] <- paste("(",n.class[pos.median],")",sep="")
 depth[n.class==0] <- " "
@@ -1622,19 +1629,19 @@ h <- match(y.digits, x.digits); h <- h[!is.na(h)][1]
 # take the first ->[1] only otherwise an error occurs, see mail from John Fox 10/2013:
 x.pos <- which(x.stem==x.digits[h])[1]; y.pos <- which(y.stem==x.digits[h])[1]
 LZ <- rep(" ",d <- abs(y.pos - x.pos))
-if(x.pos < y.pos) { # x vorn verlängern 
+if(x.pos < y.pos) { # x vorn verlaengern 
   x.stem <- c(y.stem[1:d],x.stem); x.leaves <- c(LZ,x.leaves); x.depths <- c(LZ,x.depths)
 }
-if(y.pos < x.pos) { # y vorn verlängern 
+if(y.pos < x.pos) { # y vorn verlaengern 
   y.stem <- c(x.stem[1:d],y.stem); y.leaves <- c(LZ,y.leaves); y.depths <- c(LZ,y.depths)
 }
 x.l <- length(x.stem); y.l <- length(y.stem)
 LZ <- rep(" ",d <- abs(y.l-x.l))
-if(x.l < y.l) { # x hinten verlängern 
+if(x.l < y.l) { # x hinten verlaengern 
   x.stem <- c(x.stem,y.stem[-(1:x.l)]); x.leaves <- c(x.leaves,LZ)
   x.depths <- c(LZ,x.depths,LZ)
 }
-if(y.l < x.l) { # y hinten verlängern 
+if(y.l < x.l) { # y hinten verlaengern 
   y.stem <- c(y.stem,x.stem[-(1:y.l)]); y.leaves <- c(y.leaves,LZ)
   y.depths <- c(LZ,y.depths,LZ)
 }
@@ -2102,6 +2109,23 @@ y <- Moore[Moore$partner.status == "high", "conformity"]
 y <- y[y<9]
 stem.leaf.backback(x,x,style=style,unit=1) # ok
 ""
+@
+In April 2015 Dietrich Trenkler reported an error concerning the median computation in the following data set.
+[[stem.leaf(x[1:90])]]: ok, [[stem.leaf(x[1:91])]]: wrong median.
+<<*>>=
+x <- structure(c(7.1, 7, 7.7, 6.4, 6, 6.2, 7.9, 6.4, 6.2, 6.3, 
+    5.2, 4.6, 5.3, 8.6, 4.9, 6.1, 5.6, 5.6, 8.5, 6, 5.5, 8.4, 
+    6.2, 8.2, 5.1, 9.8, 9.2, 6.9, 5.5, 4.5, 6.9, 6.1, 6, 5.2, 
+    9, 5.4, 7, 6.4, 9.6, 6.9, 5.7, 5.6, 8.5, 5.9, 7.1, 5.6, 8.2, 
+    5.8, 6.1, 6, 8.5, 9.5, 6.3, 5, 7, 8.3, 6.5, 6.1, 5.9, 5, 
+    8.8, 7.2, 6.1, 5.7, 5.9, 6.6, 6.7, 11.9, 8, 7.3, 7.5, 6.1, 
+    7.7, 6.7, 6, 5.8, 6.5, 7.2, 7.8, 6.1, 8.4, 6.3, 7.6, 6.4, 
+    6, 5.1, 5.4, 6.1, 6.6, 9, 7.4, 9.3, 7.9, 6.4, 8.3, 6.1, 5.9, 
+    7.4, 6.1, 4.6))
+<<definiere [[stem.leaf]]>>
+# debug.cond <<- "all"; cat(rep("-",20), median(x),"\n")
+stem.leaf(x) ## ([1:91])
+
 @
 \section{Anhang}
 

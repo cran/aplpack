@@ -9,7 +9,7 @@ faces<-function(xy,which.row,fill=FALSE,face.type=1,
                 col.lips=rainbow(ncolors,start=0.0,end=0.2), # lips
                 col.ears=rainbow(ncolors,start=0.0,end=0.2), # ears
 
-                plot.faces=TRUE){  # 070831 pwolf
+                plot.faces=TRUE, cex = 2){  # 180308 pwolf
   if((demo<-missing(xy))){
     xy<-rbind(
               c(1,3,5),c(3,5,7),
@@ -171,7 +171,7 @@ faces<-function(xy,which.row,fill=FALSE,face.type=1,
     if(plot.faces){
       plot(1,type="n",xlim=c(-105,105)*1.1, axes=FALSE,
            ylab="",ylim=c(-105,105)*1.3)
-      title(xnames[ind])
+      title(xnames[ind], cex.main = cex, xpd = NA) #180308
       f<-1+(ncolors-1)*(factors+1)/2 # translate factors into color numbers
       xtrans<-function(x){x};  ytrans<-function(y){y}
       for(obj.ind in seq(face.obj)[c(10:11,1:9)]) {

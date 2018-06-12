@@ -1,4 +1,4 @@
-\newcounter{Rchunkno}\newcounter{IsInCodeChunk}\setcounter{IsInCodeChunk}{1}\newcommand{\codechunkcommands}{\relax}\newcommand{\textchunkcommands}{\relax}\newcommand{\Routputcommands}{\relax}\newcommand{\makemarginno}{\par\vspace{-0.5\parskip}\codechunkcommands\stepcounter{Rchunkno}\setcounter{IsInCodeChunk}{1}\noindent\hspace*{-3em}\makebox[0mm]{\arabic{Rchunkno}}\hspace*{3em}}% New Report: Fri Sep 26 17:30:28 2014 
+\newcounter{Rchunkno}\newcounter{IsInCodeChunk}\setcounter{IsInCodeChunk}{1}\newcommand{\codechunkcommands}{\normalsize}\newcommand{\textchunkcommands}{\normalsize}\newcommand{\Routputcommands}{\normalsize}\newcommand{\makemarginno}{\par\vspace{-0.5\parskip}\codechunkcommands\stepcounter{Rchunkno}\setcounter{IsInCodeChunk}{1}\noindent\hspace*{-3em}\makebox[0mm]{\arabic{Rchunkno}}\hspace*{3em}}% New Report: Fri Sep 26 17:30:28 2014 
 
 % New Report: Fri Sep 26 16:59:20 2014 
 

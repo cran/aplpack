@@ -1,3 +1,5 @@
+% New Report: Thu Mar  8 16:41:17 2018 
+
 % New Report: Wed Oct 30 17:17:46 2013 
 
 % New Report: Fri Nov  4 17:22:24 2011 
@@ -73,7 +75,7 @@ faces<-function(xy,which.row,fill=FALSE,face.type=1,
                 nrow.plot,ncol.plot,scale=TRUE,byrow=FALSE,main,
                 labels,print.info = TRUE,na.rm = FALSE,
                 <<define some colors>>
-                plot.faces=TRUE){  # 070831 pwolf
+                plot.faces=TRUE, cex = 2){  # 180308 pwolf
   if((demo<-missing(xy))){
     xy<-rbind(
               c(1,3,5),c(3,5,7),
@@ -390,7 +392,7 @@ For plainting we need to map the data values ([[factors]]) on colors.
 if(plot.faces){
   plot(1,type="n",xlim=c(-105,105)*1.1, axes=FALSE,
        ylab="",ylim=c(-105,105)*1.3)
-  title(xnames[ind])
+  title(xnames[ind], cex.main = cex, xpd = NA) #180308
   f<-1+(ncolors-1)*(factors+1)/2 # translate factors into color numbers
   xtrans<-function(x){x};  ytrans<-function(y){y}
   for(obj.ind in seq(face.obj)[c(10:11,1:9)]) {
@@ -445,7 +447,7 @@ positions fixed by the user or the faces we be drawn on a chess board.
 plot.faces<-function(x,x.pos,y.pos,face.type = 1, 
                      width=1,height=1,labels,
                      <<define some colors>>
-                     ...){
+                     cex = 2, ...){ #180308
   if(missing(x)) return("no face.list object in call")
   face.list<-x$faces; face.data<-x$xy
   if(class(face.list)!="faces") {
@@ -473,7 +475,7 @@ plot.faces<-function(x,x.pos,y.pos,face.type = 1,
        if(face.type>0){ <<paint elements of a face>> }
     }
     lab<-names(face.list)[j]
-    text(x.pos[j],y.pos[j]-0.5*height,lab,xpd=NA)
+    text(x.pos[j],y.pos[j]-0.5*height,lab,xpd=NA, cex = cex)
   }
 }
 
@@ -547,11 +549,11 @@ This code chunk shows different ways of constructing faces.
 <<test1>>=
 <<define [[faces]]>>
 <<define [[plot.faces]]>>
-a<-faces(rbind(1:3,5:3,3:5,5:7),plot=!FALSE,face.type=2)
-plot.faces(a,face.type=0)
-plot(1:4,type="n");plot.faces(a,x.pos=1:4,y.pos=1:4,width=0.5,height=1,face.type=1)
+a<-faces(rbind(1:3,5:3,3:5,5:7),plot=!FALSE,face.type=2,labels = letters[1:4] )
+plot.faces(a,face.type=0, cex = 2) #180306
+plot(1:4,type="n");plot.faces(a,x.pos=1:4,y.pos=1:4,width=0.5,height=1,face.type=1)# ??!
 ""
-
+faces
 @
 <<test2>>=
 <<define [[faces]]>>
@@ -639,13 +641,13 @@ faces(xy, which.row, fill = FALSE, face.type = 1, nrow.plot, ncol.plot,
     col.eyes = rainbow(ncolors, start = 0.6, end = 0.85), 
     col.hair = terrain.colors(ncolors), col.face = heat.colors(ncolors), 
     col.lips = rainbow(ncolors, start = 0, end = 0.2), 
-    col.ears = rainbow(ncolors, start = 0, end = 0.2), plot.faces = TRUE) 
+    col.ears = rainbow(ncolors, start = 0, end = 0.2), plot.faces = TRUE, cex = 2) 
 \method{plot}{faces}(x, x.pos, y.pos, face.type = 1, width = 1, height = 1, labels, 
         ncolors = 20, col.nose = rainbow(ncolors), col.eyes = rainbow(ncolors, 
         start = 0.6, end = 0.85), col.hair = terrain.colors(ncolors), 
         col.face = heat.colors(ncolors), col.lips = rainbow(ncolors, 
         start = 0, end = 0.2), col.ears = rainbow(ncolors, start = 0, 
-        end = 0.2), \ldots)
+        end = 0.2), cex = 2, \ldots)
 }
 \arguments{
   \item{xy}{   \code{xy} data matrix, rows represent individuals and columns variables  }
@@ -665,6 +667,7 @@ faces(xy, which.row, fill = FALSE, face.type = 1, nrow.plot, ncol.plot,
   \item{print.info}{   if TRUE information about usage of variables for face elements are printed }
   \item{na.rm}{ if TRUE 'NA' values are removed otherwise exchanged by mean of data}
   \item{plot.faces}{   if \code{FALSE} no face is plotted  }
+  \item{cex}{   size of labels of faces }
   \item{x}{ an object of class \code{faces} computed by \code{faces}   }
   \item{x.pos}{ x coordinates of positions of faces  }
   \item{y.pos}{ y coordinates of positions of faces  }
@@ -717,8 +720,7 @@ JASA, 68, pp 361--368.
 The smooth curves are computed by an algorithm found in
 Ralston, A. and Rabinowitz, P. (1985):
 A first course in numerical analysis, McGraw-Hill, pp 76ff.
-\url{http://www.wiwi.uni-bielefeld.de/mitarbeiter/wolf/} : 
-S/R - functions : faces
+\url{http://www.wiwi.uni-bielefeld.de/lehrbereiche/statoekoinf/comet/wolf/wolf_aplpack}
    }
 \author{   H. P. Wolf    }
 \note{ version 01/2009   }

@@ -105,7 +105,7 @@ gslider(sl.functions, sl.names, sl.mins, sl.maxs, sl.deltas, sl.defaults, but.fu
 \examples{
 
 # example 1, sliders only
-\dontrun{
+if(interactive()){
 ## This example cannot be run by examples() but should work in an interactive R session
 plot.sample.norm<-function(){
  refresh.code<-function(...){
@@ -120,7 +120,7 @@ plot.sample.norm()
 }
 
 # example 2, sliders and buttons
-\dontrun{
+if(interactive()){
 ## This example cannot be run by examples() but should work in an interactive R session
 plot.sample.norm.2<-function(){
  refresh.code<-function(...){
@@ -143,7 +143,7 @@ plot.sample.norm.2()
 }
 
 # example 2a, sliders and buttons and graphics in one window
-\dontrun{
+if(interactive()){
 ## This example cannot be run by examples() but should work in an interactive R session
 plot.sample.norm.2<-function(){
  refresh.code<-function(...){
@@ -166,7 +166,7 @@ plot.sample.norm.2()
 }
 
 # example 3, dependent sliders
-\dontrun{
+if(interactive()){
 ## This example cannot be run by examples() but should work in an interactive R session
 print.of.p.and.q<-function(){
  refresh.code<-function(...){
@@ -184,7 +184,7 @@ print.of.p.and.q()
 }
 
 # example 4, rotating a surface
-\dontrun{
+if(interactive()){
 ## This example cannot be run by examples() but should work in an interactive R session
 R.veil.in.the.wind<-function(){
   # Mark Hempelmann / Peter Wolf
