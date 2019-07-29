@@ -1,3 +1,5 @@
+% New Report: Mon Jul 15 15:32:55 2019 
+
 % New Report: Mon May 28 12:46:16 2018 
 
 % New Report: Thu Mar  8 15:19:42 2018 
@@ -835,7 +837,7 @@ function (x, y, factor = 3, na.rm = FALSE, approx.limit = 300,
     precision = 1, verbose = FALSE, debug.plots = "no", 
     col.loophull = "#aaccff", col.looppoints = "#3355ff", 
     col.baghull = "#7799ff", col.bagpoints = "#000088", 
-    transparency = FALSE, ...) 
+    transparency = FALSE, show.center = TRUE, ...) 
 \end{verbatim}
 
 @
@@ -922,7 +924,8 @@ bagplot(x, y, factor = 3, na.rm = FALSE, approx.limit = 300,
        dkmethod = 2, precision = 1, verbose = FALSE, 
        debug.plots = "no",   col.loophull="#aaccff", 
        col.looppoints="#3355ff", col.baghull="#7799ff", 
-       col.bagpoints="#000088", transparency=FALSE, ...
+       col.bagpoints="#000088", transparency=FALSE, 
+       show.center = TRUE, ...
 )
 
 compute.bagplot(x, y, factor = 3, na.rm = FALSE, approx.limit = 300, 
@@ -934,7 +937,8 @@ compute.bagplot(x, y, factor = 3, na.rm = FALSE, approx.limit = 300,
        add = FALSE, pch = 16, cex = 0.4, verbose = FALSE, 
        col.loophull="#aaccff", col.looppoints="#3355ff", 
        col.baghull="#7799ff", col.bagpoints="#000088", 
-       transparency=FALSE,\ldots)
+       transparency=FALSE, 
+       show.center = TRUE, ...)
 }
 
 \arguments{
@@ -968,7 +972,8 @@ compute.bagplot(x, y, factor = 3, na.rm = FALSE, approx.limit = 300,
   \item{col.baghull}{ color of bag hull }
   \item{col.bagpoints}{ color of the points of the bag }
   \item{transparency}{ see section details }
-  \item{\dots}{ additional graphical parameters }
+  \item{show.center}{ if TRUE the center is shown }
+  \item{...}{ additional graphical parameters }
 }
 \details{
 A bagplot is a bivariate generalization of the well known
@@ -1114,7 +1119,9 @@ bagplot<-function(x,y,
    col.looppoints="#3355ff", # Alternatives: #55ff33, #ff3355
    col.baghull="#7799ff", # Alternatives: #99ff77, #ff7799
    col.bagpoints="#000088", # Alternatives: #008800, #880000
-   transparency=FALSE, ... # to define further parameters of plot
+   transparency=FALSE, 
+   show.center = TRUE, # if TRUE center is shown
+   ... # to define further parameters of plot
 ){
   if(missing(x)) return(<<version of bagplot>>)
   if((is.data.frame(x) || is.matrix(x)) && ncol(x) == 2){ y <- x[,2]; x <- x[,1] } #180308
@@ -1136,7 +1143,8 @@ bagplot<-function(x,y,
      col.looppoints=col.looppoints,
      col.baghull=col.baghull,
      col.bagpoints=col.bagpoints,
-     transparency=transparency, ...
+     transparency=transparency, 
+     show.center = show.center, ...
     )
   }
   invisible(bo)
@@ -2471,7 +2479,9 @@ plot.bagplot<-function(x,
    col.looppoints="#3355ff", # Alternatives: #55ff33, #ff3355
    col.baghull="#7799ff", # Alternatives: #99ff77, #ff7799
    col.bagpoints="#000088", # Alternatives: #008800, #880000
-   transparency=FALSE,...
+   transparency=FALSE,
+   show.center = TRUE,
+   ...
 ){
  if(missing(x)) return(<<version of bagplot>>)
  # transparency flag and color flags have been proposed by wouter 
@@ -2554,11 +2564,11 @@ if(show.outlier && 0 < length(pxy.outlier)){ # points in loop
       points(pxy.outlier[,1],pxy.outlier[,2],col="red",pch=pch,cex=cex)
 }
 # center:
-if(exists("hull.center") && 2 < length(hull.center)){
+if(exists("hull.center") && 2 < length(hull.center) && show.center){ #190715
     h<-rbind(hull.center,hull.center[1,]); lines(h[,1],h[,2],lty=1)
     polygon(hull.center[,1],hull.center[,2],col="orange")
 }
-if(!is.one.dim) points(center[1],center[2],pch=8,col="red")
+if(!is.one.dim && show.center) points(center[1],center[2],pch=8,col="red") #190715
 if(verbose && 0 < length(exp.dk.1) ){
    h<-rbind(exp.dk,exp.dk[1,]); lines(h,col="blue",lty=2)
    h<-rbind(exp.dk.1,exp.dk.1[1,]); lines(h,col="black",lty=2, lwd=3)

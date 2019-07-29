@@ -25,7 +25,7 @@ function (sl.functions, sl.names, sl.mins, sl.maxs, sl.deltas,
   if (missing(sl.functions)) sl.functions <- function(...) {  }
    
 
-  # #require(tcltk) # 140306
+  if (!requireNamespace("tcltk", quietly = TRUE)) stop("package 'tcltk' is needed") #190715
   nt.top <-tktoplevel()                              # 160115
   tkwm.title(nt.top, title)                          # 160115
   tkwm.geometry(nt.top, "+0+15")                     # 160115
@@ -96,7 +96,7 @@ function (sl.functions, sl.names, sl.mins, sl.maxs, sl.deltas,
     sliders.frame.vertical=TRUE, hscale=1, vscale=1,
     pos.of.panel = c("bottom","top","left","right")[1]) 
 { # pwolf 100915 / 121206
-  ## require(tkrplot) ## replaced by tkrplot::tkrplot
+  if (!requireNamespace("tkrplot", quietly = TRUE)) stop("package 'tkrplot' is needed") #190715
   slider.env<-"1"; rm("slider.env")
   if (!exists("slider.env")) slider<-slider.env<<-new.env(parent=.GlobalEnv)
   if (!missing(no)) 
@@ -118,7 +118,7 @@ function (sl.functions, sl.names, sl.mins, sl.maxs, sl.deltas,
   if (missing(sl.functions)) sl.functions <- function(...) {  }
    
 
-  # #require(tcltk) # 140306
+  if (!requireNamespace("tcltk", quietly = TRUE)) stop("package 'tcltk' is needed") #190715
   nt.top <-tktoplevel()                              # 160115
   tkwm.title(nt.top, title)                          # 160115
   tkwm.geometry(nt.top, "+0+15")                     # 160115

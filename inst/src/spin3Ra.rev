@@ -1,4 +1,4 @@
-% New Report: Thu Mar  8 15:52:37 2018 
+% cp New Report: Thu Mar  8 15:52:37 2018 
 
 % New Report: Fri May 13 10:17:27 2016 
 
@@ -88,7 +88,7 @@ spin3R <- function(x, alpha=1, delay=.015, na.rm=FALSE){
  #                                                               #
  #################################################################
 if(ncol(x)!=3) { print("Error: data matrix must have 3 columns"); return() }
- # require(tcltk) # 180308
+ if (!requireNamespace("tcltk", quietly = TRUE)) stop("package 'tcltk' is needed") #190715
  <<generiere Steuerungsfenster>>
  <<definiere Rotationen>>
  <<initialisiere Plot>>

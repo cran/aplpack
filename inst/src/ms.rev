@@ -1,3 +1,7 @@
+% New Report: Tue Nov 27 11:40:42 2018 
+
+% New Report: Thu Oct  4 10:41:35 2018 
+
 % New Report: Wed Apr 29 13:11:33 2015 
 
 % New Report: Wed Oct 30 11:12:07 2013 
@@ -120,6 +124,7 @@ Hierzu stehen folgende Argumente bereit:
 #   Peter Wolf 05/2003 (modified slightly by J. Fox, 20 July 03) #
 #   rounding operation for comparing added 29 March 06           #
 #   07/2008 NA-values are counted if na.rm==FALSE                #
+#   10/2010 rounding error in computing of leaves conremoved     #
 ##################################################################
 
 @
@@ -327,6 +332,7 @@ Im weiteren Verlauf wollen wir mit normierten Werten weiterarbeiten.
 Deshalb transformieren wir Werte wie auch die Extremwerte der Skalen.
 <<transformiere Daten>>=
 data.tr <- data/factor
+data.tr <- signif(data.tr, digits = 11) # reduction of significant digits 181128
 Min.tr  <- Min/factor
 Max.tr  <- Max/factor
 
@@ -442,11 +448,14 @@ Die Blätter ergeben sich über Differenzbildung von um eine Stelle
 nach links geshifteten Daten und Stämmen. Die Differenzen negativer Werte
 sind dann aufzurunden, die anderen abzurunden.
 Übrigens führte [[ceiling((data.tr.red-stem)*10)]] zu Fehlern.
+Weitere Checks haben zu der oben eingebauten Rundungsoperation von [[data.tr]] 
+auf 10 signifikante Ziffern mit [[signif()]] geführt. % 181128
 <<zerlege Zahlen in Stamm und Blatt>>=
-stem  <- ifelse(data.tr.red<0, ceiling(data.tr.red), floor(data.tr.red) )
-# eps <- 1e-12; leaf <- floor(abs(data.tr.red*10-stem*10)+eps)
-leaf  <- floor(10*abs(signif(data.tr.red-stem,10)))
-debug.show("leaf"); debug.show("stem")
+stem.data  <- ifelse(data.tr.red < 0, ceiling(data.tr.red), floor(data.tr.red) )
+# eps <- 1e-12; leaf <- floor(abs(data.tr.red*10-stem.data*10)+eps)
+leaf <- floor(10 * abs(signif(data.tr.red - stem.data, 5))) #181004  , 10
+leaf <- ifelse( leaf == 10, 0, leaf ) # 181004 probably not relevant 
+debug.show("leaf"); debug.show("stem.data")
 
 @
 Der Vergleich von Dezimalzahlen wird problematisch. wenn wir an die Grenzen
@@ -487,10 +496,16 @@ floor(.95/0.1-9.5+eps) = "0"
 @
 Die Technik, etwas Schmutz zu addieren, erscheint nicht so richtig überzeugend zur
 Lö\-sung der Dis\-kreti\-sierungs\-unge\-nauig\-keit. Besser gefällt die Idee, die Differenz von 
-[[data.tr.red]] und [[stem]] nach 10 Stellen abzuschneiden und dann erst abzurunden.
+[[data.tr.red]] und [[stem]] nach 10 oder 5 Stellen abzuschneiden und dann erst abzurunden.
 Falls sich weitere Probleme einstellen, kann ggf.\ auf die erste Lösung mit Addition
 eines [[eps]] zurückgegriffen werden, denn die entsprechende Zeile ist als 
 Kommentarzeile noch existent.
+
+181004, siehe Bsp.\ Maulida Yanti: 
+Es zeigt sich, dass Dezimalzahlen wie 10 * 4.30 immer noch zu Fehlern führ(t)en.
+Diese äußerten sich darin, dass [[leaf]]-Werte der Größe 10 berechnet wurden. So entstanden aus
+einem Datum zwei Ziffern. Zum Test kann verwendet werden:
+[[x <- (-101:101)/100; stem.leaf(x, m = 1)]]
 
 @
 \paragraph{Blätterzuordnung}
@@ -869,7 +884,7 @@ debug.cond<<-""
  "Clementine", "Datteln, getrocknet", "Erdbeeren", "Feigen, getrockne",
  "Granatapfel", "Grapefruit", "Heidelbeeren", "Himbeeren",                   
  "Holunderbeeren", "Honigmelone", "Johannisbeeren, rot", 
- "Johannisbeeren, schwarz", "Kaki", "Kirsche, süß", "Kiwi",
+ "Johannisbeeren, schwarz", "Kaki", "Kirsche, sueß", "Kiwi",
  "Mandarine", "Mango", "Mirabellen", "Nektarine", "Oliven, mariniert", 
  "Papaya","Passionsfrucht", "Pfirsich", "Pflaumen",
  "Pflaumen,getrocknet", "Preiselbeeren","Rosinen", "Satsuma",
@@ -1369,7 +1384,7 @@ Klassen-Test-end
 Jim Albert mailte am 12.4.09 folgende Fehlersituation:
 <<Example of Jim Albert>>=
 #debug.cond<<-"all"
-<<definiere ms>>
+<<definiere [[stem.leaf]]>>
 y<-c(0.99,0.96,0.98,0.94,0.98,0.98,0.97,0.97,0.98,0.96,0.94,0.96,
 0.96,0.96,0.96,
 0.97,0.96,0.92,0.98,0.95,0.97,0.92,0.92,0.96,0.95,0.96,0.93,0.96,
@@ -1506,10 +1521,129 @@ LO: -4.3 -4.001 -4
 HI: 4 4.001 4.7 5.7
 Reverse-Test-end
 \end{verbatim}
+
+@
+\newpage
+Mail 29. September 2018 from Maulida Yanti,
+die einen Fehler aufdeckte, der auf Rundungsfehler zurück ging.
+Diese Fehler sind am [[181128]] bzw.\ [[181004]] behoben worden.
+<<Example of Maulida Yanti>>=
+debug.cond<<-FALSE
+<<definiere [[stem.leaf]]>>
+x <- c(4.12, 4.12, 4.26, 4.26, 4.29, 4.3, 4.31, 4.39, 4.39, 4.4, 4.41,
+       4.45, 4.52, 4.56, 4.57, 4.6, 4.63, 4.64, 4.73, 4.82, 5.08, 5.29,  
+       5.51, 5.62, 5.67, 5.78)
+stem(x, scale = 2)
+stem.leaf(x, m = 1); NULL
+stem.leaf.backback(x, x)
+stem.leaf
+@
+[[stem.leaf()]] shows 27 keaves and one HI entry, but there are only 26 data points.
+
+@
+Fehlerhafter Output:
+\begin{verbatim}
+The decimal point is 1 digit(s) to the left of the |
+
+  41 | 22
+  42 | 669
+  43 | 0199
+  44 | 015
+  45 | 267
+  46 | 034
+  47 | 3
+  48 | 2
+  49 | 
+  50 | 8
+  51 | 
+  52 | 9
+  53 | 
+  54 | 
+  55 | 1
+  56 | 27
+  57 | 8
+
+Read 3 items
+1 | 2: represents 0.12
+ leaf unit: 0.01
+            n: 26
+Read 16 items
+   2    41 | 22
+   5    42 | 669
+   9    43 | 19910
+  12    44 | 015
+  (3)   45 | 267
+  11    46 | 3410
+   8    47 | 3
+   7    48 | 2
+        49 | 
+   6    50 | 8
+        51 | 
+   5    52 | 9
+        53 | 
+        54 | 
+   4    55 | 1
+   3    56 | 27
+Read 1 item
+HI: 5.78
+\end{verbatim}
+@
+Rundungs-Probleme bei seltsamen Konstellationen stellte 
+<<another example of with dangerous digits>>=
+debug.cond<<-FALSE
+<<definiere [[stem.leaf]]>>
+options(digits = 22); d <- 10
+x <- (2990:3010) / d; stem.leaf(x); cbind(sort(x))
+stem(x, scale = 2)
+stem.leaf(x, m = 1); NULL
+stem.leaf.backback(x, x); NULL
+
+
+@
+\begin{verbatim}
+1 | 2: represents 1.2
+ leaf unit: 0.1
+            n: 21
+   2    299* | 01
+   4       t | 23
+   6       f | 45
+   8       s | 67
+  10    299. | 89
+  (2)   300* | 01
+   9       t | 23
+   7       f | 45
+   5       s | 67
+   3    300. | 89
+   1    301* | 0
+1 | 2: represents 1.2
+ leaf unit: 0.1
+            n: 21
+   10    299 | 0123456789
+  (10)   300 | 0123456789
+    1    301 | 0
+__________________________
+  1 | 2: represents 1.2, leaf unit: 0.1 
+        x        x    
+__________________________
+   2   10| 299* |01   2   
+   4   32|    t |23   4   
+   6   54|    f |45   6   
+   8   76|    s |67   8   
+  10   98| 299. |89  10   
+  (2)  10| 300* |01  (2)  
+   9   32|    t |23   9   
+   7   54|    f |45   7   
+   5   76|    s |67   5   
+   3   98| 300. |89   3   
+   1    0| 301* |0    1   
+__________________________
+n:     21        21   
+__________________________
+\end{verbatim}
 @
 Hier noch einmal die Testaufrufe zusammengefaßt:
 <<Testaufrufe>>=
-<<definiere ms>>
+<<definiere [[stem.leaf]]>>
 <<definiere [[test]]>>
 <<Test von [[style]]>>
 <<Test von [[rule.line]]>>
@@ -1518,6 +1652,8 @@ Hier noch einmal die Testaufrufe zusammengefaßt:
 <<Klassenzuordnungstest>>
 <<Example of Jim Albert>>
 <<reverse-Test>>
+<<Example of Maulida Yanti>>
+<<another example of with dangerous digits>>
 
 @
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -1950,6 +2086,7 @@ Wir definieren eine Reihe von Tests ganz einfach dadurch, dass wir die Test-Aufr
 dass sie statt [[stem.leaf()]] die Funktion [[stem.leaf.backback()]] mit doppelter 
 Verwendung der Daten aufruft.
 <<*>>=
+debug.cond <<- FALSE
 test <- function(what) {
   what <- sub("stem.leaf","stem.leaf.backback",what)
   cat(what,"\n"); eval(parse(text=what)); return()
@@ -2058,10 +2195,13 @@ stem.leaf.backback(rivers[-(1:30)],rivers[1:30], back.to.back = FALSE, unit=10, 
 NULL
 @
 Error mailed by John Fox, 30.Okt.2013 in [[stem.leaf.backback]]:
+% install.packages('car', lib='/home/pwolf/lib', repos='http://cran.r-project.org')
 <<jferror>>=
 # style <- "Tukey"
 style <- "bare"
 <<definiere [[stem.leaf.backback]]>>
+library(crayon,lib.loc="/home/pwolf/lib")
+library(carData,lib.loc="/home/pwolf/lib")
 library(car,lib.loc="/home/pwolf/lib")
 data(Moore, package="car")
 with(Moore, stem.leaf.backback(conformity[partner.status == "low"],

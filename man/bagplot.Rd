@@ -17,7 +17,8 @@ bagplot(x, y, factor = 3, na.rm = FALSE, approx.limit = 300,
        dkmethod = 2, precision = 1, verbose = FALSE, 
        debug.plots = "no",   col.loophull="#aaccff", 
        col.looppoints="#3355ff", col.baghull="#7799ff", 
-       col.bagpoints="#000088", transparency=FALSE, ...
+       col.bagpoints="#000088", transparency=FALSE, 
+       show.center = TRUE, ...
 )
 compute.bagplot(x, y, factor = 3, na.rm = FALSE, approx.limit = 300, 
        dkmethod=2,precision=1,verbose=FALSE,debug.plots="no")
@@ -28,7 +29,8 @@ compute.bagplot(x, y, factor = 3, na.rm = FALSE, approx.limit = 300,
        add = FALSE, pch = 16, cex = 0.4, verbose = FALSE, 
        col.loophull="#aaccff", col.looppoints="#3355ff", 
        col.baghull="#7799ff", col.bagpoints="#000088", 
-       transparency=FALSE,\ldots)
+       transparency=FALSE, 
+       show.center = TRUE, ...)
 }
 \arguments{
   \item{x}{ x values of a data set; 
@@ -61,7 +63,8 @@ compute.bagplot(x, y, factor = 3, na.rm = FALSE, approx.limit = 300,
   \item{col.baghull}{ color of bag hull }
   \item{col.bagpoints}{ color of the points of the bag }
   \item{transparency}{ see section details }
-  \item{\dots}{ additional graphical parameters }
+  \item{show.center}{ if TRUE the center is shown }
+  \item{...}{ additional graphical parameters }
 }
 \details{
 A bagplot is a bivariate generalization of the well known

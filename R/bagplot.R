@@ -1059,7 +1059,9 @@ plot.bagplot<-function(x,
    col.looppoints="#3355ff", # Alternatives: #55ff33, #ff3355
    col.baghull="#7799ff", # Alternatives: #99ff77, #ff7799
    col.bagpoints="#000088", # Alternatives: #008800, #880000
-   transparency=FALSE,...
+   transparency=FALSE,
+   show.center = TRUE,
+   ...
 ){
  if(missing(x)) return(
 "bagplot, version 2012/12/05, peter wolf"
@@ -1259,11 +1261,11 @@ if(show.outlier && 0 < length(pxy.outlier)){ # points in loop
       points(pxy.outlier[,1],pxy.outlier[,2],col="red",pch=pch,cex=cex)
 }
 # center:
-if(exists("hull.center") && 2 < length(hull.center)){
+if(exists("hull.center") && 2 < length(hull.center) && show.center){ #190715
     h<-rbind(hull.center,hull.center[1,]); lines(h[,1],h[,2],lty=1)
     polygon(hull.center[,1],hull.center[,2],col="orange")
 }
-if(!is.one.dim) points(center[1],center[2],pch=8,col="red")
+if(!is.one.dim && show.center) points(center[1],center[2],pch=8,col="red") #190715
 if(verbose && 0 < length(exp.dk.1) ){
    h<-rbind(exp.dk,exp.dk[1,]); lines(h,col="blue",lty=2)
    h<-rbind(exp.dk.1,exp.dk.1[1,]); lines(h,col="black",lty=2, lwd=3)
@@ -1371,7 +1373,9 @@ bagplot<-function(x,y,
    col.looppoints="#3355ff", # Alternatives: #55ff33, #ff3355
    col.baghull="#7799ff", # Alternatives: #99ff77, #ff7799
    col.bagpoints="#000088", # Alternatives: #008800, #880000
-   transparency=FALSE, ... # to define further parameters of plot
+   transparency=FALSE, 
+   show.center = TRUE, # if TRUE center is shown
+   ... # to define further parameters of plot
 ){
   if(missing(x)) return(
 "bagplot, version 2012/12/05, peter wolf"
@@ -1395,7 +1399,8 @@ bagplot<-function(x,y,
      col.looppoints=col.looppoints,
      col.baghull=col.baghull,
      col.bagpoints=col.bagpoints,
-     transparency=transparency, ...
+     transparency=transparency, 
+     show.center = show.center, ...
     )
   }
   invisible(bo)

@@ -11,7 +11,7 @@ spin3R <- function(x, alpha=1, delay=.015, na.rm=FALSE){
  #                                                               #
  #################################################################
 if(ncol(x)!=3) { print("Error: data matrix must have 3 columns"); return() }
- # require(tcltk) # 180308
+ if (!requireNamespace("tcltk", quietly = TRUE)) stop("package 'tcltk' is needed") #190715
  bw <- 4
  topl<-tktoplevel();   tkwm.geometry(topl,"+0+500")
  f1 <- tkframe(topl);f2 <- tkframe(topl);f3 <- tkframe(topl)

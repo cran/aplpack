@@ -64,6 +64,7 @@ stem.leaf <- function(data, unit, m, Min, Max,
   #   Peter Wolf 05/2003 (modified slightly by J. Fox, 20 July 03) #
   #   rounding operation for comparing added 29 March 06           #
   #   07/2008 NA-values are counted if na.rm==FALSE                #
+  #   10/2010 rounding error in computing of leaves conremoved     #
   ##################################################################
 
   n <- length(data <- sort(data))
@@ -89,6 +90,7 @@ stem.leaf <- function(data, unit, m, Min, Max,
   debug.show("delta.tick"); debug.show("m")
 
   data.tr <- data/factor
+  data.tr <- signif(data.tr, digits = 11) # reduction of significant digits 181128
   Min.tr  <- Min/factor
   Max.tr  <- Max/factor
 
@@ -117,10 +119,11 @@ stem.leaf <- function(data, unit, m, Min, Max,
   data.tr.red <-data.tr[(!lo.log)&(!hi.log)]
 
 
-  stem  <- ifelse(data.tr.red<0, ceiling(data.tr.red), floor(data.tr.red) )
-  # eps <- 1e-12; leaf <- floor(abs(data.tr.red*10-stem*10)+eps)
-  leaf  <- floor(10*abs(signif(data.tr.red-stem,10)))
-  debug.show("leaf"); debug.show("stem")
+  stem.data  <- ifelse(data.tr.red < 0, ceiling(data.tr.red), floor(data.tr.red) )
+  # eps <- 1e-12; leaf <- floor(abs(data.tr.red*10-stem.data*10)+eps)
+  leaf <- floor(10 * abs(signif(data.tr.red - stem.data, 5))) #181004  , 10
+  leaf <- ifelse( leaf == 10, 0, leaf ) # 181004 probably not relevant 
+  debug.show("leaf"); debug.show("stem.data")
 
   class.of.data.tr<-unlist(c(
      sapply(signif(data.tr.red[data.tr.red< 0],10),
@@ -295,6 +298,7 @@ stem.leaf.backback <- function(x,y, unit, m, Min, Max, rule.line = c("Dixon", "V
     #   Peter Wolf 05/2003 (modified slightly by J. Fox, 20 July 03) #
     #   rounding operation for comparing added 29 March 06           #
     #   07/2008 NA-values are counted if na.rm==FALSE                #
+    #   10/2010 rounding error in computing of leaves conremoved     #
     ##################################################################
 
     n <- length(data <- sort(data))
@@ -320,6 +324,7 @@ stem.leaf.backback <- function(x,y, unit, m, Min, Max, rule.line = c("Dixon", "V
     debug.show("delta.tick"); debug.show("m")
 
     data.tr <- data/factor
+    data.tr <- signif(data.tr, digits = 11) # reduction of significant digits 181128
     Min.tr  <- Min/factor
     Max.tr  <- Max/factor
 
@@ -348,10 +353,11 @@ stem.leaf.backback <- function(x,y, unit, m, Min, Max, rule.line = c("Dixon", "V
     data.tr.red <-data.tr[(!lo.log)&(!hi.log)]
 
 
-    stem  <- ifelse(data.tr.red<0, ceiling(data.tr.red), floor(data.tr.red) )
-    # eps <- 1e-12; leaf <- floor(abs(data.tr.red*10-stem*10)+eps)
-    leaf  <- floor(10*abs(signif(data.tr.red-stem,10)))
-    debug.show("leaf"); debug.show("stem")
+    stem.data  <- ifelse(data.tr.red < 0, ceiling(data.tr.red), floor(data.tr.red) )
+    # eps <- 1e-12; leaf <- floor(abs(data.tr.red*10-stem.data*10)+eps)
+    leaf <- floor(10 * abs(signif(data.tr.red - stem.data, 5))) #181004  , 10
+    leaf <- ifelse( leaf == 10, 0, leaf ) # 181004 probably not relevant 
+    debug.show("leaf"); debug.show("stem.data")
 
     class.of.data.tr<-unlist(c(
        sapply(signif(data.tr.red[data.tr.red< 0],10),
