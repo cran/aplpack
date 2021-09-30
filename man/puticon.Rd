@@ -40,16 +40,23 @@
    If \code{icon} is a function it is used as an icon generating function.
 } 
   \item{grey.levels}{
-   An image from a file is transformed to a black-and-white picture. \code{grey.levels} 
-   defines the grey levels of the black-and-white picture that are replaced 
-   by \code{color}.
-   If \code{grey.levels} is a single decimal number and is in (0,1) 
-   the pixels with a level greater than \code{grey.levels} are recolored by \code{color}.
-   If \code{grey.levels} consists of two decimal numbers lower 1 pixels with grey levels 
-   lying in the interval are recolored by \code{color}.
-   If \code{grey.levels} is an integer a vector of levels is created.
+   An image from a file is transformed to black-and-white and then recolored by 
+   \code{color}; if \code{is.na(color)} the original image is used.
+   \code{grey.levels} defines the grey levels of the black-and-white image as well as 
+   the recoloring.
+   If \code{grey.levels} is a single decimal value and is in (0,1) the pixels 
+   which levels are greater than \code{grey.levels} are recolored by \code{color}.
+   If \code{grey.levels} is a single decimal value and is in (-1,0) the pixels 
+   which levels are less than \code{abs(grey.levels)} are recolored by \code{color}.
+   If \code{grey.levels} consists of two decimal values in (0,1) pixels 
+   which level are within the intervall of the values are recolored by \code{color}.
+   If \code{grey.levels} is an integer \code{grey.levels > 1} a vector of equal spaced 
+   fractions in (0,1) is created.
+   If \code{grey.levels} is an integer \code{grey.levels < -1} a vector of limits in (0,1)
+   is created in a way that the observed frequencies of the classes defined by the 
+   limits are equal.
    If \code{grey.levels} is a vector and \code{all(grey.levels < 1)} \code{puticon} tries
-   to different intensities of colors of \code{color} for recoloring pixels.
+   to create different intensities of \code{color} for recoloring pixels.
 }
   \item{icon.cex}{
    size(s) of icon(s) in mm.  If \code{icon.cex < 1} it is interpreted as ratio 
@@ -96,7 +103,7 @@
   that the function works as described on all types of graphics devices. 
   In case of errors feel free to write a mail.
   Additional information and examples are found on the web page\cr
-  \url{http://www.wiwi.uni-bielefeld.de/lehrbereiche/statoekoinf/comet/wolf/wolf_aplpack}.
+  \url{https://www.uni-bielefeld.de/fakultaeten/wirtschaftswissenschaften/fakultaet/lehrende-ehemalige/pwolf/wolf_aplpack/index.xml}.
 }
 \seealso{
   \code{points}, \code{rasterImage}, \code{iconplot}
@@ -128,7 +135,7 @@
   # some smileys and Bielefeld logos of different colors and different sizes
   plot(1:100, type = "n")
   n <- 15; set.seed(26); x <- seq(10, 90, length = n); y <- runif(n, 10, 90)
-  sizes <- 5 + (1:n) / 4; my.color = rainbow(n); h <- 2 + (1:n)^0.5
+  sizes <- 5 + (1:n) / 4; my.color <- rainbow(n); h <- 2 + (1:n)^0.5
   puticon(x, y, icon = "BI", icon.cex = sizes, color = my.color)
   puticon(x + h, y + h, icon = "smiley", color = my.color, icon.cex = sizes)
   

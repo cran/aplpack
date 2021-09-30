@@ -624,6 +624,7 @@ christmas()
 In the chapter "Documenting functions" of the manual "Writing R Extensions" we find that there is a special
 style for the usage section concerning S3 method functions. Ignoring this style results in a note and 
 later perhaps in an error situation. Therefore, we now use the method style
+% #20210930  Link zu www...comet...aplpack geaendert
 % \footnotesize
 <<define [[faces]] help>>=
 \name{faces}
@@ -720,7 +721,7 @@ JASA, 68, pp 361--368.
 The smooth curves are computed by an algorithm found in
 Ralston, A. and Rabinowitz, P. (1985):
 A first course in numerical analysis, McGraw-Hill, pp 76ff.
-\url{http://www.wiwi.uni-bielefeld.de/lehrbereiche/statoekoinf/comet/wolf/wolf_aplpack}
+\url{https://www.uni-bielefeld.de/fakultaeten/wirtschaftswissenschaften/fakultaet/lehrende-ehemalige/pwolf/wolf_aplpack/index.xml}
    }
 \author{   H. P. Wolf    }
 \note{ version 01/2009   }

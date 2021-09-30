@@ -316,12 +316,11 @@ expand.table.short <- function(x){
 #:16
 #43:
 ##define local functions:##
-#280:
+#281:
 ##define [[transform.color.to.rgb.integer()]]:##
 transform.color.to.rgb.integer <- function(x, to = c("#rrggbb", "rgb"), 
                                            debug = FALSE){
   dim.x <- n <- length(x)
-  # if(is.matrix(x)) rasterImage(t(x), 5, 5, 15, 15)
   if( 0 < length( h <- dim(x) ) ) dim.x <- h
   if( is.numeric(x[1]) ){
     if( all( x %in% 0:8 ) ){
@@ -352,7 +351,7 @@ transform.color.to.rgb.integer <- function(x, to = c("#rrggbb", "rgb"),
   xx
 }
 ##:define [[transform.color.to.rgb.integer()]]##
-#:280
+#:281
 ##:define local functions##
 #:43
 #47:
@@ -378,8 +377,9 @@ if(!exists("raster.to.greys")){
 ##define [[raster.to.greys()]]:##
 raster.to.greys <- function(pic, grey.levels = c(0.05, 0.95),  # 2 :: black + white  
                             reduce = TRUE, n.icons = 1){
+  # prepare mat: cat("hallo: raster.to.greys", grey.levels); print(table(as.vector(pic)))
   
-#234:
+#235:
 ##prepare [[mat]] for coloring:##
 d.mat <- dim(pic)
 if( 3 == length(d.mat) ){ 
@@ -392,40 +392,9 @@ if( 3 == length(d.mat) ){
 mat   <- mat/max(1,mat) # /255 # shifted from else statements #180417 
 mat <- matrix(mat, ncol = d.mat[2])
 ##:prepare [[mat]] for coloring##
-#:234
-  if( 2 == length(grey.levels) ){
-    limits <- grey.levels
-    
-#241:
-##find levels if the two [[limits]] are in (0,1):##
-#235:
-##reduce size of [[mat]]:##
-if(reduce > 0 ){
-  if(is.logical(reduce)) {
-    # pixel.per.pic.plan <- width.of.picture * pixel.per.mm / n.icons^0.5
-    pixel.per.pic <- 120 * 5 / n.icons^0.5 
-    # reduction.factor <- pixel.per.pic.real / pixel.per.pic.plan
-    reduce <- ceiling( max(d.mat) / pixel.per.pic )
-  }
-  if(reduce > 1){
-    dim.mat.new <- reduce * (floor(d.mat/reduce))
-    mat.new <- mat[1:dim.mat.new[1], 1:dim.mat.new[2]]
-    mat.new <- array(mat.new, rbind(reduce, dim.mat.new/reduce))
-    mat.new <- apply(mat.new, c(2,4), mean)
-    d.mat <- dim(mat.new); mat <- pmin(1,mat.new); dim(mat) <- d.mat 
-  }
-}
-##:reduce size of [[mat]]##
 #:235
-# generate matrix of levels
-levs <- 1 + (limits[1] < mat) + (limits[2] < mat)   
-dim(levs) <- d.mat  
-##:find levels if the two [[limits]] are in (0,1)##
-#:241
-    return(levs)
-  }
   
-#235:
+#236:
 ##reduce size of [[mat]]:##
 if(reduce > 0 ){
   if(is.logical(reduce)) {
@@ -438,29 +407,93 @@ if(reduce > 0 ){
     dim.mat.new <- reduce * (floor(d.mat/reduce))
     mat.new <- mat[1:dim.mat.new[1], 1:dim.mat.new[2]]
     mat.new <- array(mat.new, rbind(reduce, dim.mat.new/reduce))
-    mat.new <- apply(mat.new, c(2,4), mean)
+    fn <- if(length(table(mat)) < 3) max else mean ## mean !!!!!! rounding effect
+    mat.new <- apply(mat.new, c(2,4), fn) # 190815
     d.mat <- dim(mat.new); mat <- pmin(1,mat.new); dim(mat) <- d.mat 
   }
 }
 ##:reduce size of [[mat]]##
-#:235
-  if( 1 == length(grey.levels) && 0 == (grey.levels %% 1) ){ # number of levels given
-    # find greys by number of greys
-    n.greys <- max(round(grey.levels), 2)
-    mat <- unclass(mat); min.mat <- min(mat); max.mat <- max(mat)
-    grey.levels <- seq(min.mat, max.mat, length = n.greys + 1)[-(n.greys+1)][-1]
-    p <- c(min.mat, mat[ min.mat < mat & mat < max.mat], max.mat )
-    greys <- c(min.mat, quantile(p, grey.levels))
-    greys <- unique(greys[ !is.na(greys) ])
-  } else {                   # find greys by quantiles of grey rates
-    grey.levels <- unique( pmin(1, pmax(0, sort(c(0, grey.levels, 1)))) )
-    greys       <- unique( quantile(mat, grey.levels) )
-    if( (h <- length(greys)) > 2 ) greys <- greys[ -h ]
-  }  # generate matrix of levels:
+#:236
+  mat <- unclass(mat); range.mat <- range(mat)
+  # cat("mat::"); print(table(as.vector(mat))); cat("grey.levels:", (grey.levels))
+  # expand a single fractional grey.level value: -1 < grey.levels[1] < 1
+  if( length(grey.levels) == 1 && abs(grey.levels) < 1 ){ 
+    # negative fraction induce coloring "color"+"black"
+    if(0 <= grey.levels){ # positive fraction induces coloring "color"+"white":
+      grey.levels <- c(grey.levels,  1)
+    } else {              # negative fraction induces coloring "black"+"color": 
+      grey.levels <- c(0, -grey.levels)
+    }
+    # cat("one value", grey.levels)
+  }
+  # case of two values in (0,1)
+  if( 2 == length(grey.levels) && max(abs(grey.levels) <= 1) ){
+    greys <- sort(abs(grey.levels))
+    
+#242:
+##find levels if the two [[greys]] are in (0,1):##
+# generate matrix of levels
+levs <- 1 + (greys[1] < mat) + (greys[2] < mat)   
+dim(levs) <- d.mat  
+##:find levels if the two [[greys]] are in (0,1)##
+#:242
+    # cat("two levels given"); print(table(levs))
+    
+#234:
+##raster.to.greys(): compose return values and return:##
   levs <- sapply( mat, function(x) sum( x >= greys ) ) 
   if(max(levs) == 2) levs <- levs + 1 # if 2 cols only use one color and white
   if( 2 == length(h <- unique(levs)) ) levs <- 2 + ( levs == max(h) ) 
-  dim(levs) <- d.mat; return(levs)
+  # cat("raster.to.greys-end, greys", greys);  print(table(levs))
+  dim(levs) <- d.mat; return(list(levs, greys))
+##:raster.to.greys(): compose return values and return##
+#:234
+    return(list(levs, greys)) # nicht notwendig
+  }
+  # case of number of grey levels are given
+  if( 1 == length(grey.levels) && 0 == (grey.levels %% 1) ){ 
+    n.greys <- (1 + abs(grey.levels)) # add 1 for white
+    if( grey.levels > 0 ){ # type 1 because of positive value: equal spacing
+      # h <- range.mat + c(0.8, -0.2) * diff(range.mat) / n.greys
+      # greys <- c(range.mat[1], seq(h[1], h[2], length = n.greys - 1))
+      # greys <- seq(range.mat[1], range.mat[2], length = n.greys)[-c(1, n.greys)] / (n.greys - 2)
+      # delta <- 1 / grey.levels; greys <- seq(0.3, 0.7, length = grey.levels)
+      h <- quantile(mat, c(0.0, 1 - 1 / grey.levels)) #190819
+      if( h[1] == h[2] ) h[2] <- quantile(mat, 1)
+      greys <- seq(h[1], h[2], length = grey.levels)
+      # cat("equal spacing, n.greys", n.greys, "greys", greys, "grey.levels", grey.levels)
+    } else { # type 2 because of negative value: equal frequencies in classes
+      greys <- seq(range.mat[1], range.mat[2], length = n.greys)#[2:n.greys]
+      # extract relevant grey values and count extremes one time only 
+      greys.obs <- c(range.mat[1], mat[range.mat[1] < mat & mat < range.mat[2]], range.mat[2])
+      greys.obs <- mat
+      # find quantiles of observed grey values
+      # greys <- c(range.mat[1], quantile(greys.obs, greys)) 
+      greys <- c(range.mat[1], quantile(greys.obs, greys)[-1]) 
+      # remove NAs (usually not relevant) and remove multiple greys
+      greys <- unique(greys[ !is.na(greys) ])
+      # cat("equal frequencies, n.greys", n.greys, "greys", greys)
+    }
+  } else {                   # find greys by quantiles of grey rates
+    greys <- unique( pmin(1, pmax(0, sort(c(0, 1, abs(grey.levels))))) )
+    if(grey.levels[1] < 0){
+      greys <- unique( quantile(mat, greys) )
+      # handle strange cases:
+      if(length(greys) == 1 && greys[1] == 0) greys <- c(greys, 1)
+      if(length(greys) == 1 && greys[1] == 1) greys <- c(0, greys)
+      if( (h <- length(greys)) > 2 && greys[h] == 1) greys <- greys[ -h ]
+    }
+  }  # generate matrix of levels:
+  
+#234:
+##raster.to.greys(): compose return values and return:##
+  levs <- sapply( mat, function(x) sum( x >= greys ) ) 
+  if(max(levs) == 2) levs <- levs + 1 # if 2 cols only use one color and white
+  if( 2 == length(h <- unique(levs)) ) levs <- 2 + ( levs == max(h) ) 
+  # cat("raster.to.greys-end, greys", greys);  print(table(levs))
+  dim(levs) <- d.mat; return(list(levs, greys))
+##:raster.to.greys(): compose return values and return##
+#:234
 } 
 ##:define [[raster.to.greys()]]##
 #:233
@@ -576,29 +609,33 @@ if(  icon.horizontal & "r" %in% icon.stack.type){  # "s"hrinking rectangle
 #:86
 #109:
 ##define local functions:##
-#238:
+#239:
 ##define [[greys.to.col.pic()]]:##
 greys.to.col.pic <- function(levs, col, invert = FALSE, 
                              set.black.and.white = FALSE, simple = FALSE){
+  # print("hallo: greys.to.col.pic"); cat("simple", simple)
   d.mat <- dim(levs); n <- max(levs) #; cat("simple", simple)
   if(simple){
     
-#242:
+#243:
 ##find pic if [[simple]] is set:##
 # set colors based on col
 colors <- c("#000000", col, "#FFFFFF")
+# if(any(1 == levs)) levs <- levs + 1 # zu klein ??
+#   print(table(as.vector(levs)))
+# cat("colors", colors)
 # build pictogram  
 pic <- matrix(colors[levs], ncol = d.mat[2]) 
 ##:find pic if [[simple]] is set##
-#:242
+#:243
     return(as.raster(pic))
   } #;  cat("greys.to.col.pic")
   # inversion of levels
   if(invert) levs <- n + 1 - levs
   # find colors based on col
-  rgb.col1 <- col2rgb(col)/255; rgb.col2 <- 1 - rgb.col1
-  n1 <- round(n/2) ; n2 <- n - n1 # n1 <- round(mean(rgb.col1) * n)
-  f1 <- ((1:n1) - 1/2)/n1; f2 <- ((n2:1) - 1/2)/n2
+  rgb.col1 <- col2rgb(col) / 255; rgb.col2 <- 1 - rgb.col1
+  n1 <- round(n / 2) ; n2 <- n - n1 # n1 <- round(mean(rgb.col1) * n)
+  f1 <- ((1:n1) - 1/2) / n1; f2 <- ((n2:1) - 1/2) / n2
   rgb.col1 <-     cbind(f1 * rgb.col1[1], f1 * rgb.col1[2], f1 * rgb.col1[3])
   rgb.col2 <- 1 - cbind(f2 * rgb.col2[1], f2 * rgb.col2[2], f2 * rgb.col2[3])
   rgb.col <- rbind(rgb.col1, rgb.col2)
@@ -610,7 +647,7 @@ pic <- matrix(colors[levs], ncol = d.mat[2])
   pic <- matrix(colors[levs], ncol = d.mat[2]); as.raster(pic)
 } 
 ##:define [[greys.to.col.pic()]]##
-#:238
+#:239
 ##:define local functions##
 #:109
 #141:
@@ -644,9 +681,9 @@ show.obj <- function(x){
 }
 ##:define local functions##
 #:153
-#361:
+#363:
 ##define local functions:##
-#353:
+#355:
 ##define [[call.icon.generator()]]:##
 call.icon.generator <- function(icons, xy = c(0,0), dxy = c(1, 0.5)[1], 
                                color = "red", pic.args = 50, ...){
@@ -654,10 +691,10 @@ call.icon.generator <- function(icons, xy = c(0,0), dxy = c(1, 0.5)[1],
   xy <- xy[1:2]; dxy <- c(dxy, 1)[1:2]
   if(is.character(icons)){  # case: name of an internal icon generator
     
-#354:
+#356:
 ##look for internal generator in [[call.icon.generator()]]:##
   
-#315:
+#317:
 ##define [[BI()]]:##
 BI <- function(){
   result <- list()
@@ -684,9 +721,9 @@ BI <- function(){
   result
 }
 ##:define [[BI()]]##
-#:315
+#:317
   
-#318:
+#320:
 ##define [[TL()]]:##
 TL <- function(L = c("AB", "DT", "PW", "NV", "Hello")[1], t.cex.mm = 10, 
                startx, starty, delx, dely, Lcolors,
@@ -727,9 +764,9 @@ TL <- function(L = c("AB", "DT", "PW", "NV", "Hello")[1], t.cex.mm = 10,
   result
 } # ; show.icon.design(TL) #; TL()
 ##:define [[TL()]]##
-#:318
+#:320
   
-#325:
+#327:
 ##define [[cross.simple()]]:##
 cross.simple <- function(){  # print("in cross")
   res <- rbind( c( 05, 05, 95, 95, lwd.mm = 10, NA), 
@@ -739,9 +776,9 @@ cross.simple <- function(){  # print("in cross")
   class(res) <- "segments"; res
 }
 ##:define [[cross.simple()]]##
-#:325
+#:327
   
-#326:
+#328:
 ##define [[cross()]]:##
 cross <- function(z = 0.30){ # print("in cross")
   if(is.factor(z)){ z <- as.numeric(z); z <- 0.5 * z / length(levels(z)) } 
@@ -762,9 +799,9 @@ cross <- function(z = 0.30){ # print("in cross")
   result
 }
 ##:define [[cross()]]##
-#:326
+#:328
   
-#327:
+#329:
 ##define [[circle.simple()]]:##
 circle.simple <- function(){ # print("in circle.simple")
   res <- rbind( c( 50, 50, 50, 50, lwd.mm = 100, NA)) 
@@ -772,9 +809,9 @@ circle.simple <- function(){ # print("in circle.simple")
   class(res) <- "segments"; res
 }
 ##:define [[circle.simple()]]##
-#:327
+#:329
   
-#328:
+#330:
 ##define [[circle()]]:##
 circle <- function(whole = 0.50){     # print("in circle")
   if(is.factor(whole)){ 
@@ -787,9 +824,9 @@ circle <- function(whole = 0.50){     # print("in circle")
   class(res) <- "segments"; res
 }
 ##:define [[circle()]]##
-#:328
+#:330
   
-#331:
+#333:
 ##define [[car.simple()]]:##
 car.simple <- function(){ # print("in cross")
   res0 <- cbind(t(cbind( 0.6* c( 05, 05, 95, 95), 0.6* c( 05, 95, 95, 05),
@@ -812,9 +849,9 @@ car.simple <- function(){ # print("in cross")
   list(res1, res1, res2, res3)
 } # ; car.simple()
 ##:define [[car.simple()]]##
-#:331
+#:333
   
-#332:
+#334:
 ##define [[car()]]:##
 car <- function(width = .5, height = .0){ # print("in cross")
   width  <- (width  * 2   + 2) / 3.2; height <- (height * 5.0 + 1) / 3.2
@@ -830,9 +867,9 @@ car <- function(width = .5, height = .0){ # print("in cross")
   class(res2) <- "segments"; list(res1, res2)
 } # ; car()
 ##:define [[car()]]##
-#:332
+#:334
   
-#334:
+#336:
 ##define [[nabla()]]:##
 nabla <- function(){ 
   res <- rbind( c( 05, 95, 50, 05, 10), c( 50, 05, 95, 95, 10),
@@ -840,9 +877,9 @@ nabla <- function(){
   colnames(res) <- c("x0", "y0", "x1", "y1", "lwd.mm"); res
 } # ; nabla()
 ##:define [[nabla()]]##
-#:334
+#:336
   
-#363:
+#365:
 ##define [[walkman()]]:##
 walkman <- function( balpha = 70, col = NA, 
            ll1alpha =  -80, ll2alpha = -120, lr1alpha = -45, lr2alpha = -100,
@@ -858,7 +895,7 @@ walkman <- function( balpha = 70, col = NA,
   al1alpha <- al1alpha / 180 * pi;  al2alpha <- al2alpha / 180 * pi
   ar1alpha <- ar1alpha / 180 * pi;  ar2alpha <- ar2alpha / 180 * pi
   
-#364:
+#366:
 ##define body of [[walkman]]:##
   x <- c(cos(balpha), sin(balpha)) * scale.xy
   ba <- c(0,0); be <- ba + x
@@ -866,17 +903,17 @@ walkman <- function( balpha = 70, col = NA,
   seg.mat <- cbind(a=ba[1], b=ba[2], c=be[1], d=be[2], e=bal)
   segs.set <- rbind(segs.set, seg.mat); col.set <- c(col.set, bac)
 ##:define body of [[walkman]]##
-#:364
+#:366
   
-#366:
+#368:
 ##define head of [[walkman]]:##
   h <- be + ( be - ba) * .75; hl <- lwd * lw.unit * 1.6; hc <- col
   seg.mat <- cbind(a=h[1], b=h[2], c=h[1], d=h[2], e=hl)
   segs.set <- rbind(segs.set, seg.mat); col.set <- c(col.set, hc)
 ##:define head of [[walkman]]##
-#:366
+#:368
   
-#365:
+#367:
 ##define legs of [[walkman]]:##
   lbecken <- 0.19; llength <- 1; ll <- lwd * lw.unit * 0.85
   ll1a <- ba +   c(cos(balpha+pi/2), sin(balpha+pi/2)) * scale.xy * lbecken
@@ -894,9 +931,9 @@ walkman <- function( balpha = 70, col = NA,
   seg.mat <- cbind(l, e=ll)
   segs.set <- rbind(segs.set, seg.mat); col.set <- c(col.set, hc)
 ##:define legs of [[walkman]]##
-#:365
+#:367
   
-#367:
+#369:
 ##define arms of [[walkman]]:##
   aschulter <- 0.19; alength <- 0.7; al <- lwd * lw.unit * 0.85
   al1a <- be +   c(cos(balpha+pi/2), sin(balpha+pi/2)) * scale.xy * aschulter
@@ -914,7 +951,7 @@ walkman <- function( balpha = 70, col = NA,
   seg.mat <- cbind(a, e=al)
   segs.set <- rbind(segs.set, seg.mat); col.set <- c(col.set, hc)
 ##:define arms of [[walkman]]##
-#:367
+#:369
   segs.set[, 1:4] <- segs.set[, 1:4] + 5 # shift to the center
   segs.set <- cbind(as.data.frame(segs.set), f = col) # set color
   class(segs.set) <- c(class(segs.set), "segments")
@@ -926,9 +963,9 @@ walkman <- function( balpha = 70, col = NA,
 # puticon(5, 5.5, icon = walkman, icon.cex = 160, balpha = 80)
 # walkman()
 ##:define [[walkman()]]##
-#:363
+#:365
   
-#371:
+#373:
 ##define [[smiley.blueeye()]]:##
 smiley.blueeye <- function(){
   # output: x0, y0, x1, y1, lwd, col 
@@ -951,9 +988,9 @@ smiley.blueeye <- function(){
   class(res) <- "segments"; res
 } # ; show.icon.design(smiley.blueeye) # ; smiley.blueeye()
 ##:define [[smiley.blueeye()]]##
-#:371
+#:373
   
-#372:
+#374:
 ##define [[smiley.normal()]]:##
 smiley.normal <- function(){
   # output: x0, y0, x1, y1, lwd, col 
@@ -974,9 +1011,9 @@ smiley.normal <- function(){
   class(res) <- "segments"; res
 } #; show.icon.design(smiley.normal)
 ##:define [[smiley.normal()]]##
-#:372
+#:374
   
-#377:
+#379:
 ##define [[smiley()]]:##
 smiley <- function(smile = 0.8){
   if(is.factor(smile)) smile <- as.numeric(smile) / length(levels(smile))
@@ -1009,9 +1046,9 @@ smiley <- function(smile = 0.8){
   return(res)
 }
 ##:define [[smiley()]]##
-#:377
+#:379
   
-#373:
+#375:
 ##define [[smiley.sad()]]:##
 smiley.sad <- function(){
   # output: x0, y0, x1, y1, lwd, col 
@@ -1032,9 +1069,9 @@ smiley.sad <- function(){
   class(res) <- "segments"; res
 } # ; show.icon.design(smiley.sad)
 ##:define [[smiley.sad()]]##
-#:373
+#:375
   
-#381:
+#383:
 ##define [[mazz.man()]]:##
 mazz.man <- function(Mean = 100, Penalty = 1, Region = "region:", 
                      expo = 1/(1:3)[3], Mean.max = 107, Mean.half = 90, 
@@ -1071,9 +1108,9 @@ mazz.man <- function(Mean = 100, Penalty = 1, Region = "region:",
   # res1 <- rbind(c(0,0,100,100)); class(res1)<-c("segments"); res1 <- list(res1) 
   # res2 <- rbind(c(100,0,0,100)); class(res2)<-c("segments"); res2 <- list(res2) 
 ##:define [[mazz.man()]]##
-#:381
+#:383
   
-#389:
+#391:
 ##define [[bike()]]:##
 bike <- function(){
    res.liste <- NULL; a <- 1.5
@@ -1094,9 +1131,9 @@ bike <- function(){
    res.liste <- c(res.liste, list(res))
 }
 ##:define [[bike()]]##
-#:389
+#:391
   
-#390:
+#392:
 ##define [[bike2()]]:##
 bike2 <- function() {
    res.liste <- NULL; a <- 1.5
@@ -1116,9 +1153,9 @@ bike2 <- function() {
    res.liste <- c(res.liste, list(res))
 }
 ##:define [[bike2()]]##
-#:390
+#:392
   
-#391:
+#393:
 ##define [[heart()]]:##
 heart <- function(txt = "xy"){
    txt <- substring(paste(txt, " "), 1:2, 1:2)
@@ -1134,9 +1171,9 @@ heart <- function(txt = "xy"){
    result <- c(res1, res2, res3) 
 } # ; show.icon.design(heart)()
 ##:define [[heart()]]##
-#:391
+#:393
   
-#392:
+#394:
 ##define [[bend.sign()]]:##
 bend.sign <- function(txt = "xy"){
    txt <- substring(paste(txt, " "), 1:2, 1:2)
@@ -1171,9 +1208,9 @@ bend.sign <- function(txt = "xy"){
    result <- c(res, res1b, res2b) #, res1) 
 }  # ; show.icon.design(bike2)# bend.sign) #; bend.sign()
 ##:define [[bend.sign()]]##
-#:392
+#:394
   
-#398:
+#400:
 ##define [[fir.tree()]]:##
 fir.tree <- function(height = 1, width = 1, txt = ".....", t.cex.mm = 10){ 
   fac.x <- width * 100/60; fac.y <- height * 100/70
@@ -1203,7 +1240,7 @@ fir.tree <- function(height = 1, width = 1, txt = ".....", t.cex.mm = 10){
   res.liste
 }  # ; show.icon.design(fir.tree)
 ##:define [[fir.tree()]]##
-#:398
+#:400
   if( icons %in% ls() ) icons <- get(icons)
   if( !is.function(icons) ) {
     cat("Error in call of call.icon.generator in iconplots():\n  ", 
@@ -1211,11 +1248,11 @@ fir.tree <- function(height = 1, width = 1, txt = ".....", t.cex.mm = 10){
     return()
   }
 ##:look for internal generator in [[call.icon.generator()]]##
-#:354
+#:356
   }
   if( is.function(icons) ){ # case: user defined generator function ---
     
-#355:
+#357:
 ##find set [[pic.sets]] by calling [[icons()]] in [[call.icon.generator()]]:##
     # check arguments of icons # print(pic.args)
     icon.gen.args  <- formals(icons); n.icon.gen.args <- length(icon.gen.args)
@@ -1258,13 +1295,13 @@ fir.tree <- function(height = 1, width = 1, txt = ".....", t.cex.mm = 10){
     }
     if( !is.list(pic.sets) || is.data.frame(pic.sets) ) pic.sets <- list(pic.sets)
 ##:find set [[pic.sets]] by calling [[icons()]] in [[call.icon.generator()]]##
-#:355
+#:357
   } 
   # now pic.sets stores the actual pictogram blank
   # check list structure of the pictogram to be build
   if( !is.list(pic.sets) || is.data.frame(pic.sets) ) pic.sets <- list(pic.sets)
   
-#356:
+#358:
 ##find parameters for constructing pictograms in [[call.icon.generator()]]:##
   colornames <- c("white", "black", "red", "green", "blue",
                   "lightblue", "magenta", "yellow", "grey")
@@ -1284,12 +1321,12 @@ fir.tree <- function(height = 1, width = 1, txt = ".....", t.cex.mm = 10){
   mm.to.lwd <- function(lwd.mm) lwd.mm * 3.787878 * dev.fac 
   mm.to.cex <- function(text.cex.mm) text.cex.mm / (cin[1] * 25.4)
 ##:find parameters for constructing pictograms in [[call.icon.generator()]]##
-#:356
+#:358
   type.set <- c("polygon", "segments", "text", "spline")
   for( pic.i in pic.sets ){ # loop along the elements of list "pic.sets"
     # plot segments, polygons and texts in [[call.icon.generator()]]
     
-#357:
+#359:
 ##add missing infos of [[pic.i]] in [[call.icon.generator()]]:##
 # find type (last element of class vector) and dimensions of pic.i
 type <- rev(class(pic.i))[1]; type <- type[ type %in% type.set ]
@@ -1311,9 +1348,9 @@ if( type == "spline" ){
   if( cols.pic.i < 4 ) pic.i <- cbind( pic.i, color.vec = NA )
 }
 ##:add missing infos of [[pic.i]] in [[call.icon.generator()]]##
-#:357
+#:359
     
-#358:
+#360:
 ##prepare colors for use in [[call.icon.generator()]]:##
 # extract color column: color.vec of group of descriptions
 col.no <- c(3, 6, 5, 4)[ match( type, type.set ) ]
@@ -1324,9 +1361,9 @@ if(is.numeric(color.vec)) color.vec <- colornames[1 + color.vec]
 # replace NA entries by argument color of puticon call
 res.color <- ifelse( is.na(color.vec), color, color.vec ) 
 ##:prepare colors for use in [[call.icon.generator()]]##
-#:358
+#:360
     
-#359:
+#361:
 ##transform coordinates in [[call.icon.generator()]]:##
 n.cols <- c(2, 4, 2, 2)[ match(type, type.set) ]
 adj.h <- matrix( 1, nrow(pic.i), n.cols, byrow = TRUE ) #180327
@@ -1338,9 +1375,9 @@ res <- # shift because of design size
        # shift because of desired position
        matrix(xy,                     rows.pic.i, n.cols, byrow = TRUE)
 ##:transform coordinates in [[call.icon.generator()]]##
-#:359
+#:361
     
-#360:
+#362:
 ##construct and activate plotting commands in [[call.icon.generator()]]:##
 ## if(verbose){ cat("activate plotting commands"); print(res.color) }
 switch(type, 
@@ -1362,14 +1399,14 @@ switch(type,
         }
 )
 ##:construct and activate plotting commands in [[call.icon.generator()]]##
-#:360
+#:362
   }
   return()
 }
 ##:define [[call.icon.generator()]]##
-#:353
+#:355
 ##:define local functions##
-#:361
+#:363
 #12:
 ##find positioning vars:##
 if(verbose) cat("find positioning vars")
@@ -1732,8 +1769,8 @@ if( 0 < length(grp.color) ){
   lev.color <- if(is.factor(values)) levels(values) else unique(sort(values)) 
   n.values <- length(lev.color) 
   if(missing(colors)) colors <- substring(rainbow(n.values),1,7)
-  if( (h <- length(colors)) < n.values ) 
-    colors <- c(colors, rep(colors, n.values))[1:n.values]
+  if( (h <- length(colors)) < n.values ) colors <- c(colors, rep(colors, n.values))
+  colors <- colors[1:n.values]
   Colors <- match(values, lev.color) # colors[ .. ]
   if(is.character(lev.color)) 
     lev.color <- substring(lev.color, 1, pmin(lab.n.max[1], nchar(lev.color)))
@@ -1758,34 +1795,39 @@ if(!missing(icons)){ #170718
 #42:
 ##read raster image if file names are given:##
 if(is.character(icons)){ # names of files with images
-  file.type <- rep("no file", length(icons))
   
 #41:
-##download file via internet:##
-  # download files via internet
+##find file type and download file via internet:##
+  file.type <- rep("no file", length(icons))
   download.list <- NULL
   for(i in seq(along = icons)){
-    icon <- icons[i];  h <- nchar(icon)
-    h1 <- substring(icon, 1, 4) == "http"
-    h2 <- (icon.ext <- substring(icon, h - 3, h)) %in% 
-            c(".jpg", ".JPG", "jpeg", "JPEG", ".pnm", ".PNM", ".png", ".PNG")
+    icon <- icons[i]; is.http <- substring(icon, 1, 4) == "http"
+    icon.ext <- substring(icon, (h <- nchar(icon)) - 3, h)
     if( icon.ext %in% c(".jpg", ".JPG", "jpeg", "JPEG") ) file.type[i] <- "jpg"
     if( icon.ext %in% c(".pnm", ".PNM", ".ppm", ".PPM") ) file.type[i] <- "pnm"
     if( icon.ext %in% c(".png", ".PNG") )                 file.type[i] <- "png"
-    if( h1 && h2 ){ # file from internet
-      fname <- sub(".*[.]", ".", icon)
-      fname <- tempfile("icon-pic", fileext = fname)
-      ok <- try( utils::download.file(url = icon, destfile = fname) )
-      if( "error" %in% class(ok) ){ 
-        cat("Error in iconplot: Download of file", icon, "failed.\n")
-        return()
+    if( file.type[i] != "no file" ){
+      if( is.http ){ # download file as tmp file via internet
+        fname <- sub(".*[.]", ".", icon)
+        fname <- tempfile("icon-pic", fileext = fname)
+        ok <- try( utils::download.file(url = icon, destfile = fname) )
+        if( "error" %in% class(ok) ){ 
+          cat("Error in iconplot: Download of file", icon, "failed.\n")
+          return()
+        } 
+        icon <- fname; download.list <- c(download.list, fname)
+        cat("internet file\n ", icon, "\ntemporarily stored in tmp file:\n ", 
+            fname, "\n")
       } 
-      download.list <- c(download.list, fname)
-      icons[i] <- fname
-    } 
-  }
+      if( !file.exists(icon) ){
+        cat("Error in iconplot: reading of file", icon, "failed.\n")
+        return()
+      }
+      icons[i] <- icon
+    }
+  } # now icons contains correct file names and file.type the file types
   if(verbose){ cat("files downloaded:\n"); print(download.list) }
-##:download file via internet##
+##:find file type and download file via internet##
 #:41
   if( any(file.type == "pnm") ){ 
 #221:
@@ -1979,32 +2021,46 @@ decpixel.to.raster <- function(decpixel, PType, width, height, colors){
 #:221
  }
   n.icons <- dim(data.mat)[1]^0.5; p <- icons; icons <- NULL
-  ok <- try(for(ip in seq(along = p)){
-              if(file.type[ip] == "pnm") pic <- get.pnm(p[ip]) 
+  ok <- try(for(ip in seq(along = p)){ # read file  
               if(file.type[ip] == "jpg"){
                 if(!"package:jpeg" %in% search()){
-                  print("iconplot() requires package jpeg")
+                  print("ERROR: iconplot() requires package jpeg; load it by: library(jpeg) and try again.")
                 }
-                pic <- jpeg::readJPEG(p[ip], native = !TRUE) #############
+                pic <- jpeg::readJPEG(p[ip], native = !TRUE) 
               } 
               if(file.type[ip] == "png"){
                 if(!"package:png" %in% search()){
-                  print("iconplot() requires package png")
+                  print("ERROR: iconplot() requires package png; load it by: library(png) and try again.")
                 }
-                pic <- png::readPNG(p[ip], native = !TRUE)  ##############
+                pic <- png::readPNG(p[ip], native = !TRUE)  
+              }
+              if(file.type[ip] == "pnm"){
+                if(!"package:tcltk" %in% search()){
+                  print("ERROR: iconplot() requires package tcltk; load it by: library(tcltk) and try again.")
+                }
+                pic <- get.pnm(p[ip]) 
               }
               if(verbose){ cat("file has been read:", p[ip], "\n") }
+              # get grey.levels
               if(is.list(icon.grey.levels)){
                 grey.levels <- icon.grey.levels[[ip]]
                 if(is.null(grey.levels)) grey.levels <- icon.grey.levels[[1]]
               } else grey.levels <- icon.grey.levels 
+              # cat("read: grey.levels", grey.levels)
+              # transform color to grey
               if( !is.null(grp.color) || !identical(1, colors) ){ 
-                # don't transform, raster.to.grey, recolor if no grp.col or colors != 1
+                # do raster.to.greys if grp.col is not NULL or colors != 1
                 pic <- transform.color.to.rgb.integer(pic)
-                pic <- raster.to.greys(pic, 
-                         grey.levels = grey.levels, # c(0.05, 0.7),
-                         reduce = TRUE, n.icons = n.icons)
+                #if( identical(grey.levels, 2) ) grey.levels <- c(0.05, 0.7)
+                h <- raster.to.greys(pic, grey.levels = grey.levels,
+                         # grey.levels = c(0.05, 0.7),
+                         reduce = TRUE, n.icons = n.icons)  #180619
+                pic <- h[[1]]; grey.levels <- h[[2]]
+                if(is.list(icon.grey.levels)){
+                  icon.grey.levels[[ip]] <- grey.levels
+                } else icon.grey.levels <-grey.levels 
               } else pic <- as.raster(pic)
+              # cat("read-end: grey.levels", grey.levels)
       icons <- c(icons, list(pic)); "ok"
   })
   if(0 < length(download.list)) file.remove(download.list)
@@ -2044,7 +2100,7 @@ if( 0 < length(grp.icon) ){
     if( h == 1 ) icons <- rep(icons, n.values) else # one element is repeated
       icons <- c(icons, rep(list(0), n.values - h)) # 0s are appended
   } else  icons <- icons[1:n.values]                                     #180312
-  pic.legend.ok <- 1 < length(icons) # & h<=n.values: condition removed #180312
+  pic.legend.ok <- 1 < length(unique(icons)) # & h<=n.values: condition removed #180312
   # construct vector of pic no -----------------------------------------------
   pic.vec <- 1; h <- c(1, cumprod( lev.pic.len )) # last element unnecessary
   for(i in seq(along = grp.icon)) # array index formula
@@ -2733,12 +2789,14 @@ if( is.matrix(icons[[ip]]) ){ # case: raster graphics of grey levels
     grey.levels <- icon.grey.levels[[ip]]
     if(is.null(grey.levels)) grey.levels <- icon.grey.levels[[1]]
   } else grey.levels <- icon.grey.levels 
+  # cat("prepare grey.levels: ", grey.levels)
   simple <- length(grey.levels) == 2 || 
-            (length(grey.levels) == 1 && grey.levels <= 2)
+           (length(grey.levels) == 1 && grey.levels <= 2)
   if( is.raster(icons[[ip]]) && # don't recolor if no grp.col and colors != 1:
-      (!is.null(grp.color) || !identical(1, colors)) ) 
+      (!is.null(grp.color) || !identical(1, colors)) ){ 
     icons[[ip]] <- raster.to.greys(icons[[ip]], grey.levels = grey.levels,
-                    reduce = TRUE, n.icons = dim(data.mat)[1])
+                    reduce = TRUE, n.icons = dim(data.mat)[1])[[1]]
+  }
   for(icolor in color.used){ # don't recolor if no grp.col and colors != 1
     if( (!is.null(grp.color) || !identical(1, colors)) || 
         (is.numeric(icons[[ip]]) && 1 < max(icons[[ip]]))){ 
@@ -2761,7 +2819,7 @@ if( is.character(icons[[ip]]) ){ # case element of set of icons to be used
   for(icolor in color.used){
     pic <- c( pic, list( c(icons[[ip]], colors[icolor]) ))
   }
-} 
+}
 ##:prepare [[pic]] for picture [[ip]]##
 #:108
   pic.tr.set <- c( pic.tr.set, list(pic) )
@@ -2781,7 +2839,7 @@ if(exists("job.plot.cmds")){
       } else {
         if( is.function( unlist( pic )[[1]] ) ){ # case generator >>fun<<
           
-#352:
+#354:
 ##generate icons by [[call.icon.generator()]]:##
 pic <- unlist(pic); fn <- pic[[1]]; color <- pic[[2]]
 dxy <- c(cmds$.x1[pic.no], cmds$.y1[pic.no]) - c(cmds$.x0[pic.no], cmds$.y0[pic.no])
@@ -2792,11 +2850,11 @@ pic.args <- data.mat[idx, grp.design]; names(pic.args) <- NULL
 call.icon.generator(fn, xy = cbind(cmds$.x0[pic.no], cmds$.y0[pic.no]), dxy = dxy, 
                    color = color, pic.args = pic.args, ...)
 ##:generate icons by [[call.icon.generator()]]##
-#:352
+#:354
         } else {
           if( !(substring(unlist( pic )[1],1,1) %in% 0:9) ){# case generator >>name<<
             
-#352:
+#354:
 ##generate icons by [[call.icon.generator()]]:##
 pic <- unlist(pic); fn <- pic[[1]]; color <- pic[[2]]
 dxy <- c(cmds$.x1[pic.no], cmds$.y1[pic.no]) - c(cmds$.x0[pic.no], cmds$.y0[pic.no])
@@ -2807,7 +2865,7 @@ pic.args <- data.mat[idx, grp.design]; names(pic.args) <- NULL
 call.icon.generator(fn, xy = cbind(cmds$.x0[pic.no], cmds$.y0[pic.no]), dxy = dxy, 
                    color = color, pic.args = pic.args, ...)
 ##:generate icons by [[call.icon.generator()]]##
-#:352
+#:354
            
           } else {                            #  case central symbol
             pic <- unlist(pic); pic.color <- c(pic.color, pic[2])
@@ -3161,7 +3219,7 @@ if( lab.legend == "vertical" ){
 #135:
 ##add cols and icons legends:##
 if( lab.legend %in% c("cols", "vertical") ){  # pic legend upright to x 
-  if( pic.legend.ok ){                    
+  if( pic.legend.ok ){ # FALSE, if only 1 icon used          
     # icons legend in case of  "cols" or "vertical" --------------------
     text(x0 - x.per.row, y0 - 0.5 * y.per.row, adj = c(0,0), grp.icon.o, 
          cex = lab.cex, xpd = NA)
@@ -3227,7 +3285,7 @@ if(0 < length(grp.color) && color.legend.ok ){                        # color le
 #138:
 ##add cols and icons legends:##
 if( lab.legend %in% c("rows", "skewed", "horizontal") ){ # legend parallel
-  if( pic.legend.ok ){                                   # icons labels
+  if( pic.legend.ok ){               # icons labels
     if(length(icons) <= legend.n.limit){ 
       text(x0 - x.per.row, y0 - 0.5 * y.per.row, grp.icon.o, cex = lab.cex, 
            adj = c(0, 0), xpd = NA )                             # variable name

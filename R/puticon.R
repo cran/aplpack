@@ -1,39 +1,44 @@
 ##define [[puticon()]]:##
-#275:
+#276:
 puticon <- function(x = 0, y = 0, icon = "", grey.levels = .5,
     icon.cex = 10, color = "red", ..., adj = c(0.5,0.5), xpd = NA){
   
-#276:
+#277:
 ##check inputs and manage case of showing design in [[puticon()]]:##
-pch <- file <- ""
+file.type <- "no file"; pch <- file <- ""
 if( is.numeric(icon) && length(icon) == 1 ) pch <- icon
 if( is.character(icon) && !is.raster(icon)){
-  icon <- icon [1]; h <- nchar(icon) 
-  if( substring( icon, h - 3, h ) %in% 
-        c(".jpg", ".JPG", "jpeg", "JPEG", ".pnm", ".PNM", ".png", ".PNG") 
-  ){ 
-    if( substring( icon, 1, 4 ) == "http" ){
+  icon <- icon[1]; is.http <- substring(icon, 1, 4) == "http"
+  icon.ext <- substring(icon, (h <- nchar(icon)) - 3, h)
+  if( icon.ext %in% c(".jpg", ".JPG", "jpeg", "JPEG") ) file.type <- "jpg"
+  if( icon.ext %in% c(".pnm", ".PNM", ".ppm", ".PPM") ) file.type <- "pnm"
+  if( icon.ext %in% c(".png", ".PNG") )                 file.type <- "png"
+  if( file.type != "no file" ){ 
+    if( is.http ){
       fname <- sub(".*[.]", ".", icon)
       fname <- tempfile("icon-pic", fileext = fname)
-      h <- try( utils::download.file(url = icon, destfile = fname) )
-      if( "error" %in% class(h) ){ 
+      ok <- try( utils::download.file(url = icon, destfile = fname) )
+      if( "error" %in% class(ok) ){ 
         cat("Error in puticon: Download of file", icon, "failed.\n")
         return()
       } 
       on.exit(file.remove(fname))
+      cat("internet file\n ", icon, "\ntemporarily stored in tmp file:\n ", 
+          fname, "\n")
       icon <- fname
     }
-    if( file.exists(icon) ) file <- icon else {
+    if( !file.exists(icon) ){ 
       cat("Error in puticon: reading of file", icon, "failed.\n")
+      return()
     }
-  } 
+    file <- icon
+  } # now icon contains correct file name and file.type the file type
 }
-if(missing(x)){
-  
-#277:
+if(missing(x)){  
+#278:
 ##show design layout of special icon in [[puticon()]]:##
    
-#314:
+#316:
 ##define [[show.icon.design()]]:##
 show.icon.design <- function(icon, reset = TRUE, color = NA, ...){
   old <- par(pin = c(100, 100) / 25.4)
@@ -46,7 +51,7 @@ show.icon.design <- function(icon, reset = TRUE, color = NA, ...){
   if(reset) par(pin = old)
 }
 ##:define [[show.icon.design()]]##
-#:314
+#:316
  
    if(identical(icon, "")){  # no specific input
      # show internal icon generators:  # find headers of generator
@@ -77,33 +82,31 @@ show.icon.design <- function(icon, reset = TRUE, color = NA, ...){
      return()
    } # now icon is the name of an internal generator or a file name
    if( is.character(icon) ){ # but no raster object 
-     if( "" != file ){       # variable file is assigned yet
+     if( "no file" != file.type ){       # variable file is assigned yet
        show.icon.design("circle", color = "white") 
        
-#287:
+#288:
 ##read jpeg, png or pnm file in [[puticon()]]:##
-  icon <- 0; class(icon) <- "error"
   # JPEG
-  if( 0 < length(grep("jp[e]{0,1}g$", file))  || 
-      0 < length(grep("JP[E]{0,1}G$", file))){
+  if( file.type == "jpg"){
     if(!"package:jpeg" %in% search()){
-      print("puticon() requires package jpeg")
+      print("ERROR: puticon() requires package jpeg; load it by: library(jpeg) and try again.")
       # library(jpeg, lib.loc = .libPaths()) 
     }
-    icon <- try(jpeg::readJPEG(file, native = !TRUE)) #############
+    icon <- try(jpeg::readJPEG(icon, native = !TRUE)) 
   }
   # PNG
-  if( 0 < length(grep("png$", file))  || 0 < length(grep("PNG$", file))){
+  if( file.type == "png" ){
     if(!"package:png" %in% search()){
-      print("puticon() requires package png")
+      print("ERROR: puticon() requires package png; load it by: library(png) and try again.")
       # library(png, lib.loc = .libPaths()) 
     }
-    icon <- png::readPNG(file, native = !TRUE)  ##################
+    icon <- png::readPNG(icon, native = !TRUE)  
   }
   # PNM
-  if( 0 < length(grep("pnm$", file))  || 0 < length(grep("PNM$", file))){
+  if( file.type == "pnm" ){ #180619
     if(!"package:tcltk" %in% search()){
-      print("puticon() requires package tcltk")
+      print("ERROR: puticon() requires package tcltk; load it by: library(tcktk) and try again.")
       # library(tcltk, lib.loc = .libPaths()) 
     }
     
@@ -296,14 +299,14 @@ decpixel.to.raster <- function(decpixel, PType, width, height, colors){
 } #; dump("get.pnm", file = "get.pnm.R")
 ##:define [[get.pnm()]]##
 #:221
-    icon <- get.pnm(file)
+    icon <- get.pnm(icon)
   }
   if( "try-error" %in% class(icon) ){
-    cat("Error in puticon(): file", file, "not readable by puticon()")
+    cat("Error in puticon(): file", icon, "not readable by puticon()")
     return()
   }
 ##:read jpeg, png or pnm file in [[puticon()]]##
-#:287
+#:288
        rasterImage(icon, 0, 0, 100, 100 * ((h <- dim(icon))[1] / h[2]), 
                    interpolate = FALSE, xpd = xpd)
        return()
@@ -316,11 +319,11 @@ decpixel.to.raster <- function(decpixel, PType, width, height, colors){
          h <- gsub(" +", " ", h); h <- sub("[)] *$", "", h)     #
          if(nchar(h) > 0){ 
            
-#351:
+#353:
 ##define generator functions:##
 h <- "internal generator function"
   
-#315:
+#317:
 ##define [[BI()]]:##
 BI <- function(){
   result <- list()
@@ -347,10 +350,10 @@ BI <- function(){
   result
 }
 ##:define [[BI()]]##
-#:315
+#:317
 h <- "internal generator function"
   
-#318:
+#320:
 ##define [[TL()]]:##
 TL <- function(L = c("AB", "DT", "PW", "NV", "Hello")[1], t.cex.mm = 10, 
                startx, starty, delx, dely, Lcolors,
@@ -391,10 +394,10 @@ TL <- function(L = c("AB", "DT", "PW", "NV", "Hello")[1], t.cex.mm = 10,
   result
 } # ; show.icon.design(TL) #; TL()
 ##:define [[TL()]]##
-#:318
+#:320
 h <- "internal generator function"
   
-#325:
+#327:
 ##define [[cross.simple()]]:##
 cross.simple <- function(){  # print("in cross")
   res <- rbind( c( 05, 05, 95, 95, lwd.mm = 10, NA), 
@@ -404,10 +407,10 @@ cross.simple <- function(){  # print("in cross")
   class(res) <- "segments"; res
 }
 ##:define [[cross.simple()]]##
-#:325
+#:327
 h <- "internal generator function"
   
-#326:
+#328:
 ##define [[cross()]]:##
 cross <- function(z = 0.30){ # print("in cross")
   if(is.factor(z)){ z <- as.numeric(z); z <- 0.5 * z / length(levels(z)) } 
@@ -428,10 +431,10 @@ cross <- function(z = 0.30){ # print("in cross")
   result
 }
 ##:define [[cross()]]##
-#:326
+#:328
 h <- "internal generator function"
   
-#327:
+#329:
 ##define [[circle.simple()]]:##
 circle.simple <- function(){ # print("in circle.simple")
   res <- rbind( c( 50, 50, 50, 50, lwd.mm = 100, NA)) 
@@ -439,10 +442,10 @@ circle.simple <- function(){ # print("in circle.simple")
   class(res) <- "segments"; res
 }
 ##:define [[circle.simple()]]##
-#:327
+#:329
 h <- "internal generator function"
   
-#328:
+#330:
 ##define [[circle()]]:##
 circle <- function(whole = 0.50){     # print("in circle")
   if(is.factor(whole)){ 
@@ -455,10 +458,10 @@ circle <- function(whole = 0.50){     # print("in circle")
   class(res) <- "segments"; res
 }
 ##:define [[circle()]]##
-#:328
+#:330
 h <- "internal generator function"
   
-#331:
+#333:
 ##define [[car.simple()]]:##
 car.simple <- function(){ # print("in cross")
   res0 <- cbind(t(cbind( 0.6* c( 05, 05, 95, 95), 0.6* c( 05, 95, 95, 05),
@@ -481,10 +484,10 @@ car.simple <- function(){ # print("in cross")
   list(res1, res1, res2, res3)
 } # ; car.simple()
 ##:define [[car.simple()]]##
-#:331
+#:333
 h <- "internal generator function"
   
-#332:
+#334:
 ##define [[car()]]:##
 car <- function(width = .5, height = .0){ # print("in cross")
   width  <- (width  * 2   + 2) / 3.2; height <- (height * 5.0 + 1) / 3.2
@@ -500,10 +503,10 @@ car <- function(width = .5, height = .0){ # print("in cross")
   class(res2) <- "segments"; list(res1, res2)
 } # ; car()
 ##:define [[car()]]##
-#:332
+#:334
 h <- "internal generator function"
   
-#334:
+#336:
 ##define [[nabla()]]:##
 nabla <- function(){ 
   res <- rbind( c( 05, 95, 50, 05, 10), c( 50, 05, 95, 95, 10),
@@ -511,10 +514,10 @@ nabla <- function(){
   colnames(res) <- c("x0", "y0", "x1", "y1", "lwd.mm"); res
 } # ; nabla()
 ##:define [[nabla()]]##
-#:334
+#:336
 h <- "internal generator function"
   
-#363:
+#365:
 ##define [[walkman()]]:##
 walkman <- function( balpha = 70, col = NA, 
            ll1alpha =  -80, ll2alpha = -120, lr1alpha = -45, lr2alpha = -100,
@@ -530,7 +533,7 @@ walkman <- function( balpha = 70, col = NA,
   al1alpha <- al1alpha / 180 * pi;  al2alpha <- al2alpha / 180 * pi
   ar1alpha <- ar1alpha / 180 * pi;  ar2alpha <- ar2alpha / 180 * pi
   
-#364:
+#366:
 ##define body of [[walkman]]:##
   x <- c(cos(balpha), sin(balpha)) * scale.xy
   ba <- c(0,0); be <- ba + x
@@ -538,17 +541,17 @@ walkman <- function( balpha = 70, col = NA,
   seg.mat <- cbind(a=ba[1], b=ba[2], c=be[1], d=be[2], e=bal)
   segs.set <- rbind(segs.set, seg.mat); col.set <- c(col.set, bac)
 ##:define body of [[walkman]]##
-#:364
+#:366
   
-#366:
+#368:
 ##define head of [[walkman]]:##
   h <- be + ( be - ba) * .75; hl <- lwd * lw.unit * 1.6; hc <- col
   seg.mat <- cbind(a=h[1], b=h[2], c=h[1], d=h[2], e=hl)
   segs.set <- rbind(segs.set, seg.mat); col.set <- c(col.set, hc)
 ##:define head of [[walkman]]##
-#:366
+#:368
   
-#365:
+#367:
 ##define legs of [[walkman]]:##
   lbecken <- 0.19; llength <- 1; ll <- lwd * lw.unit * 0.85
   ll1a <- ba +   c(cos(balpha+pi/2), sin(balpha+pi/2)) * scale.xy * lbecken
@@ -566,9 +569,9 @@ walkman <- function( balpha = 70, col = NA,
   seg.mat <- cbind(l, e=ll)
   segs.set <- rbind(segs.set, seg.mat); col.set <- c(col.set, hc)
 ##:define legs of [[walkman]]##
-#:365
+#:367
   
-#367:
+#369:
 ##define arms of [[walkman]]:##
   aschulter <- 0.19; alength <- 0.7; al <- lwd * lw.unit * 0.85
   al1a <- be +   c(cos(balpha+pi/2), sin(balpha+pi/2)) * scale.xy * aschulter
@@ -586,7 +589,7 @@ walkman <- function( balpha = 70, col = NA,
   seg.mat <- cbind(a, e=al)
   segs.set <- rbind(segs.set, seg.mat); col.set <- c(col.set, hc)
 ##:define arms of [[walkman]]##
-#:367
+#:369
   segs.set[, 1:4] <- segs.set[, 1:4] + 5 # shift to the center
   segs.set <- cbind(as.data.frame(segs.set), f = col) # set color
   class(segs.set) <- c(class(segs.set), "segments")
@@ -598,10 +601,10 @@ walkman <- function( balpha = 70, col = NA,
 # puticon(5, 5.5, icon = walkman, icon.cex = 160, balpha = 80)
 # walkman()
 ##:define [[walkman()]]##
-#:363
+#:365
 h <- "internal generator function"
   
-#371:
+#373:
 ##define [[smiley.blueeye()]]:##
 smiley.blueeye <- function(){
   # output: x0, y0, x1, y1, lwd, col 
@@ -624,10 +627,10 @@ smiley.blueeye <- function(){
   class(res) <- "segments"; res
 } # ; show.icon.design(smiley.blueeye) # ; smiley.blueeye()
 ##:define [[smiley.blueeye()]]##
-#:371
+#:373
 h <- "internal generator function"
   
-#372:
+#374:
 ##define [[smiley.normal()]]:##
 smiley.normal <- function(){
   # output: x0, y0, x1, y1, lwd, col 
@@ -648,10 +651,10 @@ smiley.normal <- function(){
   class(res) <- "segments"; res
 } #; show.icon.design(smiley.normal)
 ##:define [[smiley.normal()]]##
-#:372
+#:374
 h <- "internal generator function"
   
-#377:
+#379:
 ##define [[smiley()]]:##
 smiley <- function(smile = 0.8){
   if(is.factor(smile)) smile <- as.numeric(smile) / length(levels(smile))
@@ -684,10 +687,10 @@ smiley <- function(smile = 0.8){
   return(res)
 }
 ##:define [[smiley()]]##
-#:377
+#:379
 h <- "internal generator function"
   
-#373:
+#375:
 ##define [[smiley.sad()]]:##
 smiley.sad <- function(){
   # output: x0, y0, x1, y1, lwd, col 
@@ -708,10 +711,10 @@ smiley.sad <- function(){
   class(res) <- "segments"; res
 } # ; show.icon.design(smiley.sad)
 ##:define [[smiley.sad()]]##
-#:373
+#:375
 h <- "internal generator function"
   
-#381:
+#383:
 ##define [[mazz.man()]]:##
 mazz.man <- function(Mean = 100, Penalty = 1, Region = "region:", 
                      expo = 1/(1:3)[3], Mean.max = 107, Mean.half = 90, 
@@ -748,10 +751,10 @@ mazz.man <- function(Mean = 100, Penalty = 1, Region = "region:",
   # res1 <- rbind(c(0,0,100,100)); class(res1)<-c("segments"); res1 <- list(res1) 
   # res2 <- rbind(c(100,0,0,100)); class(res2)<-c("segments"); res2 <- list(res2) 
 ##:define [[mazz.man()]]##
-#:381
+#:383
 h <- "internal generator function"
   
-#389:
+#391:
 ##define [[bike()]]:##
 bike <- function(){
    res.liste <- NULL; a <- 1.5
@@ -772,10 +775,10 @@ bike <- function(){
    res.liste <- c(res.liste, list(res))
 }
 ##:define [[bike()]]##
-#:389
+#:391
 h <- "internal generator function"
   
-#390:
+#392:
 ##define [[bike2()]]:##
 bike2 <- function() {
    res.liste <- NULL; a <- 1.5
@@ -795,10 +798,10 @@ bike2 <- function() {
    res.liste <- c(res.liste, list(res))
 }
 ##:define [[bike2()]]##
-#:390
+#:392
 h <- "internal generator function"
   
-#391:
+#393:
 ##define [[heart()]]:##
 heart <- function(txt = "xy"){
    txt <- substring(paste(txt, " "), 1:2, 1:2)
@@ -814,10 +817,10 @@ heart <- function(txt = "xy"){
    result <- c(res1, res2, res3) 
 } # ; show.icon.design(heart)()
 ##:define [[heart()]]##
-#:391
+#:393
 h <- "internal generator function"
   
-#392:
+#394:
 ##define [[bend.sign()]]:##
 bend.sign <- function(txt = "xy"){
    txt <- substring(paste(txt, " "), 1:2, 1:2)
@@ -852,10 +855,10 @@ bend.sign <- function(txt = "xy"){
    result <- c(res, res1b, res2b) #, res1) 
 }  # ; show.icon.design(bike2)# bend.sign) #; bend.sign()
 ##:define [[bend.sign()]]##
-#:392
+#:394
 h <- "internal generator function"
   
-#398:
+#400:
 ##define [[fir.tree()]]:##
 fir.tree <- function(height = 1, width = 1, txt = ".....", t.cex.mm = 10){ 
   fac.x <- width * 100/60; fac.y <- height * 100/70
@@ -885,10 +888,10 @@ fir.tree <- function(height = 1, width = 1, txt = ".....", t.cex.mm = 10){
   res.liste
 }  # ; show.icon.design(fir.tree)
 ##:define [[fir.tree()]]##
-#:398
-#343:
+#:400
+#345:
 ##define [[find.smooth.curve()]] and [[find.brush.polygon()]]:##
-#342:
+#344:
 ##define [[bs.approx()]] and [[loess.approx()]]:##
 bs.approx <- function(x, y, x.new, degree = 3, knots = 10, df = NULL){
   # library(splines)                                          # check package splines
@@ -911,7 +914,7 @@ loess.approx <- function(x, y, x.new, span = 0.6, degree = 2){
   return(list(cbind(x, res.old), cbind(x.new, res.new)))
 }
 ##:define [[bs.approx()]] and [[loess.approx()]]##
-#:342
+#:344
 find.smooth.curve <- function(x.in, y.in, n.new = 100, method = c("bs", "loess")[1],
                               degree = 3, knots = 50, span = 0.75){
   if(is.matrix(x.in) || is.data.frame(x.in)){y.in <- x.in[,2]; x.in <- x.in[,1]} # check input
@@ -939,10 +942,10 @@ find.brush.polygon <- function(x, y, hwd = 10){
   rbind(xy, xy[1,])                                         # copy first point to the end
 }
 ##:define [[find.smooth.curve()]] and [[find.brush.polygon()]]##
-#:343
+#:345
 h <- "internal generator function"
   
-#406:
+#408:
 ##define [[comet()]]:##
 comet <- function(comet.color = NA){ 
   t2xy <- function(t,radius,init.angle=0) {
@@ -1037,10 +1040,10 @@ comet <- function(comet.color = NA){
   res.liste
 } # ; print(comet());  show.icon.design(comet)
 ##:define [[comet()]]##
-#:406
+#:408
 h <- "internal generator function"
   
-#337:
+#339:
 ##define [[coor.system()]]:##
 coor.system <- function(xxx, yyy, pcex = 5, xrange, yrange, axes = FALSE){ 
   shift <- 0.5; lwd <- .25
@@ -1090,9 +1093,9 @@ coor.system <- function(xxx, yyy, pcex = 5, xrange, yrange, axes = FALSE){
   res.list
 }  ; coor.system()
 ##:define [[coor.system()]]##
-#:337
+#:339
 ##:define generator functions##
-#:351
+#:353
            show.icon.design(icon, color = "lightblue") 
            cat("arguments of", icon,":\n"); print(noquote(h))
            return(get(icon))
@@ -1105,8 +1108,8 @@ coor.system <- function(xxx, yyy, pcex = 5, xrange, yrange, axes = FALSE){
      } 
    } 
 ##:show design layout of special icon in [[puticon()]]##
-#:277
-}
+#:278
+  }
 if(identical(icon, "")) icon <- "circle" ## default setting of icon !!!!
 if( is.matrix(x) && ncol(x) == 2){ 
   xy <- x 
@@ -1118,9 +1121,9 @@ if( is.matrix(x) && ncol(x) == 2){
 }
 n.items <- dim(xy)[1]
 ##:check inputs and manage case of showing design in [[puticon()]]##
-#:276
+#:277
   
-#282:
+#283:
 ##get device infos and compute aspect ratios in [[puticon()]]:##
   h <- par(); usr <- h$usr; pin <- h$pin; cin <- h$cin 
   xwcoor.pmm <- diff(usr[1:2]) / pin[1] / 25.4 # xrange per mm of plot-region
@@ -1137,23 +1140,21 @@ n.items <- dim(xy)[1]
   if(length(xsize) < n.items) xsize <- rep(xsize, n.items)[1:n.items]
   if(length(ysize) < n.items) ysize <- rep(ysize, n.items)[1:n.items]
 ##:get device infos and compute aspect ratios in [[puticon()]]##
-#:282
+#:283
   
-#283:
+#284:
 ##define [[mm.to.lwd()]] and [[mm.to.cex]] in [[puticon()]]:##
   dev.fac <- c(0.8, 1, 1)[ c(dev.cur() == c("postscript", "pdf"), TRUE) ][1]
   mm.to.lwd <- function(lwd.mm) lwd.mm * 3.787878 * dev.fac 
-  ## mm.to.lwd <- function(lwd.mm) lwd.mm * 100 / 30 * dev.fac 
   mm.to.cex <- function(text.cex.mm) text.cex.mm / (cin[1] * 25.4)
 ##:define [[mm.to.lwd()]] and [[mm.to.cex]] in [[puticon()]]##
-#:283
+#:284
   
-#280:
+#281:
 ##define [[transform.color.to.rgb.integer()]]:##
 transform.color.to.rgb.integer <- function(x, to = c("#rrggbb", "rgb"), 
                                            debug = FALSE){
   dim.x <- n <- length(x)
-  # if(is.matrix(x)) rasterImage(t(x), 5, 5, 15, 15)
   if( 0 < length( h <- dim(x) ) ) dim.x <- h
   if( is.numeric(x[1]) ){
     if( all( x %in% 0:8 ) ){
@@ -1184,9 +1185,9 @@ transform.color.to.rgb.integer <- function(x, to = c("#rrggbb", "rgb"),
   xx
 }
 ##:define [[transform.color.to.rgb.integer()]]##
-#:280
+#:281
   
-#291:
+#292:
 ##define [[greys.to.colors.puticon()]]:##
 greys.to.colors.puticon <- function(grey.idx, color,      # invert = FALSE, 
                          set.black.and.white = FALSE, simple = FALSE){
@@ -1211,15 +1212,16 @@ greys.to.colors.puticon <- function(grey.idx, color,      # invert = FALSE,
   grey.idx[] <- colors[grey.idx]; icon <- grey.idx; return(icon)
 } 
 ##:define [[greys.to.colors.puticon()]]##
-#:291
-     #
+#:292
+     
   
 #233:
 ##define [[raster.to.greys()]]:##
 raster.to.greys <- function(pic, grey.levels = c(0.05, 0.95),  # 2 :: black + white  
                             reduce = TRUE, n.icons = 1){
+  # prepare mat: cat("hallo: raster.to.greys", grey.levels); print(table(as.vector(pic)))
   
-#234:
+#235:
 ##prepare [[mat]] for coloring:##
 d.mat <- dim(pic)
 if( 3 == length(d.mat) ){ 
@@ -1232,40 +1234,9 @@ if( 3 == length(d.mat) ){
 mat   <- mat/max(1,mat) # /255 # shifted from else statements #180417 
 mat <- matrix(mat, ncol = d.mat[2])
 ##:prepare [[mat]] for coloring##
-#:234
-  if( 2 == length(grey.levels) ){
-    limits <- grey.levels
-    
-#241:
-##find levels if the two [[limits]] are in (0,1):##
-#235:
-##reduce size of [[mat]]:##
-if(reduce > 0 ){
-  if(is.logical(reduce)) {
-    # pixel.per.pic.plan <- width.of.picture * pixel.per.mm / n.icons^0.5
-    pixel.per.pic <- 120 * 5 / n.icons^0.5 
-    # reduction.factor <- pixel.per.pic.real / pixel.per.pic.plan
-    reduce <- ceiling( max(d.mat) / pixel.per.pic )
-  }
-  if(reduce > 1){
-    dim.mat.new <- reduce * (floor(d.mat/reduce))
-    mat.new <- mat[1:dim.mat.new[1], 1:dim.mat.new[2]]
-    mat.new <- array(mat.new, rbind(reduce, dim.mat.new/reduce))
-    mat.new <- apply(mat.new, c(2,4), mean)
-    d.mat <- dim(mat.new); mat <- pmin(1,mat.new); dim(mat) <- d.mat 
-  }
-}
-##:reduce size of [[mat]]##
 #:235
-# generate matrix of levels
-levs <- 1 + (limits[1] < mat) + (limits[2] < mat)   
-dim(levs) <- d.mat  
-##:find levels if the two [[limits]] are in (0,1)##
-#:241
-    return(levs)
-  }
   
-#235:
+#236:
 ##reduce size of [[mat]]:##
 if(reduce > 0 ){
   if(is.logical(reduce)) {
@@ -1278,42 +1249,108 @@ if(reduce > 0 ){
     dim.mat.new <- reduce * (floor(d.mat/reduce))
     mat.new <- mat[1:dim.mat.new[1], 1:dim.mat.new[2]]
     mat.new <- array(mat.new, rbind(reduce, dim.mat.new/reduce))
-    mat.new <- apply(mat.new, c(2,4), mean)
+    fn <- if(length(table(mat)) < 3) max else mean ## mean !!!!!! rounding effect
+    mat.new <- apply(mat.new, c(2,4), fn) # 190815
     d.mat <- dim(mat.new); mat <- pmin(1,mat.new); dim(mat) <- d.mat 
   }
 }
 ##:reduce size of [[mat]]##
-#:235
-  if( 1 == length(grey.levels) && 0 == (grey.levels %% 1) ){ # number of levels given
-    # find greys by number of greys
-    n.greys <- max(round(grey.levels), 2)
-    mat <- unclass(mat); min.mat <- min(mat); max.mat <- max(mat)
-    grey.levels <- seq(min.mat, max.mat, length = n.greys + 1)[-(n.greys+1)][-1]
-    p <- c(min.mat, mat[ min.mat < mat & mat < max.mat], max.mat )
-    greys <- c(min.mat, quantile(p, grey.levels))
-    greys <- unique(greys[ !is.na(greys) ])
-  } else {                   # find greys by quantiles of grey rates
-    grey.levels <- unique( pmin(1, pmax(0, sort(c(0, grey.levels, 1)))) )
-    greys       <- unique( quantile(mat, grey.levels) )
-    if( (h <- length(greys)) > 2 ) greys <- greys[ -h ]
-  }  # generate matrix of levels:
+#:236
+  mat <- unclass(mat); range.mat <- range(mat)
+  # cat("mat::"); print(table(as.vector(mat))); cat("grey.levels:", (grey.levels))
+  # expand a single fractional grey.level value: -1 < grey.levels[1] < 1
+  if( length(grey.levels) == 1 && abs(grey.levels) < 1 ){ 
+    # negative fraction induce coloring "color"+"black"
+    if(0 <= grey.levels){ # positive fraction induces coloring "color"+"white":
+      grey.levels <- c(grey.levels,  1)
+    } else {              # negative fraction induces coloring "black"+"color": 
+      grey.levels <- c(0, -grey.levels)
+    }
+    # cat("one value", grey.levels)
+  }
+  # case of two values in (0,1)
+  if( 2 == length(grey.levels) && max(abs(grey.levels) <= 1) ){
+    greys <- sort(abs(grey.levels))
+    
+#242:
+##find levels if the two [[greys]] are in (0,1):##
+# generate matrix of levels
+levs <- 1 + (greys[1] < mat) + (greys[2] < mat)   
+dim(levs) <- d.mat  
+##:find levels if the two [[greys]] are in (0,1)##
+#:242
+    # cat("two levels given"); print(table(levs))
+    
+#234:
+##raster.to.greys(): compose return values and return:##
   levs <- sapply( mat, function(x) sum( x >= greys ) ) 
   if(max(levs) == 2) levs <- levs + 1 # if 2 cols only use one color and white
   if( 2 == length(h <- unique(levs)) ) levs <- 2 + ( levs == max(h) ) 
-  dim(levs) <- d.mat; return(levs)
+  # cat("raster.to.greys-end, greys", greys);  print(table(levs))
+  dim(levs) <- d.mat; return(list(levs, greys))
+##:raster.to.greys(): compose return values and return##
+#:234
+    return(list(levs, greys)) # nicht notwendig
+  }
+  # case of number of grey levels are given
+  if( 1 == length(grey.levels) && 0 == (grey.levels %% 1) ){ 
+    n.greys <- (1 + abs(grey.levels)) # add 1 for white
+    if( grey.levels > 0 ){ # type 1 because of positive value: equal spacing
+      # h <- range.mat + c(0.8, -0.2) * diff(range.mat) / n.greys
+      # greys <- c(range.mat[1], seq(h[1], h[2], length = n.greys - 1))
+      # greys <- seq(range.mat[1], range.mat[2], length = n.greys)[-c(1, n.greys)] / (n.greys - 2)
+      # delta <- 1 / grey.levels; greys <- seq(0.3, 0.7, length = grey.levels)
+      h <- quantile(mat, c(0.0, 1 - 1 / grey.levels)) #190819
+      if( h[1] == h[2] ) h[2] <- quantile(mat, 1)
+      greys <- seq(h[1], h[2], length = grey.levels)
+      # cat("equal spacing, n.greys", n.greys, "greys", greys, "grey.levels", grey.levels)
+    } else { # type 2 because of negative value: equal frequencies in classes
+      greys <- seq(range.mat[1], range.mat[2], length = n.greys)#[2:n.greys]
+      # extract relevant grey values and count extremes one time only 
+      greys.obs <- c(range.mat[1], mat[range.mat[1] < mat & mat < range.mat[2]], range.mat[2])
+      greys.obs <- mat
+      # find quantiles of observed grey values
+      # greys <- c(range.mat[1], quantile(greys.obs, greys)) 
+      greys <- c(range.mat[1], quantile(greys.obs, greys)[-1]) 
+      # remove NAs (usually not relevant) and remove multiple greys
+      greys <- unique(greys[ !is.na(greys) ])
+      # cat("equal frequencies, n.greys", n.greys, "greys", greys)
+    }
+  } else {                   # find greys by quantiles of grey rates
+    greys <- unique( pmin(1, pmax(0, sort(c(0, 1, abs(grey.levels))))) )
+    if(grey.levels[1] < 0){
+      greys <- unique( quantile(mat, greys) )
+      # handle strange cases:
+      if(length(greys) == 1 && greys[1] == 0) greys <- c(greys, 1)
+      if(length(greys) == 1 && greys[1] == 1) greys <- c(0, greys)
+      if( (h <- length(greys)) > 2 && greys[h] == 1) greys <- greys[ -h ]
+    }
+  }  # generate matrix of levels:
+  
+#234:
+##raster.to.greys(): compose return values and return:##
+  levs <- sapply( mat, function(x) sum( x >= greys ) ) 
+  if(max(levs) == 2) levs <- levs + 1 # if 2 cols only use one color and white
+  if( 2 == length(h <- unique(levs)) ) levs <- 2 + ( levs == max(h) ) 
+  # cat("raster.to.greys-end, greys", greys);  print(table(levs))
+  dim(levs) <- d.mat; return(list(levs, greys))
+##:raster.to.greys(): compose return values and return##
+#:234
 } 
 ##:define [[raster.to.greys()]]##
 #:233
   
-#279:
+#280:
 ##prepare color vector in [[puticon()]]:##
 # adjust representation of color rgb in decimal form
 if( ! is.na(color[1]) ){
   color <- transform.color.to.rgb.integer(color) 
   color <- rbind(color)
-  color <- sapply(split(color, row(color)), 
-    function(x) paste(sep="", "#", paste(collapse = "", 
-              as.character(as.hexmode(c(x,255)))[-4])))
+  color <-  ## 20210927 ## Mail Martin Maechler, 23.09.2021
+             sapply(split(color, row(color)),
+               function(x) paste(sep="", "#", paste(collapse = "", format      (as.hexmode(c(x,255)))[-4])))
+    ## OLD : sapply(split(color, row(color)),
+    #          function(x) paste(sep="", "#", paste(collapse = "", as.character(as.hexmode(c(x,255)))[-4])))
   # generate vectors of colors and icon.cex if 1 < length(x)
   if( 1 < n.items ){ 
     color    <- rep(color, n.items)[1:n.items]
@@ -1321,36 +1358,34 @@ if( ! is.na(color[1]) ){
   }
 }
 ##:prepare color vector in [[puticon()]]##
-#:279
-  
-#286:
-##plot jpg-, png- or pnm-file-icons and [[return()]] in [[puticon()]]:##
-if( "" != file ){  # case: icon saved in a file # cat("dim icon", dim(icon))
+#:280
   
 #287:
+##plot jpg-, png- or pnm-file-icons and [[return()]] in [[puticon()]]:##
+if( "no file" != file.type ){  # case: icon saved in a file 
+  
+#288:
 ##read jpeg, png or pnm file in [[puticon()]]:##
-  icon <- 0; class(icon) <- "error"
   # JPEG
-  if( 0 < length(grep("jp[e]{0,1}g$", file))  || 
-      0 < length(grep("JP[E]{0,1}G$", file))){
+  if( file.type == "jpg"){
     if(!"package:jpeg" %in% search()){
-      print("puticon() requires package jpeg")
+      print("ERROR: puticon() requires package jpeg; load it by: library(jpeg) and try again.")
       # library(jpeg, lib.loc = .libPaths()) 
     }
-    icon <- try(jpeg::readJPEG(file, native = !TRUE)) #############
+    icon <- try(jpeg::readJPEG(icon, native = !TRUE)) 
   }
   # PNG
-  if( 0 < length(grep("png$", file))  || 0 < length(grep("PNG$", file))){
+  if( file.type == "png" ){
     if(!"package:png" %in% search()){
-      print("puticon() requires package png")
+      print("ERROR: puticon() requires package png; load it by: library(png) and try again.")
       # library(png, lib.loc = .libPaths()) 
     }
-    icon <- png::readPNG(file, native = !TRUE)  ##################
+    icon <- png::readPNG(icon, native = !TRUE)  
   }
   # PNM
-  if( 0 < length(grep("pnm$", file))  || 0 < length(grep("PNM$", file))){
+  if( file.type == "pnm" ){ #180619
     if(!"package:tcltk" %in% search()){
-      print("puticon() requires package tcltk")
+      print("ERROR: puticon() requires package tcltk; load it by: library(tcktk) and try again.")
       # library(tcltk, lib.loc = .libPaths()) 
     }
     
@@ -1543,47 +1578,46 @@ decpixel.to.raster <- function(decpixel, PType, width, height, colors){
 } #; dump("get.pnm", file = "get.pnm.R")
 ##:define [[get.pnm()]]##
 #:221
-    icon <- get.pnm(file)
+    icon <- get.pnm(icon)
   }
   if( "try-error" %in% class(icon) ){
-    cat("Error in puticon(): file", file, "not readable by puticon()")
+    cat("Error in puticon(): file", icon, "not readable by puticon()")
     return()
   }
 ##:read jpeg, png or pnm file in [[puticon()]]##
-#:287
+#:288
   
-#289:
-##transform colors of [[icon]] to grey levels in [[puticon()]]:##
-# transform different representations of colors 
-icon <- transform.color.to.rgb.integer(icon.orig <- icon)
-# expand a single grey.levels value lower 1
-if( length(grey.levels) == 1 && grey.levels < 1 ) 
-  grey.levels <- c( grey.levels, 1)
-# find the grey levels of the picture
-icon <- raster.to.greys(icon, grey.levels = grey.levels, reduce = TRUE, 
-              n.icons = max(1, ceiling(pin[1]*25.4 / max(icon.cex))^2))
-# Now we have a matrix consisting of the grey levels of the pixels.
-# A subset of the grey levels will be changed by the replacement color.
-##:transform colors of [[icon]] to grey levels in [[puticon()]]##
-#:289
-  
-#290:
-##recolor [[icon]] for position [[i.x]] and plot it in [[puticon()]]:##
+#291:
+##transform to grey and recolor [[icon]] for position [[i.x]] and plot it in [[puticon()]]:##
 # precondition: icon must be a matrix describing 
 #               the levels of greys of a raster graphics
-simple <- all(grey.levels <= 1) &&  length(grey.levels) == 2 
-# cat("simple", simple, "levels", grey.levels)
 # recolor icons dependent on color # cat("else", simple, color)
 if( is.na(color[1]) ){ # no recoloring
   idx.color.of.icon <- rep(1, length(x))
-  pic <- list(as.raster(icon.orig))
+  pic <- list(as.raster(icon))
 } else {  
+  
+#290:
+##transform colors of [[icon]] to grey levels in [[puticon()]]:##
+# transform different representations of colors 
+icon <- transform.color.to.rgb.integer(icon)
+# find the grey levels of the picture
+h <- raster.to.greys(icon, grey.levels = grey.levels, reduce = TRUE, 
+              n.icons = max(1, ceiling(pin[1]*25.4 / max(icon.cex))^2))
+icon <- h[[1]]; grey.levels <- h[[2]]
+# Now we have a matrix consisting of the grey levels of the pixels.
+# A subset of the grey levels will be changed by the replacement color.
+##:transform colors of [[icon]] to grey levels in [[puticon()]]##
+#:290
+  simple <- all(grey.levels <= 1) &&  length(grey.levels) == 2 
+  # cat("simple", simple, "levels", grey.levels)
   pic <- NULL
   color.used <- unique(color)
   idx.color.of.icon <- match(color, color.used)
   for(i.color in color.used){      # cat("i.color", i.color)
     p <- greys.to.colors.puticon(icon, i.color,
-                          set.black.and.white = 1.5, simple = simple)
+                     set.black.and.white = 1.5, simple = simple)
+    # p <- as.raster(p) # has no effect here
     pic <- c( pic, list( p ))
   }
 }
@@ -1597,33 +1631,18 @@ for(i.x in seq(along = x)){        # cat("i.x", i.x, "--------------")
   rasterImage(icon.i.x, xmin[i.x], ymin[i.x], xmax[i.x], ymax[i.x], 
               interpolate = FALSE, xpd = xpd)
 }
-##:recolor [[icon]] for position [[i.x]] and plot it in [[puticon()]]##
-#:290
+##:transform to grey and recolor [[icon]] for position [[i.x]] and plot it in [[puticon()]]##
+#:291
   return()
 }
 ##:plot jpg-, png- or pnm-file-icons and [[return()]] in [[puticon()]]##
-#:286
+#:287
   
-#296:
+#297:
 ##plot icons from a raster image object and [[return()]] in [[puticon()]]:##
 if( is.raster(icon) ){
   
-#289:
-##transform colors of [[icon]] to grey levels in [[puticon()]]:##
-# transform different representations of colors 
-icon <- transform.color.to.rgb.integer(icon.orig <- icon)
-# expand a single grey.levels value lower 1
-if( length(grey.levels) == 1 && grey.levels < 1 ) 
-  grey.levels <- c( grey.levels, 1)
-# find the grey levels of the picture
-icon <- raster.to.greys(icon, grey.levels = grey.levels, reduce = TRUE, 
-              n.icons = max(1, ceiling(pin[1]*25.4 / max(icon.cex))^2))
-# Now we have a matrix consisting of the grey levels of the pixels.
-# A subset of the grey levels will be changed by the replacement color.
-##:transform colors of [[icon]] to grey levels in [[puticon()]]##
-#:289
-  
-#291:
+#292:
 ##define [[greys.to.colors.puticon()]]:##
 greys.to.colors.puticon <- function(grey.idx, color,      # invert = FALSE, 
                          set.black.and.white = FALSE, simple = FALSE){
@@ -1648,26 +1667,42 @@ greys.to.colors.puticon <- function(grey.idx, color,      # invert = FALSE,
   grey.idx[] <- colors[grey.idx]; icon <- grey.idx; return(icon)
 } 
 ##:define [[greys.to.colors.puticon()]]##
-#:291
+#:292
      
+  ##transform colors of [[icon]] to grey levels in [[puticon()]]##
+  ##recolor [[icon]] for position [[i.x]] and plot it in [[puticon()]]##
   
-#290:
-##recolor [[icon]] for position [[i.x]] and plot it in [[puticon()]]:##
+#291:
+##transform to grey and recolor [[icon]] for position [[i.x]] and plot it in [[puticon()]]:##
 # precondition: icon must be a matrix describing 
 #               the levels of greys of a raster graphics
-simple <- all(grey.levels <= 1) &&  length(grey.levels) == 2 
-# cat("simple", simple, "levels", grey.levels)
 # recolor icons dependent on color # cat("else", simple, color)
 if( is.na(color[1]) ){ # no recoloring
   idx.color.of.icon <- rep(1, length(x))
-  pic <- list(as.raster(icon.orig))
+  pic <- list(as.raster(icon))
 } else {  
+  
+#290:
+##transform colors of [[icon]] to grey levels in [[puticon()]]:##
+# transform different representations of colors 
+icon <- transform.color.to.rgb.integer(icon)
+# find the grey levels of the picture
+h <- raster.to.greys(icon, grey.levels = grey.levels, reduce = TRUE, 
+              n.icons = max(1, ceiling(pin[1]*25.4 / max(icon.cex))^2))
+icon <- h[[1]]; grey.levels <- h[[2]]
+# Now we have a matrix consisting of the grey levels of the pixels.
+# A subset of the grey levels will be changed by the replacement color.
+##:transform colors of [[icon]] to grey levels in [[puticon()]]##
+#:290
+  simple <- all(grey.levels <= 1) &&  length(grey.levels) == 2 
+  # cat("simple", simple, "levels", grey.levels)
   pic <- NULL
   color.used <- unique(color)
   idx.color.of.icon <- match(color, color.used)
   for(i.color in color.used){      # cat("i.color", i.color)
     p <- greys.to.colors.puticon(icon, i.color,
-                          set.black.and.white = 1.5, simple = simple)
+                     set.black.and.white = 1.5, simple = simple)
+    # p <- as.raster(p) # has no effect here
     pic <- c( pic, list( p ))
   }
 }
@@ -1681,14 +1716,14 @@ for(i.x in seq(along = x)){        # cat("i.x", i.x, "--------------")
   rasterImage(icon.i.x, xmin[i.x], ymin[i.x], xmax[i.x], ymax[i.x], 
               interpolate = FALSE, xpd = xpd)
 }
-##:recolor [[icon]] for position [[i.x]] and plot it in [[puticon()]]##
-#:290
+##:transform to grey and recolor [[icon]] for position [[i.x]] and plot it in [[puticon()]]##
+#:291
   return()
 }
 ##:plot icons from a raster image object and [[return()]] in [[puticon()]]##
-#:296
+#:297
   
-#284:
+#285:
 ##plot central symbols in [[pch]]-case and [[return()]] in [[puticon()]]:##
 if( "" != pch ){
   if( is.numeric(pch) && pch %in% (1:128)){
@@ -1700,20 +1735,20 @@ if( "" != pch ){
   return()
 }
 ##:plot central symbols in [[pch]]-case and [[return()]] in [[puticon()]]##
-#:284
+#:285
   
-#301:
+#303:
 ##check pictogram generating function in [[puticon()]]:##
   
-#311:
+#313:
 ##if [[is.character(icon)]] look for internal generator in [[puticon()]]:##
 if(is.character(icon)){ 
   
-#351:
+#353:
 ##define generator functions:##
 h <- "internal generator function"
   
-#315:
+#317:
 ##define [[BI()]]:##
 BI <- function(){
   result <- list()
@@ -1740,10 +1775,10 @@ BI <- function(){
   result
 }
 ##:define [[BI()]]##
-#:315
+#:317
 h <- "internal generator function"
   
-#318:
+#320:
 ##define [[TL()]]:##
 TL <- function(L = c("AB", "DT", "PW", "NV", "Hello")[1], t.cex.mm = 10, 
                startx, starty, delx, dely, Lcolors,
@@ -1784,10 +1819,10 @@ TL <- function(L = c("AB", "DT", "PW", "NV", "Hello")[1], t.cex.mm = 10,
   result
 } # ; show.icon.design(TL) #; TL()
 ##:define [[TL()]]##
-#:318
+#:320
 h <- "internal generator function"
   
-#325:
+#327:
 ##define [[cross.simple()]]:##
 cross.simple <- function(){  # print("in cross")
   res <- rbind( c( 05, 05, 95, 95, lwd.mm = 10, NA), 
@@ -1797,10 +1832,10 @@ cross.simple <- function(){  # print("in cross")
   class(res) <- "segments"; res
 }
 ##:define [[cross.simple()]]##
-#:325
+#:327
 h <- "internal generator function"
   
-#326:
+#328:
 ##define [[cross()]]:##
 cross <- function(z = 0.30){ # print("in cross")
   if(is.factor(z)){ z <- as.numeric(z); z <- 0.5 * z / length(levels(z)) } 
@@ -1821,10 +1856,10 @@ cross <- function(z = 0.30){ # print("in cross")
   result
 }
 ##:define [[cross()]]##
-#:326
+#:328
 h <- "internal generator function"
   
-#327:
+#329:
 ##define [[circle.simple()]]:##
 circle.simple <- function(){ # print("in circle.simple")
   res <- rbind( c( 50, 50, 50, 50, lwd.mm = 100, NA)) 
@@ -1832,10 +1867,10 @@ circle.simple <- function(){ # print("in circle.simple")
   class(res) <- "segments"; res
 }
 ##:define [[circle.simple()]]##
-#:327
+#:329
 h <- "internal generator function"
   
-#328:
+#330:
 ##define [[circle()]]:##
 circle <- function(whole = 0.50){     # print("in circle")
   if(is.factor(whole)){ 
@@ -1848,10 +1883,10 @@ circle <- function(whole = 0.50){     # print("in circle")
   class(res) <- "segments"; res
 }
 ##:define [[circle()]]##
-#:328
+#:330
 h <- "internal generator function"
   
-#331:
+#333:
 ##define [[car.simple()]]:##
 car.simple <- function(){ # print("in cross")
   res0 <- cbind(t(cbind( 0.6* c( 05, 05, 95, 95), 0.6* c( 05, 95, 95, 05),
@@ -1874,10 +1909,10 @@ car.simple <- function(){ # print("in cross")
   list(res1, res1, res2, res3)
 } # ; car.simple()
 ##:define [[car.simple()]]##
-#:331
+#:333
 h <- "internal generator function"
   
-#332:
+#334:
 ##define [[car()]]:##
 car <- function(width = .5, height = .0){ # print("in cross")
   width  <- (width  * 2   + 2) / 3.2; height <- (height * 5.0 + 1) / 3.2
@@ -1893,10 +1928,10 @@ car <- function(width = .5, height = .0){ # print("in cross")
   class(res2) <- "segments"; list(res1, res2)
 } # ; car()
 ##:define [[car()]]##
-#:332
+#:334
 h <- "internal generator function"
   
-#334:
+#336:
 ##define [[nabla()]]:##
 nabla <- function(){ 
   res <- rbind( c( 05, 95, 50, 05, 10), c( 50, 05, 95, 95, 10),
@@ -1904,10 +1939,10 @@ nabla <- function(){
   colnames(res) <- c("x0", "y0", "x1", "y1", "lwd.mm"); res
 } # ; nabla()
 ##:define [[nabla()]]##
-#:334
+#:336
 h <- "internal generator function"
   
-#363:
+#365:
 ##define [[walkman()]]:##
 walkman <- function( balpha = 70, col = NA, 
            ll1alpha =  -80, ll2alpha = -120, lr1alpha = -45, lr2alpha = -100,
@@ -1923,7 +1958,7 @@ walkman <- function( balpha = 70, col = NA,
   al1alpha <- al1alpha / 180 * pi;  al2alpha <- al2alpha / 180 * pi
   ar1alpha <- ar1alpha / 180 * pi;  ar2alpha <- ar2alpha / 180 * pi
   
-#364:
+#366:
 ##define body of [[walkman]]:##
   x <- c(cos(balpha), sin(balpha)) * scale.xy
   ba <- c(0,0); be <- ba + x
@@ -1931,17 +1966,17 @@ walkman <- function( balpha = 70, col = NA,
   seg.mat <- cbind(a=ba[1], b=ba[2], c=be[1], d=be[2], e=bal)
   segs.set <- rbind(segs.set, seg.mat); col.set <- c(col.set, bac)
 ##:define body of [[walkman]]##
-#:364
+#:366
   
-#366:
+#368:
 ##define head of [[walkman]]:##
   h <- be + ( be - ba) * .75; hl <- lwd * lw.unit * 1.6; hc <- col
   seg.mat <- cbind(a=h[1], b=h[2], c=h[1], d=h[2], e=hl)
   segs.set <- rbind(segs.set, seg.mat); col.set <- c(col.set, hc)
 ##:define head of [[walkman]]##
-#:366
+#:368
   
-#365:
+#367:
 ##define legs of [[walkman]]:##
   lbecken <- 0.19; llength <- 1; ll <- lwd * lw.unit * 0.85
   ll1a <- ba +   c(cos(balpha+pi/2), sin(balpha+pi/2)) * scale.xy * lbecken
@@ -1959,9 +1994,9 @@ walkman <- function( balpha = 70, col = NA,
   seg.mat <- cbind(l, e=ll)
   segs.set <- rbind(segs.set, seg.mat); col.set <- c(col.set, hc)
 ##:define legs of [[walkman]]##
-#:365
+#:367
   
-#367:
+#369:
 ##define arms of [[walkman]]:##
   aschulter <- 0.19; alength <- 0.7; al <- lwd * lw.unit * 0.85
   al1a <- be +   c(cos(balpha+pi/2), sin(balpha+pi/2)) * scale.xy * aschulter
@@ -1979,7 +2014,7 @@ walkman <- function( balpha = 70, col = NA,
   seg.mat <- cbind(a, e=al)
   segs.set <- rbind(segs.set, seg.mat); col.set <- c(col.set, hc)
 ##:define arms of [[walkman]]##
-#:367
+#:369
   segs.set[, 1:4] <- segs.set[, 1:4] + 5 # shift to the center
   segs.set <- cbind(as.data.frame(segs.set), f = col) # set color
   class(segs.set) <- c(class(segs.set), "segments")
@@ -1991,10 +2026,10 @@ walkman <- function( balpha = 70, col = NA,
 # puticon(5, 5.5, icon = walkman, icon.cex = 160, balpha = 80)
 # walkman()
 ##:define [[walkman()]]##
-#:363
+#:365
 h <- "internal generator function"
   
-#371:
+#373:
 ##define [[smiley.blueeye()]]:##
 smiley.blueeye <- function(){
   # output: x0, y0, x1, y1, lwd, col 
@@ -2017,10 +2052,10 @@ smiley.blueeye <- function(){
   class(res) <- "segments"; res
 } # ; show.icon.design(smiley.blueeye) # ; smiley.blueeye()
 ##:define [[smiley.blueeye()]]##
-#:371
+#:373
 h <- "internal generator function"
   
-#372:
+#374:
 ##define [[smiley.normal()]]:##
 smiley.normal <- function(){
   # output: x0, y0, x1, y1, lwd, col 
@@ -2041,10 +2076,10 @@ smiley.normal <- function(){
   class(res) <- "segments"; res
 } #; show.icon.design(smiley.normal)
 ##:define [[smiley.normal()]]##
-#:372
+#:374
 h <- "internal generator function"
   
-#377:
+#379:
 ##define [[smiley()]]:##
 smiley <- function(smile = 0.8){
   if(is.factor(smile)) smile <- as.numeric(smile) / length(levels(smile))
@@ -2077,10 +2112,10 @@ smiley <- function(smile = 0.8){
   return(res)
 }
 ##:define [[smiley()]]##
-#:377
+#:379
 h <- "internal generator function"
   
-#373:
+#375:
 ##define [[smiley.sad()]]:##
 smiley.sad <- function(){
   # output: x0, y0, x1, y1, lwd, col 
@@ -2101,10 +2136,10 @@ smiley.sad <- function(){
   class(res) <- "segments"; res
 } # ; show.icon.design(smiley.sad)
 ##:define [[smiley.sad()]]##
-#:373
+#:375
 h <- "internal generator function"
   
-#381:
+#383:
 ##define [[mazz.man()]]:##
 mazz.man <- function(Mean = 100, Penalty = 1, Region = "region:", 
                      expo = 1/(1:3)[3], Mean.max = 107, Mean.half = 90, 
@@ -2141,10 +2176,10 @@ mazz.man <- function(Mean = 100, Penalty = 1, Region = "region:",
   # res1 <- rbind(c(0,0,100,100)); class(res1)<-c("segments"); res1 <- list(res1) 
   # res2 <- rbind(c(100,0,0,100)); class(res2)<-c("segments"); res2 <- list(res2) 
 ##:define [[mazz.man()]]##
-#:381
+#:383
 h <- "internal generator function"
   
-#389:
+#391:
 ##define [[bike()]]:##
 bike <- function(){
    res.liste <- NULL; a <- 1.5
@@ -2165,10 +2200,10 @@ bike <- function(){
    res.liste <- c(res.liste, list(res))
 }
 ##:define [[bike()]]##
-#:389
+#:391
 h <- "internal generator function"
   
-#390:
+#392:
 ##define [[bike2()]]:##
 bike2 <- function() {
    res.liste <- NULL; a <- 1.5
@@ -2188,10 +2223,10 @@ bike2 <- function() {
    res.liste <- c(res.liste, list(res))
 }
 ##:define [[bike2()]]##
-#:390
+#:392
 h <- "internal generator function"
   
-#391:
+#393:
 ##define [[heart()]]:##
 heart <- function(txt = "xy"){
    txt <- substring(paste(txt, " "), 1:2, 1:2)
@@ -2207,10 +2242,10 @@ heart <- function(txt = "xy"){
    result <- c(res1, res2, res3) 
 } # ; show.icon.design(heart)()
 ##:define [[heart()]]##
-#:391
+#:393
 h <- "internal generator function"
   
-#392:
+#394:
 ##define [[bend.sign()]]:##
 bend.sign <- function(txt = "xy"){
    txt <- substring(paste(txt, " "), 1:2, 1:2)
@@ -2245,10 +2280,10 @@ bend.sign <- function(txt = "xy"){
    result <- c(res, res1b, res2b) #, res1) 
 }  # ; show.icon.design(bike2)# bend.sign) #; bend.sign()
 ##:define [[bend.sign()]]##
-#:392
+#:394
 h <- "internal generator function"
   
-#398:
+#400:
 ##define [[fir.tree()]]:##
 fir.tree <- function(height = 1, width = 1, txt = ".....", t.cex.mm = 10){ 
   fac.x <- width * 100/60; fac.y <- height * 100/70
@@ -2278,10 +2313,10 @@ fir.tree <- function(height = 1, width = 1, txt = ".....", t.cex.mm = 10){
   res.liste
 }  # ; show.icon.design(fir.tree)
 ##:define [[fir.tree()]]##
-#:398
-#343:
+#:400
+#345:
 ##define [[find.smooth.curve()]] and [[find.brush.polygon()]]:##
-#342:
+#344:
 ##define [[bs.approx()]] and [[loess.approx()]]:##
 bs.approx <- function(x, y, x.new, degree = 3, knots = 10, df = NULL){
   # library(splines)                                          # check package splines
@@ -2304,7 +2339,7 @@ loess.approx <- function(x, y, x.new, span = 0.6, degree = 2){
   return(list(cbind(x, res.old), cbind(x.new, res.new)))
 }
 ##:define [[bs.approx()]] and [[loess.approx()]]##
-#:342
+#:344
 find.smooth.curve <- function(x.in, y.in, n.new = 100, method = c("bs", "loess")[1],
                               degree = 3, knots = 50, span = 0.75){
   if(is.matrix(x.in) || is.data.frame(x.in)){y.in <- x.in[,2]; x.in <- x.in[,1]} # check input
@@ -2332,10 +2367,10 @@ find.brush.polygon <- function(x, y, hwd = 10){
   rbind(xy, xy[1,])                                         # copy first point to the end
 }
 ##:define [[find.smooth.curve()]] and [[find.brush.polygon()]]##
-#:343
+#:345
 h <- "internal generator function"
   
-#406:
+#408:
 ##define [[comet()]]:##
 comet <- function(comet.color = NA){ 
   t2xy <- function(t,radius,init.angle=0) {
@@ -2430,10 +2465,10 @@ comet <- function(comet.color = NA){
   res.liste
 } # ; print(comet());  show.icon.design(comet)
 ##:define [[comet()]]##
-#:406
+#:408
 h <- "internal generator function"
   
-#337:
+#339:
 ##define [[coor.system()]]:##
 coor.system <- function(xxx, yyy, pcex = 5, xrange, yrange, axes = FALSE){ 
   shift <- 0.5; lwd <- .25
@@ -2483,9 +2518,9 @@ coor.system <- function(xxx, yyy, pcex = 5, xrange, yrange, axes = FALSE){
   res.list
 }  ; coor.system()
 ##:define [[coor.system()]]##
-#:337
+#:339
 ##:define generator functions##
-#:351
+#:353
   if( icon %in% ls() ) icon <- get(icon)
   if( !is.function(icon) ) {
     cat("Error in puticon():", icon,"not implemented yet!")
@@ -2493,7 +2528,7 @@ coor.system <- function(xxx, yyy, pcex = 5, xrange, yrange, axes = FALSE){
   }
 }
 ##:if [[is.character(icon)]] look for internal generator in [[puticon()]]##
-#:311
+#:313
   if( !is.function(icon) ){ # then: icon is not a generator function
     if( is.list(icon) ){
       txt <- c("icon <- function(){", deparse(icon), "}")
@@ -2508,9 +2543,9 @@ coor.system <- function(xxx, yyy, pcex = 5, xrange, yrange, axes = FALSE){
   icon.gen.args  <- formals(icon)
   n.icon.gen.args <- length(icon.gen.args)
 ##:check pictogram generating function in [[puticon()]]##
-#:301
+#:303
   
-#302:
+#304:
 ##extract additional args in [[puticon()]]:##
   args <- list(); n.args <- 0 # no additional args to concern
   if( n.icon.gen.args > 0 ){ 
@@ -2532,9 +2567,9 @@ coor.system <- function(xxx, yyy, pcex = 5, xrange, yrange, axes = FALSE){
     }
   } # relevant args found and expanded
 ##:extract additional args in [[puticon()]]##
-#:302
+#:304
   
-#303:
+#305:
 ##call icon without arguments in case of no args in [[puticon()]]:##
   if( 0 == n.args ){ 
     pic.sets <- try(do.call(icon, args)) 
@@ -2544,14 +2579,14 @@ coor.system <- function(xxx, yyy, pcex = 5, xrange, yrange, axes = FALSE){
     if( !is.list(pic.sets) || is.data.frame(pic.sets) ) pic.sets <- list(pic.sets)
   }
 ##:call icon without arguments in case of no args in [[puticon()]]##
-#:303
+#:305
   
-#304:
+#306:
 ##loop along the positions in [[puticon()]]:##
   type.set <- c("polygon", "segments", "text", "spline") # constant vector
   for(i in 1:n.items){        # loop along each of the positions: xy[i, ]   
     
-#305:
+#307:
 ##compute [[pic.sets]] in case of arguments in [[puticon()]]:##
     if( 0 < n.args ){
       # call pictogram generating function with element i of each of the args-vectors
@@ -2564,14 +2599,14 @@ coor.system <- function(xxx, yyy, pcex = 5, xrange, yrange, axes = FALSE){
       if( !is.list(pic.sets) || is.data.frame(pic.sets) ) pic.sets <- list(pic.sets)
     }
 ##:compute [[pic.sets]] in case of arguments in [[puticon()]]##
-#:305
+#:307
     
     for( pic.i in pic.sets ){ # loop along the elements of pic.sets
       # find type (last element of class vector) and dimensions of pic.i
       type <- rev(class(pic.i))[1]; type <- type[ type %in% type.set ]
       h <- dim(pic.i); rows.pic.i <- h[1]; cols.pic.i <- h[2] # s
       
-#306:
+#308:
 ##add missing colums in [[puticon()]]:##
 if( type == "polygon" ){
   if( cols.pic.i < 3 ) pic.i <- cbind( pic.i, color.vec = NA )
@@ -2589,9 +2624,9 @@ if( type == "spline" ){
   if( cols.pic.i < 4 ) pic.i <- cbind( pic.i, color.vec = NA )
 }
 ##:add missing colums in [[puticon()]]##
-#:306
+#:308
       
-#307:
+#309:
 ##prepare colors in [[puticon()]]:##
 # cat("--- prepare colors -------------")
 # print(type); print(type.set); print(pic.i); print(cols.pic.i)
@@ -2605,9 +2640,9 @@ if(is.numeric(color.vec)) color.vec <- c("white", palette("default"))[1+color.ve
 # replace NA entries by argument color[i] of puticon call
 res.color <- ifelse( is.na(color.vec), color[i], color.vec ) 
 ##:prepare colors in [[puticon()]]##
-#:307
+#:309
       
-#308:
+#310:
 ##transform coordinates in [[puticon()]]:##
       n.cols <- c(2, 4, 2, 2)[ match(type, type.set) ]
       adj.h <- matrix( adj, nrow(pic.i), n.cols, byrow = TRUE ) #180327
@@ -2620,9 +2655,9 @@ res.color <- ifelse( is.na(color.vec), color[i], color.vec )
              matrix(xy[i,],                       rows.pic.i, n.cols, byrow = TRUE)
  
 ##:transform coordinates in [[puticon()]]##
-#:308
+#:310
       
-#310:
+#312:
 ##activate plotting commands in [[puticon()]]:##
       switch(type, 
         "polygon"  = polygon (res[,1], res[,2], col = res.color, xpd = NA, border = NA),
@@ -2644,12 +2679,12 @@ res.color <- ifelse( is.na(color.vec), color[i], color.vec )
         }
       )
 ##:activate plotting commands in [[puticon()]]##
-#:310
+#:312
     }
   } # end of loop along the positions
 ##:loop along the positions in [[puticon()]]##
-#:304
+#:306
   return(NULL) 
 }
-#:275
+#:276
 ##:define [[puticon()]]##

@@ -213,13 +213,25 @@
     relative space between two icons.
 }
   \item{icon.grey.levels}{
-    controls the coloring of icons of class raster or images. 
-    If \code{icon.grey.levels} is of length 1 and if it is an integer 
-    the argument defines the number of color- or grey-levels of the icons. 
-    If \code{icon.grey.levels} consists of two or more 
-    values between 0 and 1 they are interpreted as grey limits. 
-    Level 0 represents \code{"black"}, and 1 indicates the maximal brightness.
-    The default setting generates one color only (besides black and white).   
+   controls the coloring of icons of class raster or images. 
+   An image from a file is transformed to black-and-white and then recolored by 
+   \code{color}; if \code{is.na(color)} the original image is used.
+   \code{icon.grey.levels} defines the grey levels of the black-and-white image as well as 
+   the recoloring.
+   If \code{icon.grey.levels} is a single decimal value and is in (0,1) the pixels 
+   which levels are greater than \code{icon.grey.levels} are recolored by \code{color}.
+   If \code{icon.grey.levels} is a single decimal value and is in (-1,0) the pixels 
+   which levels are less than \code{abs(icon.grey.levels)} are recolored by \code{color}.
+   If \code{icon.grey.levels} consists of two decimal values in (0,1) pixels 
+   which level are within the intervall of the values are recolored by \code{color}.
+   If \code{icon.grey.levels} is an integer \code{icon.grey.levels > 1} a vector of 
+   equal spaced fractions in (0,1) is created.
+   If \code{icon.grey.levels} is an integer \code{icon.grey.levels < -1} a vector of 
+   limits in (0,1)
+   is created in a way that the observed frequencies of the classes defined by the 
+   limits are equal.
+   If \code{icon.grey.levels} is a vector and \code{all(icon.grey.levels < 1)} 
+   \code{puticon} tries to create different intensities of \code{color} for recoloring pixels.
 } 
   \item{icon.frame}{
     logical, if \code{TRUE} a border is drawn around each of the pictograms.
@@ -427,7 +439,7 @@
   that the function works as described on all types of graphics devices. 
   In case of errors feel free to write a mail.
   Additional information and examples are found on the web page\cr
-  \url{http://www.wiwi.uni-bielefeld.de/lehrbereiche/statoekoinf/comet/wolf/wolf_aplpack}.
+  \url{https://www.uni-bielefeld.de/fakultaeten/wirtschaftswissenschaften/fakultaet/lehrende-ehemalige/pwolf/wolf_aplpack/index.xml}.
 }
 %% ~Make other sections like Warning with \section{Warning }{....} ~
 \seealso{
